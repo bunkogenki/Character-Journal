@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Character Journal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f6f5ff;color:#1a1a1a;min-height:100vh}
+
+/* Header */
+.header{background:white;border-bottom:1px solid #ede9fe;padding:0.9rem 1rem;position:sticky;top:0;z-index:50}
+.header-inner{max-width:920px;margin:0 auto}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.site-title{font-size:19px;font-weight:700;color:#4c1d95;white-space:nowrap}
+.header-actions{display:flex;gap:8px;align-items:center}
+#search{width:100%;padding:8px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;background:white;color:#1a1a1a}
+#search:focus{outline:none;border-color:#7c3aed}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding-top:8px}
+.pill{padding:5px 13px;border-radius:20px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.pill:hover{border-color:#7c3aed;color:#7c3aed}
+.pill.active{background:#7c3aed;color:white;border-color:#7c3aed}
+
+/* Main */
+.main{max-width:920px;margin:0 auto;padding:1rem}
+.count-label{font-size:12px;color:#aaa;margin-bottom:10px}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+
+/* Cards */
+.card{background:white;border-radius:14px;padding:1rem;cursor:pointer;border:1px solid #ede9fe;transition:box-shadow 0.2s,transform 0.15s}
+.card:hover{box-shadow:0 6px 20px rgba(124,58,237,0.12);transform:translateY(-2px)}
+.card-img{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;overflow:hidden;flex-shrink:0}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-name{font-size:14px;font-weight:600;text-align:center;margin-bottom:3px;line-height:1.3}
+.card-kanji{font-size:13px;color:#888;text-align:center;margin-bottom:7px;font-weight:400}
+.card-cat-wrap{text-align:center;margin-bottom:6px}
+.badge{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500;display:inline-block}
+.card-stars{text-align:center;font-size:13px;color:#f59e0b;margin-bottom:6px;letter-spacing:1px}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.tag{font-size:10px;padding:2px 8px;border-radius:20px;background:#f5f3ff;color:#7c3aed;border:1px solid #ede9fe}
+
+/* Overlay + Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+.modal{background:white;border-radius:18px;width:100%;max-width:500px;padding:1.5rem;position:relative;max-height:92vh;overflow-y:auto}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:22px;cursor:pointer;color:#bbb;line-height:1;padding:0}
+.modal-close:hover{color:#666}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:1.1rem;color:#4c1d95}
+
+/* Form */
+.field{margin-bottom:0.85rem}
+.field label{display:block;font-size:12px;color:#888;margin-bottom:4px;font-weight:500;letter-spacing:0.02em}
+.field input,.field textarea,.field select{width:100%;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;background:white;color:#1a1a1a;transition:border-color 0.15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#7c3aed}
+.field textarea{min-height:90px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.img-row{display:flex;gap:10px;align-items:flex-start;margin-top:4px}
+.img-preview-box{width:60px;height:60px;border-radius:50%;background:#f5f3ff;border:1px solid #ede9fe;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.img-preview-box img{width:100%;height:100%;object-fit:cover;display:none}
+.img-preview-box .placeholder-icon{font-size:22px;color:#c4b5fd}
+.img-inputs{flex:1;display:flex;flex-direction:column;gap:6px}
+
+/* Star rating */
+.star-input{display:flex;gap:6px;margin-top:4px}
+.star-input span{font-size:24px;cursor:pointer;color:#d1d5db;line-height:1;transition:color 0.1s}
+.star-input span.on{color:#f59e0b}
+.star-input span:hover{color:#fbbf24}
+
+/* Buttons */
+.btn{padding:9px 16px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid #e0e0e0;background:white;color:#1a1a1a;transition:all 0.15s;font-family:inherit}
+.btn:hover{background:#f9f9f9}
+.btn-primary{background:#7c3aed;color:white;border-color:#7c3aed}
+.btn-primary:hover{background:#6d28d9}
+.btn-danger{color:#dc2626;border-color:#fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn-row{display:flex;gap:8px;margin-top:0.5rem}
+.btn-row .btn{flex:1}
+.add-btn{padding:8px 16px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:#7c3aed;color:white;transition:background 0.15s}
+.add-btn:hover{background:#6d28d9}
+.menu-btn{padding:7px 10px;border-radius:8px;border:1px solid #e0e0e0;background:white;cursor:pointer;font-size:16px;line-height:1}
+.menu-btn:hover{background:#f5f3ff}
+
+/* Detail view */
+.detail-top{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem}
+.detail-avatar{width:84px;height:84px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;overflow:hidden}
+.detail-avatar img{width:100%;height:100%;object-fit:cover}
+.detail-name{font-size:20px;font-weight:700;line-height:1.2;color:#1a1a1a}
+.detail-kanji{font-size:15px;color:#888;margin-top:3px}
+.detail-stars{color:#f59e0b;margin-top:6px;font-size:15px;letter-spacing:1px}
+.detail-source{font-size:13px;color:#888;margin-bottom:6px}
+.detail-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.detail-note{background:#faf8ff;border:1px solid #ede9fe;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.7;color:#1a1a1a;margin-bottom:1rem}
+.divider{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
+
+/* FAB */
+.fab{display:none;position:fixed;bottom:1.5rem;right:1.5rem;width:58px;height:58px;border-radius:50%;background:#7c3aed;color:white;font-size:28px;border:none;cursor:pointer;z-index:40;box-shadow:0 4px 16px rgba(124,58,237,0.5);align-items:center;justify-content:center;line-height:1}
+.fab:active{transform:scale(0.95)}
+
+/* Empty */
+.empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:#bbb}
+.empty-icon{font-size:48px;margin-bottom:0.75rem}
+.empty p{font-size:15px}
+
+/* Settings */
+.settings-section{font-size:11px;font-weight:600;color:#aaa;letter-spacing:0.08em;text-transform:uppercase;margin:1rem 0 0.5rem}
+.settings-row{display:flex;gap:8px;flex-wrap:wrap}
+
+hr.divider{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
+
+@media(max-width:580px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px}
+  .form-row{grid-template-columns:1fr}
+  .fab{display:flex}
+  .add-btn{display:none}
+  .modal{padding:1.25rem;border-radius:14px}
+  .site-title{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="site-title" id="site-title-el">✦ My Journal</div>
+      <div class="header-actions">
+        <button class="add-btn" onclick="openAdd()">+ Add</button>
+        <button class="menu-btn" onclick="openMenu()" title="Settings">⋯</button>
+      </div>
+    </div>
+    <input type="text" id="search" placeholder="Search by name, kanji, show, tag…" oninput="render()">
+    <div class="filters" id="filters"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="count-label" id="count-label"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<button class="fab" onclick="openAdd()">+</button>
+<div id="modal-root"></div>
+
+<script>
+/* ── Palette ───────────────────────────────────────── */
+const PALETTES=[
+  ['#ede9fe','#4c1d95'],['#d1fae5','#064e3b'],['#fce7f3','#831843'],
+  ['#fef3c7','#78350f'],['#dbeafe','#1e3a8a'],['#ffe4e6','#881337'],
+  ['#f0fdf4','#14532d'],['#fff7ed','#7c2d12'],['#f0f9ff','#0c4a6e'],
+  ['#fdf4ff','#581c87'],['#ecfdf5','#022c22'],['#fef9c3','#713f12'],
+];
+
+const DEFAULT_CATS=[
+  'Anime character','VTuber / Streamer','Musician',
+  'Actor / Celebrity','Fictional character','Athlete','Other'
+];
+
+/* ── Storage ───────────────────────────────────────── */
+function loadDB(){
+  try{return JSON.parse(localStorage.getItem('cj_v2')||'null')||{};}
+  catch(e){return{};}
+}
+function saveDB(d){localStorage.setItem('cj_v2',JSON.stringify(d));}
+function getDB(){
+  const d=loadDB();
+  if(!Array.isArray(d.entries))d.entries=[];
+  if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];
+  if(!d.title)d.title='My Journal';
+  if(typeof d.nextId!=='number')d.nextId=1;
+  return d;
+}
+
+/* ── Helpers ───────────────────────────────────────── */
+function initials(n){return(n||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();}
+function pal(id){return PALETTES[(id||0)%PALETTES.length];}
+function stars(n){return'★'.repeat(n||0)+'☆'.repeat(5-(n||0));}
+function catPal(cat,cats){const i=cats.indexOf(cat);return PALETTES[(i>=0?i:0)%PALETTES.length];}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── State ─────────────────────────────────────────── */
+let activeFilter='All';
+let editRating=3;
+
+/* ── Render ────────────────────────────────────────── */
+function render(){
+  const db=getDB();
+  const q=(document.getElementById('search').value||'').toLowerCase();
+
+  document.getElementById('site-title-el').textContent='✦ '+db.title;
+
+  const usedCats=[...new Set(db.entries.map(e=>e.cat))];
+  const filterCats=['All',...usedCats];
+  if(!filterCats.includes(activeFilter))activeFilter='All';
+
+  document.getElementById('filters').innerHTML=filterCats.map(f=>
+    `<div class="pill${activeFilter===f?' active':''}" onclick="setFilter(${JSON.stringify(f)})">${esc(f)}</div>`
+  ).join('');
+
+  let list=db.entries.filter(e=>{
+    const mf=activeFilter==='All'||e.cat===activeFilter;
+    if(!q)return mf;
+    const hay=[e.name,e.kanji,e.source,e.note,...(e.tags||[])].join(' ').toLowerCase();
+    return mf&&hay.includes(q);
+  });
+
+  document.getElementById('count-label').textContent=list.length+' entr'+(list.length===1?'y':'ies');
+
+  if(!list.length){
+    document.getElementById('grid').innerHTML=`<div class="empty">
+      <div class="empty-icon">${db.entries.length?'🔍':'✨'}</div>
+      <p>${db.entries.length?'No results. Try a different search.':'No entries yet — hit + Add to get started!'}</p>
+    </div>`;
+    return;
+  }
+
+  document.getElementById('grid').innerHTML=list.map(e=>{
+    const[bg,fg]=pal(e.id);
+    const[cbg,cfg]=catPal(e.cat,db.cats);
+    const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
+    const inits=initials(e.name);
+    return`<div class="card" onclick="openDetail(${e.id})">
+      <div class="card-img" style="background:${bg};color:${fg}">${av||inits}</div>
+      <div class="card-name">${esc(e.name)}</div>
+      ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
+      <div class="card-cat-wrap"><span class="badge" style="background:${cbg};color:${cfg}">${esc(e.cat)}</span></div>
+      <div class="card-stars">${stars(e.rating)}</div>
+      <div class="card-tags">${(e.tags||[]).slice(0,4).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(f){activeFilter=f;render();}
+
+/* ── Detail ────────────────────────────────────────── */
+function openDetail(id){
+  const db=getDB();
+  const e=db.entries.find(x=>x.id===id);
+  if(!e)return;
+  const[bg,fg]=pal(e.id);
+  const[cbg,cfg]=catPal(e.cat,db.cats);
+  const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
+  showModal(`
+    <div class="detail-top">
+      <div class="detail-avatar" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+      <div>
+        <div class="detail-name">${esc(e.name)}</div>
+        ${e.kanji?`<div class="detail-kanji">${esc(e.kanji)}</div>`:''}
+        <div style="margin-top:6px"><span class="badge" style="background:${cbg};color:${cfg}">${esc(e.cat)}</span></div>
+        <div class="detail-stars">${stars(e.rating)}</div>
+      </div>
+    </div>
+    ${e.source?`<div class="detail-source">Appears in: <strong>${esc(e.source)}</strong></div>`:''}
+    ${(e.tags||[]).length?`<div class="detail-tags">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:''}
+    ${e.note?`<div class="detail-note">${esc(e.note).replace(/\n/g,'<br>')}</div>`:''}
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="openEdit(${e.id})">Edit entry</button>
+      <button class="btn" onclick="closeModal()">Close</button>
+    </div>
+  `);
+}
+
+/* ── Add / Edit forms ──────────────────────────────── */
+function openAdd(){
+  const db=getDB();
+  editRating=3;
+  showModal(`
+    <div class="modal-title">New entry</div>
+    ${formFields(null,db.cats)}
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveNew()">Save entry</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+function openEdit(id){
+  const db=getDB();
+  const e=db.entries.find(x=>x.id===id);
+  if(!e)return;
+  editRating=e.rating||3;
+  showModal(`
+    <div class="modal-title">Edit entry</div>
+    ${formFields(e,db.cats)}
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEdit(${id})">Save changes</button>
+      <button class="btn btn-danger" onclick="deleteEntry(${id})">Delete</button>
+    </div>
+  `);
+}
+
+function formFields(e,cats){
+  const rv=e?e.rating:3;
+  const starHtml=[1,2,3,4,5].map(n=>`<span class="${n<=rv?'on':''}" onclick="setRating(${n})">${n<=rv?'★':'☆'}</span>`).join('');
+  const catOpts=cats.map(c=>`<option${e&&e.cat===c?' selected':''}>${esc(c)}</option>`).join('');
+  const imgSrc=e&&e.img?esc(e.img):'';
+  const imgUrlVal=e&&e.img&&!e.img.startsWith('data:')?esc(e.img):'';
+  return`
+    <div class="form-row">
+      <div class="field"><label>Name *</label><input id="f-name" value="${e?esc(e.name):''}" placeholder="e.g. Gojo Satoru"></div>
+      <div class="field"><label>Kanji / Japanese name</label><input id="f-kanji" value="${e?esc(e.kanji||''):''}" placeholder="e.g. 五条悟"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Source (show, group…)</label><input id="f-source" value="${e?esc(e.source||''):''}" placeholder="e.g. Jujutsu Kaisen"></div>
+      <div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div>
+    </div>
+    <div class="field">
+      <label>Image</label>
+      <div class="img-row">
+        <div class="img-preview-box" id="img-preview-box">
+          <img id="img-preview" src="${imgSrc}" alt="" style="${imgSrc?'display:block':'display:none'}">
+          <span class="placeholder-icon" id="img-placeholder" style="${imgSrc?'display:none':''}">🖼</span>
+        </div>
+        <div class="img-inputs">
+          <input id="f-img-url" placeholder="Paste image URL…" value="${imgUrlVal}" oninput="onUrlInput()">
+          <div style="font-size:11px;color:#bbb;text-align:center">— or upload from device —</div>
+          <input type="file" id="f-img-file" accept="image/*" style="font-size:13px" onchange="onFileInput()">
+        </div>
+      </div>
+    </div>
+    <div class="field"><label>Rating</label><div class="star-input" id="star-row">${starHtml}</div></div>
+    <div class="field"><label>Tags (comma separated)</label><input id="f-tags" value="${e?(e.tags||[]).join(', '):''}" placeholder="fav, funny, oshi…"></div>
+    <div class="field"><label>Notes / description</label><textarea id="f-note" placeholder="What do you love about them? Any fun details…">${e?esc(e.note||''):''}</textarea></div>
+  `;
+}
+
+/* ── Image handling ────────────────────────────────── */
+function setPreview(src){
+  const img=document.getElementById('img-preview');
+  const ph=document.getElementById('img-placeholder');
+  if(src){img.src=src;img.style.display='block';if(ph)ph.style.display='none';}
+  else{img.src='';img.style.display='none';if(ph)ph.style.display='';}
+}
+
+function onUrlInput(){
+  const url=(document.getElementById('f-img-url').value||'').trim();
+  setPreview(url||'');
+}
+
+function onFileInput(){
+  const file=document.getElementById('f-img-file').files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const imgEl=new Image();
+    imgEl.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=320;
+      let w=imgEl.width,h=imgEl.height;
+      if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+      else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(imgEl,0,0,w,h);
+      const data=canvas.toDataURL('image/jpeg',0.85);
+      document.getElementById('f-img-url').value='';
+      setPreview(data);
+    };
+    imgEl.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function getFormImg(){
+  const prev=document.getElementById('img-preview');
+  if(prev&&prev.style.display!=='none'&&prev.src&&!prev.src.endsWith(window.location.href))return prev.src;
+  return'';
+}
+
+/* ── Star rating ───────────────────────────────────── */
+function setRating(n){
+  editRating=n;
+  const row=document.getElementById('star-row');
+  if(!row)return;
+  row.querySelectorAll('span').forEach((s,i)=>{
+    const on=i<n;
+    s.className=on?'on':'';
+    s.textContent=on?'★':'☆';
+  });
+}
+
+/* ── Collect form ──────────────────────────────────── */
+function collectForm(){
+  return{
+    name:(document.getElementById('f-name').value||'').trim(),
+    kanji:(document.getElementById('f-kanji').value||'').trim(),
+    source:(document.getElementById('f-source').value||'').trim(),
+    cat:document.getElementById('f-cat').value,
+    img:getFormImg(),
+    rating:editRating,
+    tags:(document.getElementById('f-tags').value||'').split(',').map(t=>t.trim()).filter(Boolean),
+    note:(document.getElementById('f-note').value||'').trim(),
+  };
+}
+
+function saveNew(){
+  const f=collectForm();
+  if(!f.name){alert('Please enter a name!');return;}
+  const db=getDB();
+  db.entries.push({...f,id:db.nextId++});
+  saveDB(db);closeModal();render();
+}
+
+function saveEdit(id){
+  const f=collectForm();
+  if(!f.name){alert('Please enter a name!');return;}
+  const db=getDB();
+  const i=db.entries.findIndex(x=>x.id===id);
+  if(i>=0)db.entries[i]={...db.entries[i],...f};
+  saveDB(db);closeModal();render();
+}
+
+function deleteEntry(id){
+  if(!confirm('Delete this entry? This cannot be undone.'))return;
+  const db=getDB();
+  db.entries=db.entries.filter(x=>x.id!==id);
+  saveDB(db);closeModal();render();
+}
+
+/* ── Menu / Settings ───────────────────────────────── */
+function openMenu(){
+  const db=getDB();
+  showModal(`
+    <div class="modal-title">Settings & Tools</div>
+    <div class="field">
+      <label>Journal title</label>
+      <input id="m-title" value="${esc(db.title)}" placeholder="My Journal">
+    </div>
+    <div class="field">
+      <label>Categories (one per line — add your own!)</label>
+      <textarea id="m-cats" style="min-height:140px">${db.cats.map(esc).join('\n')}</textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:0">
+      <button class="btn btn-primary" onclick="saveSettings()">Save settings</button>
+    </div>
+    <hr class="divider">
+    <div class="settings-section">Backup & Restore</div>
+    <p style="font-size:12px;color:#aaa;margin-bottom:8px">Export regularly to avoid losing data if you clear your browser.</p>
+    <div class="settings-row">
+      <button class="btn" onclick="exportData()">Export backup (.json)</button>
+      <button class="btn" onclick="document.getElementById('import-input').click()">Import backup</button>
+    </div>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+  `);
+}
+
+function saveSettings(){
+  const db=getDB();
+  db.title=(document.getElementById('m-title').value||'My Journal').trim();
+  const rawCats=(document.getElementById('m-cats').value||'').split('\n').map(c=>c.trim()).filter(Boolean);
+  db.cats=rawCats.length?rawCats:[...DEFAULT_CATS];
+  saveDB(db);closeModal();render();
+}
+
+function exportData(){
+  const db=getDB();
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='character-journal-backup.json';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+function importData(ev){
+  const file=ev.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!Array.isArray(d.entries))throw new Error();
+      if(confirm(`Import ${d.entries.length} entries? Your current data will be replaced.`)){
+        saveDB(d);closeModal();render();
+      }
+    }catch{alert('Could not read backup file. Make sure it is a valid journal backup.');}
+  };
+  reader.readAsText(file);
+}
+
+/* ── Modal ─────────────────────────────────────────── */
+function showModal(html){
+  document.getElementById('modal-root').innerHTML=`
+    <div class="overlay" id="overlay" onclick="overlayClick(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        ${html}
+      </div>
+    </div>`;
+}
+
+function closeModal(){document.getElementById('modal-root').innerHTML='';}
+function overlayClick(e){if(e.target.id==='overlay')closeModal();}
+
+/* ── Init ──────────────────────────────────────────── */
+render();
+</script>
+</body>
+</html>
