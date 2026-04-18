@@ -865,12 +865,54 @@ function openMenu(){
       <button class="btn" onclick="exportData()">Export backup (.json)</button>
       <button class="btn" onclick="document.getElementById('imp-inp').click()">Import backup</button>
     </div>
-    <input type="file" id="imp-inp" accept=".json" style="display:none" onchange="importData(event)">
+    <input type="file" id="imp-inp" accept=".json,application/json,text/plain,text/*" style="display:none" onchange="importData(event)">
   </div></div>`;
 }
 function saveSettings(){const db=getDB();db.title=(document.getElementById('m-title').value||'My Journal').trim();const rawCats=(document.getElementById('m-cats').value||'').split('\n').map(c=>c.trim()).filter(Boolean);db.cats=rawCats.length?rawCats:[...DEFAULT_CATS];saveDB(db);closeModal();}
 function exportData(){const db=getDB();const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='character-journal-backup.json';a.click();URL.revokeObjectURL(a.href);}
-function importData(ev){const file=ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{try{const d=JSON.parse(e.target.result);if(!Array.isArray(d.entries))throw 0;if(confirm(`Import ${d.entries.length} entries? This replaces all current data.`)){saveDB(d);closeModal();}}catch{alert('Could not read backup file.');}};reader.readAsText(file);}
+function importData(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onerror=()=>alert('Could not read the file. Try again or use a different browser.');
+  reader.onload=e=>{
+    try{
+      // Strip BOM (iOS adds this), trim whitespace, handle wrapped text
+      let text=(e.target.result||'');
+      text=text.replace(/^\uFEFF/,'').replace(/^\u00EF\u00BB\u00BF/,'').trim();
+      // Some mobile browsers wrap the content in quotes — unwrap if needed
+      if(text.startsWith('"')&&text.endsWith('"')){try{text=JSON.parse(text);}catch(e){}}
+      let d;
+      try{d=JSON.parse(text);}
+      catch(parseErr){
+        alert('The file could not be parsed as JSON.\n\nTip: Make sure you are selecting the .json file exported from this app, not a screenshot or other file.\n\nError: '+parseErr.message);
+        return;
+      }
+      if(!d||typeof d!=='object'||!Array.isArray(d.entries)){
+        alert('This file does not look like a valid journal backup. Make sure you exported it from this app using "Export backup".');
+        return;
+      }
+      if(!confirm(`Import ${d.entries.length} entr${d.entries.length===1?'y':'ies'}? This will replace all your current data.`))return;
+      try{
+        saveDB(d);
+        closeModal();
+      }catch(storageErr){
+        // Quota exceeded — try importing without embedded images
+        if(storageErr.name==='QuotaExceededError'||storageErr.code===22){
+          if(confirm('Your backup is too large to fit in browser storage (likely due to uploaded images).\n\nWould you like to import just the text data (names, notes, links etc.) without the images? You can re-add images manually afterwards.')){
+            const stripped={...d,entries:d.entries.map(e=>({...e,img:'',gallery:(e.gallery||[]).map(g=>({...g,src:g.src&&g.src.startsWith('data:')?'':g.src}))}))};
+            try{saveDB(stripped);closeModal();}
+            catch(e2){alert('Still too large. Try clearing some browser data and trying again.');}
+          }
+        }else{
+          alert('Import failed: '+storageErr.message);
+        }
+      }
+    }catch(outerErr){
+      alert('Something went wrong: '+outerErr.message);
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
 
 async function requestNotifPermission(){
   if(!('Notification' in window)){alert('Your browser does not support notifications.');return;}
