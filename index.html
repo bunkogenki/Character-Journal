@@ -212,7 +212,7 @@ const DEFAULT_CATS=['Anime character','VTuber / Streamer','Musician','Actor / Ce
 ═══════════════════════════════════════ */
 function loadDB(){try{return JSON.parse(localStorage.getItem('cj_v3')||'null')||{};}catch(e){return{};}}
 function saveDB(d){localStorage.setItem('cj_v3',JSON.stringify(d));}
-function getDB(){const d=loadDB();if(!Array.isArray(d.entries))d.entries=[];if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='My Journal';if(typeof d.nextId!=='number')d.nextId=1;return d;}
+function getDB(){const d=loadDB();if(!Array.isArray(d.entries))d.entries=[];if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=1;return d;}
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -813,7 +813,7 @@ function openMenu(){
 }
 function saveSettings(){
   const db=getDB();
-  db.title=(document.getElementById('m-title').value||'My Journal').trim();
+  db.title=(document.getElementById('m-title').value||'Character Journal').trim();
   const rawCats=(document.getElementById('m-cats').value||'').split('\n').map(c=>c.trim()).filter(Boolean);
   db.cats=rawCats.length?rawCats:[...DEFAULT_CATS];
   saveDB(db);closeModal();
