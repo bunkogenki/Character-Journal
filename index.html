@@ -348,11 +348,14 @@ function parseBirthday(str){
   }
   return null;
 }
-function calcAge(birthYear,birthday,noAge){
-  if(noAge||!birthYear||!birthday)return null;
-  const bd=parseBirthday(birthday);if(!bd)return null;
+function calcAge(birthYear,birthday,freezeAge){
+  if(!birthYear)return null;
   const now=new Date();
-  let age=now.getFullYear()-parseInt(birthYear);
+  const rawAge=now.getFullYear()-parseInt(birthYear);
+  if(rawAge<0)return null;
+  if(freezeAge||!birthday)return rawAge;
+  const bd=parseBirthday(birthday);if(!bd)return rawAge;
+  let age=rawAge;
   if(now<new Date(now.getFullYear(),bd.month-1,bd.day))age--;
   return age>=0?age:null;
 }
@@ -472,7 +475,7 @@ function cardHTML(e,cats){
   const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id);
   const[cbg,cfg]=catPal(e.cat,cats);
   const aff=affData(e.affinity);
-  const age=calcAge(e.birthYear,e.birthday,e.noAge);
+  const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
   return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})">
     <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
@@ -555,7 +558,7 @@ function updateCalGridOnly(){
     const isToday=isThisMonth&&d===todayD;
     const chips=(dayMap[d]||[]).map(e=>{
       const bg=e.hexColor||'#7c3aed';const fg=e.hexColor?contrastColor(e.hexColor):'#fff';
-      const age=calcAge(e.birthYear,e.birthday,e.noAge);
+      const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
       const ageStr=age!==null?` (${age+1})`:'';
       return`<span class="cal-chip" style="background:${bg};color:${fg}" onclick="go('detail',${e.id},true)">${esc(e.name)}${ageStr}</span>`;
     }).join('');
@@ -600,7 +603,7 @@ function calPageHTML(){
     const isToday=isThisMonth&&d===todayD;
     const chips=(dayMap[d]||[]).map(e=>{
       const bg=e.hexColor||'#7c3aed';const fg=e.hexColor?contrastColor(e.hexColor):'#fff';
-      const age=calcAge(e.birthYear,e.birthday,e.noAge);const ageStr=age!==null?` (${age+1})`:'';
+      const age=calcAge(e.birthYear,e.birthday,e.freezeAge);const ageStr=age!==null?` (${age+1})`:'';
       return`<span class="cal-chip" style="background:${bg};color:${fg}" onclick="go('detail',${e.id},true)">${esc(e.name)}${ageStr}</span>`;
     }).join('');
     cells+=`<div class="cal-cell${isToday?' today-cell':''}"><div class="cal-day-num">${d}</div>${chips}</div>`;
@@ -642,7 +645,7 @@ function detailPageHTML(id){
   const ytLinks=(e.links||[]).filter(l=>ytId(l.url));
   const backTarget=S.fromCal?`go('calendar')`:`go('grid')`;
   const backLabel=S.fromCal?'← Calendar':'← Journal';
-  const age=calcAge(e.birthYear,e.birthday,e.noAge);
+  const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const notifLabels=NOTIF_OPTS.filter(o=>(e.notifOptions||[]).includes(o.value)).map(o=>o.label);
   const gallSec=gallery.length?`<div class="detail-section"><div class="section-label">Gallery</div>
     <div class="gallery-grid">${gallery.map((item,i)=>`
@@ -720,9 +723,9 @@ function renderLB(){
 
   // mouse drag (desktop)
   let md=null;
-  imgEl.addEventListener('mousedown',ev=>{if(lbState.zoom<=1||ev.button!==0)return;md={sx:ev.clientX-lbState.panX,sy:ev.clientY-lbState.panY};ev.preventDefault();});
-  const mM=ev=>{if(!md)return;lbState.panX=ev.clientX-md.sx;lbState.panY=ev.clientY-md.sy;updateLBImg();};
-  const mU=()=>md=null;
+  wrap.addEventListener('mousedown',ev=>{if(lbState.zoom<=1||ev.button!==0)return;ev.preventDefault();md={sx:ev.clientX-lbState.panX,sy:ev.clientY-lbState.panY};});
+  const mM=ev=>{if(!md)return;lbState.panX=ev.clientX-md.sx;lbState.panY=ev.clientY-md.sy;updateLBImg();wrap.style.cursor='grabbing';};
+  const mU=()=>{md=null;wrap.style.cursor=lbState.zoom>1?'grab':'default';};
   window.addEventListener('mousemove',mM);window.addEventListener('mouseup',mU);
 
   // touch: pinch-zoom + pan + swipe nav
@@ -878,7 +881,7 @@ function formHTML(e,cats){
       <div class="notif-options">${notifBoxes}</div>
       ${notifPerm==='granted'?`<div class="notif-perm-note">✓ Browser notifications enabled.</div>`:notifPerm==='denied'?`<div class="notif-perm-note">Browser notifications blocked — in-app alerts still work.</div>`:`<div class="notif-perm-note">Want device notifications too?</div><button class="notif-perm-btn" type="button" onclick="requestNotifPerm()">Enable browser notifications</button>`}
     </div>
-    <label class="check-row"><input type="checkbox" id="f-noage" ${e&&e.noAge?'checked':''}> <span>Don't show age <span style="color:#bbb;font-weight:400">(for ageless / fictional characters)</span></span></label>
+    <label class="check-row"><input type="checkbox" id="f-freezeage" ${e&&e.freezeAge?'checked':''}> <span>Freeze age <span style="color:#bbb;font-weight:400">(show age from birth year but don't increment on birthday)</span></span></label>
     <div style="margin-bottom:.8rem"></div>
     <div class="field"><label>Height <span style="color:#bbb;font-weight:400">(optional)</span></label>
       <div class="height-row">
@@ -991,7 +994,7 @@ function collectForm(){
     affinity:document.getElementById('f-affinity').value,
     birthday:(document.getElementById('f-birthday').value||'').trim(),
     birthYear:(document.getElementById('f-birthyear').value||'').trim(),
-    noAge:!!(document.getElementById('f-noage')?.checked),
+    freezeAge:!!(document.getElementById('f-freezeage')?.checked),
     notifOptions:NOTIF_OPTS.map(o=>o.value).filter(v=>{const el=document.querySelector(`#notif-options-wrap input[value="${v}"]`)||document.querySelector(`.notif-check-label input[value="${v}"]`);return el?.checked;}),
     heightCm:getFormHeight(),
     hexColor:getFormColor(),
