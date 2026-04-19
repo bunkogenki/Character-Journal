@@ -559,7 +559,7 @@ function updateCalGridOnly(){
     const chips=(dayMap[d]||[]).map(e=>{
       const bg=e.hexColor||'#7c3aed';const fg=e.hexColor?contrastColor(e.hexColor):'#fff';
       const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
-      const ageStr=age!==null?` (${age+1})`:'';
+      const ageStr=age!==null?` (${e.freezeAge?age:age+1})`:'';
       return`<span class="cal-chip" style="background:${bg};color:${fg}" onclick="go('detail',${e.id},true)">${esc(e.name)}${ageStr}</span>`;
     }).join('');
     cells+=`<div class="cal-cell${isToday?' today-cell':''}"><div class="cal-day-num">${d}</div>${chips}</div>`;
@@ -603,7 +603,7 @@ function calPageHTML(){
     const isToday=isThisMonth&&d===todayD;
     const chips=(dayMap[d]||[]).map(e=>{
       const bg=e.hexColor||'#7c3aed';const fg=e.hexColor?contrastColor(e.hexColor):'#fff';
-      const age=calcAge(e.birthYear,e.birthday,e.freezeAge);const ageStr=age!==null?` (${age+1})`:'';
+      const age=calcAge(e.birthYear,e.birthday,e.freezeAge);const ageStr=age!==null?` (${e.freezeAge?age:age+1})`:'';
       return`<span class="cal-chip" style="background:${bg};color:${fg}" onclick="go('detail',${e.id},true)">${esc(e.name)}${ageStr}</span>`;
     }).join('');
     cells+=`<div class="cal-cell${isToday?' today-cell':''}"><div class="cal-day-num">${d}</div>${chips}</div>`;
