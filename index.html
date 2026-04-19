@@ -724,8 +724,9 @@ function renderLB(){
   // mouse drag (desktop)
   let md=null;
   wrap.addEventListener('mousedown',ev=>{if(lbState.zoom<=1||ev.button!==0)return;ev.preventDefault();md={sx:ev.clientX-lbState.panX,sy:ev.clientY-lbState.panY};});
-  const mM=ev=>{if(!md)return;lbState.panX=ev.clientX-md.sx;lbState.panY=ev.clientY-md.sy;updateLBImg();wrap.style.cursor='grabbing';};
-  const mU=()=>{md=null;wrap.style.cursor=lbState.zoom>1?'grab':'default';};
+  const mM=ev=>{if(!md)return;didDrag=true;lbState.panX=ev.clientX-md.sx;lbState.panY=ev.clientY-md.sy;updateLBImg();wrap.style.cursor='grabbing';};
+  let didDrag=false;
+  const mU=()=>{if(md&&didDrag)wrap.dataset.suppClick='1';md=null;didDrag=false;wrap.style.cursor=lbState.zoom>1?'grab':'default';};
   window.addEventListener('mousemove',mM);window.addEventListener('mouseup',mU);
 
   // touch: pinch-zoom + pan + swipe nav
@@ -767,7 +768,7 @@ function renderLB(){
   main.addEventListener('touchcancel',()=>{pinching=false;tS=null;},{passive:true});
 
   // close on bg click
-  main.addEventListener('click',ev=>{if(ev.target===main||ev.target===wrap)closeLB();});
+  main.addEventListener('click',ev=>{if(ev.target===wrap&&wrap.dataset.suppClick){delete wrap.dataset.suppClick;return;}if(ev.target===main||ev.target===wrap)closeLB();});
 
   // keyboard
   lbState._kh=ev=>{if(ev.key==='ArrowLeft')lbNav(-1);else if(ev.key==='ArrowRight')lbNav(1);else if(ev.key==='Escape')closeLB();};
