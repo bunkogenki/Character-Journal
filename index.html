@@ -103,6 +103,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .notif-text{flex:1;font-size:14px;line-height:1.5}
 .notif-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
 .notif-close:hover{color:white}
+/* connections */
+.conn-list{display:flex;flex-direction:column;gap:8px}
+.conn-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#faf8ff;border:1px solid #ede9fe;border-radius:12px;cursor:pointer;transition:background .15s;color:#1a1a1a}
+.conn-item:hover{background:#ede9fe}
+.conn-avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;overflow:hidden}
+.conn-avatar.sh-rounded{border-radius:9px}.conn-avatar.sh-square{border-radius:3px}
+.conn-avatar img{width:100%;height:100%;object-fit:cover}
+.conn-body{flex:1;min-width:0}
+.conn-label{font-size:11px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.conn-name{font-size:14px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conn-arr{color:#bbb;font-size:13px;flex-shrink:0}
+.conn-form-item{display:flex;gap:6px;align-items:center;margin-bottom:8px;padding:8px;background:#faf8ff;border:1px solid #ede9fe;border-radius:9px;flex-wrap:wrap}
+.conn-form-item input{width:130px;flex-shrink:0;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:white;color:#1a1a1a}
+.conn-form-item input:focus{outline:none;border-color:#7c3aed}
+.conn-form-item select{flex:1;min-width:120px;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:white;color:#1a1a1a}
+.conn-form-item select:focus{outline:none;border-color:#7c3aed}
+.g-artist{font-size:11px;color:#7c3aed;padding:3px 8px 5px;display:flex;align-items:center;gap:4px;cursor:pointer;background:white;transition:background .12s;-webkit-tap-highlight-color:transparent}
+.g-artist:hover{background:#f5f3ff}
+.g-artist-dot{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;overflow:hidden}
+.g-artist-dot img{width:100%;height:100%;object-fit:cover}
 /* lightbox */
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .lb-img-wrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab;position:relative;touch-action:none}
@@ -257,7 +277,7 @@ const AFFINITY=[
   {value:'hate',        label:'Hate',                short:'Hate',     bg:'#fee2e2',color:'#991b1b'},
   {value:'mixed',       label:'Mixed Feelings',      short:'Mixed',    bg:'#faf5ff',color:'#6b21a8'},
 ];
-const DEFAULT_CATS=['VTuber','Streamer','Utaite','Musician','Anime character','Game character','Fictional character','IRL friend','Online friend','Other'];
+const DEFAULT_CATS=['VTuber','Streamer','Utaite','Artist','Musician','Anime character','Game character','Fictional character','IRL friend','Online friend','Other'];
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const NOTIF_OPTS=[{value:'day_of',label:'Day of'},{value:'day_before',label:'Day before'},{value:'week_before',label:'Week before'},{value:'month_before',label:'Month before'}];
@@ -330,7 +350,7 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function affData(v){return AFFINITY.find(a=>a.value===v)||null;}
 function ytId(url){const m=(url||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/\s]+)/);return m?m[1]:null;}
 function lkIcon(url){if(ytId(url))return'▶';if(/twitter\.com|x\.com/.test(url))return'𝕏';if(/instagram\.com/.test(url))return'📷';if(/tiktok\.com/.test(url))return'♪';if(/twitch\.tv/.test(url))return'🎮';if(/spotify\.com/.test(url))return'♫';return'🔗';}
-function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:''}:x);}
+function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:'',artistId:null}:{src:x.src||'',caption:x.caption||'',artistId:x.artistId||null});}
 function checkAlpha(c){try{const d=c.getContext('2d').getImageData(0,0,Math.min(c.width,80),Math.min(c.height,80)).data;for(let i=3;i<d.length;i+=4)if(d[i]<250)return true;}catch(e){}return false;}
 function toDataUrl(c){return checkAlpha(c)?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.94);}
 function resizeEncode(img,maxPx){let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;if(w>maxPx||h>maxPx){if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return toDataUrl(c);}
@@ -408,7 +428,7 @@ function dismissNotifs(keys){
 ═══════════════════════════════════ */
 const _now=new Date();
 const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All'};
-const F={gallery:[],links:[],shape:'circle',heightUnit:'cm'};
+const F={gallery:[],links:[],connections:[],shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
 /* ═══════════════════════════════════
@@ -647,11 +667,30 @@ function detailPageHTML(id){
   const backLabel=S.fromCal?'← Calendar':'← Journal';
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const notifLabels=NOTIF_OPTS.filter(o=>(e.notifOptions||[]).includes(o.value)).map(o=>o.label);
+  // connections
+  const conns=(e.connections||[]).filter(c=>c.entryId);
+  const connSec=conns.length?`<div class="detail-section"><div class="section-label">Connections</div>
+    <div class="conn-list">${conns.map(c=>{
+      const t=db.entries.find(x=>x.id===c.entryId);if(!t)return'';
+      const[tbg,tfg]=t.hexColor?[t.hexColor+'22',t.hexColor]:pal(t.id);
+      const tsh=t.imgShape||'circle';
+      const tav=t.img?`<img src="${esc(t.img)}" alt="" onerror="this.style.display='none'">`:'';
+      return`<div class="conn-item" onclick="go('detail',${t.id})">
+        <div class="conn-avatar sh-${tsh}" style="background:${tbg};color:${tfg}">${tav||initials(t.name)}</div>
+        <div class="conn-body">
+          <div class="conn-label">${esc(c.label||'Linked')}</div>
+          <div class="conn-name">${esc(t.name)}</div>
+        </div>
+        <span class="conn-arr">›</span>
+      </div>`;
+    }).join('')}</div></div>`:'';
+  // gallery
   const gallSec=gallery.length?`<div class="detail-section"><div class="section-label">Gallery</div>
     <div class="gallery-grid">${gallery.map((item,i)=>`
-      <div class="gallery-item" onclick="openLB(${e.id},${i})">
-        <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onerror="this.closest('.gallery-item').style.display='none'">
+      <div class="gallery-item">
+        <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onclick="openLB(${e.id},${i})" onerror="this.closest('.gallery-item').style.display='none'">
         ${item.caption?`<div class="g-caption">${esc(item.caption)}</div>`:''}
+        ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>by ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${esc(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
   const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="yt-list">${ytLinks.map(l=>`<div>${l.label?`<div class="yt-label">${esc(l.label)}</div>`:''}<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${ytId(l.url)}" allowfullscreen loading="lazy"></iframe></div></div>`).join('')}</div></div>`:'';
@@ -681,7 +720,7 @@ function detailPageHTML(id){
       ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${esc(e.kanjiInfo)}</div></div>`:''}
       ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${esc(e.note)}</div></div>`:''}
-      ${gallSec}${linkSec}${ytSec}
+      ${connSec}${gallSec}${linkSec}${ytSec}
     </div>
   </div>`;
 }
@@ -689,7 +728,7 @@ function detailPageHTML(id){
 /* ═══════════════════════════════════
    LIGHTBOX
 ═══════════════════════════════════ */
-function openLB(entryId,startIdx){const db=getDB();const e=db.entries.find(x=>x.id===entryId);if(!e)return;lbState={gallery:normGal(e.gallery),idx:startIdx,zoom:1,panX:0,panY:0};renderLB();}
+function openLB(entryId,startIdx){const db=getDB();const e=db.entries.find(x=>x.id===entryId);if(!e)return;lbState={gallery:normGal(e.gallery),entryRef:entryId,idx:startIdx,zoom:1,panX:0,panY:0};renderLB();}
 
 function renderLB(){
   if(!lbState)return;
@@ -704,6 +743,7 @@ function renderLB(){
     ${gallery.length>1?`<button class="lb-arrow lb-prev" onclick="lbNav(-1)">‹</button><button class="lb-arrow lb-next" onclick="lbNav(1)">›</button>`:''}
     <div class="lb-bottom">
       ${item.caption?`<div class="lb-caption">${esc(item.caption)}</div>`:''}
+      ${item.artistId?(()=>{const a=lbState.entryRef&&getDB().entries.find(x=>x.id===item.artistId);return a?`<div class="lb-caption" style="cursor:pointer;opacity:.7;font-size:12px" onclick="closeLB();go('detail',${a?a.id:0})">by ${esc(a?a.name:'')}</div>`:'';})():''}
       ${gallery.length>1?`<div class="lb-counter">${idx+1} / ${gallery.length}</div>`:''}
     </div>
     <div class="lb-zoom-hint">Scroll/pinch to zoom · drag to pan · long-press image to save</div>
@@ -838,8 +878,8 @@ function cropCancel(){document.getElementById('crop-root').innerHTML='';cropData
 /* ═══════════════════════════════════
    FORM
 ═══════════════════════════════════ */
-function openAdd(){const db=getDB();F.gallery=[];F.links=[];F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();}
-function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();}
+function openAdd(){const db=getDB();F.gallery=[];F.links=[];F.connections=[];F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
+function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
 
 function formHTML(e,cats){
   const sh=e?e.imgShape||'circle':'circle';
@@ -929,6 +969,12 @@ function formHTML(e,cats){
       <div id="link-list-form"></div>
       <button type="button" class="sm-btn" style="margin-top:6px" onclick="addLink()">+ Add link</button>
       <div style="font-size:11px;color:#aaa;margin-top:5px">YouTube URLs embed automatically as video players.</div>
+    </div>
+    <div class="field">
+      <label>Connections <span style="color:#bbb;font-weight:400">(link to other entries — artists, characters, previous personas…)</span></label>
+      <div id="conn-list-form"></div>
+      <button type="button" class="sm-btn" style="margin-top:6px" onclick="addConn()">+ Add connection</button>
+      <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"</div>
     </div>`;
 }
 
@@ -970,10 +1016,41 @@ function getFormHeight(){
 function toggleNotifLabel(value,checked){document.getElementById('nlbl-'+value)?.classList.toggle('checked',checked);}
 function getFormNotifs(){const out=[];document.querySelectorAll('#notif-options-wrap input[type=checkbox]').forEach(c=>{if(c.checked)out.push(c.value);});return out;}
 
-function renderGalList(){const el=document.getElementById('gal-list');if(!el)return;el.innerHTML=F.gallery.map((item,i)=>`<div class="gal-form-item"><div class="gal-form-thumb-wrap"><img class="gal-form-thumb" src="${esc(item.src)}" onerror="this.style.opacity='.3'"><button type="button" class="gal-rm" onclick="rmGal(${i})">✕</button></div><div class="gal-form-right"><input class="gal-caption-inp" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value"></div></div>`).join('');}
+function renderGalList(){
+  const el=document.getElementById('gal-list');if(!el)return;
+  const db=getDB();
+  const entryOpts='<option value="">— link an entry (artist, character…) —</option>'+db.entries.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  el.innerHTML=F.gallery.map((item,i)=>`<div class="gal-form-item">
+    <div class="gal-form-thumb-wrap">
+      <img class="gal-form-thumb" src="${esc(item.src)}" onerror="this.style.opacity='.3'">
+      <button type="button" class="gal-rm" onclick="rmGal(${i})">✕</button>
+    </div>
+    <div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">
+      <input class="gal-caption-inp" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value">
+      <select onchange="F.gallery[${i}].artistId=this.value?parseInt(this.value):null" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
+        ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
+      </select>
+    </div>
+  </div>`).join('');
+}
 function rmGal(i){F.gallery.splice(i,1);renderGalList();}
 function addGalUrl(){const inp=document.getElementById('gal-url-inp');const url=(inp.value||'').trim();if(!url)return;F.gallery.push({src:url,caption:''});inp.value='';renderGalList();}
 function addGalFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{F.gallery.push({src,caption:''});renderGalList();});};reader.readAsDataURL(file);input.value='';}
+
+function renderConnList(){
+  const el=document.getElementById('conn-list-form');if(!el)return;
+  const db=getDB();
+  const entryOpts='<option value="">— pick an entry —</option>'+db.entries.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  el.innerHTML=F.connections.map((c,i)=>`<div class="conn-form-item">
+    <input class="lbl-inp" placeholder="Label (e.g. Drawn by)" value="${esc(c.label||'')}" oninput="F.connections[${i}].label=this.value">
+    <select onchange="F.connections[${i}].entryId=this.value?parseInt(this.value):null">
+      ${entryOpts.replace(`value="${c.entryId||''}"`,`value="${c.entryId||''}" selected`)}
+    </select>
+    <button type="button" class="lk-rm" onclick="rmConn(${i})">✕</button>
+  </div>`).join('');
+}
+function rmConn(i){F.connections.splice(i,1);renderConnList();}
+function addConn(){F.connections.push({label:'',entryId:null});renderConnList();}
 function renderLinkList(){const el=document.getElementById('link-list-form');if(!el)return;el.innerHTML=F.links.map((lk,i)=>`<div class="link-form-item"><input class="lbl-inp" placeholder="Label (e.g. Twitter)" value="${esc(lk.label)}" oninput="F.links[${i}].label=this.value"><input class="url-inp" placeholder="URL" value="${esc(lk.url)}" oninput="F.links[${i}].url=this.value"><button type="button" class="lk-rm" onclick="rmLink(${i})">✕</button></div>`).join('');}
 function rmLink(i){F.links.splice(i,1);renderLinkList();}
 function addLink(){F.links.push({label:'',url:''});renderLinkList();}
@@ -1006,6 +1083,7 @@ function collectForm(){
     kanjiInfo:(document.getElementById('f-kanjiinfo').value||'').trim(),
     gallery:[...F.gallery],
     links:F.links.filter(l=>l.url.trim()),
+    connections:F.connections.filter(c=>c.entryId),
   };
 }
 
