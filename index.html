@@ -75,7 +75,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .link-arr{color:#bbb;font-size:13px}
 .yt-list{display:flex;flex-direction:column;gap:16px}
 .tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto}
-.tw-embed .twitter-tweet{margin:0 !important}
 .yt-label{font-size:14px;font-weight:500;color:#555;margin-bottom:8px}
 .yt-embed{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
 .yt-embed iframe{width:100%;height:100%;border:none;display:block}
@@ -486,21 +485,13 @@ function renderContent(){
   if(S.view==='detail'){
     document.getElementById('app-header').innerHTML='';
     document.getElementById('app-content').innerHTML=detailPageHTML(S.id);
-    loadTwitterWidgets();
   }else if(S.view==='calendar'){
     document.getElementById('app-content').innerHTML=calPageHTML();
   }else{
     document.getElementById('app-content').innerHTML=gridPageHTML();
   }
 }
-function loadTwitterWidgets(){
-  if(!document.querySelector('.twitter-tweet'))return;
-  if(window.twttr&&window.twttr.widgets){window.twttr.widgets.load();return;}
-  if(document.getElementById('twitter-wjs'))return;
-  const s=document.createElement('script');s.id='twitter-wjs';s.async=true;
-  s.src='https://platform.twitter.com/widgets.js';
-  document.head.appendChild(s);
-}
+
 
 function renderApp(){renderHeader();renderContent();}
 
@@ -733,7 +724,7 @@ function detailPageHTML(id){
     const yid=ytId(l.url);const tid=tweetId(l.url);
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
-      :`<div class="tw-embed"><blockquote class="twitter-tweet" data-conversation="none"><a href="${esc(l.url)}"></a></blockquote></div>`;
+      :`<div class="tw-embed"><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&theme=light&cards=visible&conversation=none" allowfullscreen loading="lazy" style="border:none;width:100%;min-height:300px;border-radius:12px;overflow:hidden"></iframe></div>`;
     return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
