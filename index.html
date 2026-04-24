@@ -74,6 +74,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .link-label{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .link-arr{color:#bbb;font-size:13px}
 .yt-list{display:flex;flex-direction:column;gap:16px}
+.tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto}
+.tw-embed .twitter-tweet{margin:0 !important}
 .yt-label{font-size:14px;font-weight:500;color:#555;margin-bottom:8px}
 .yt-embed{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
 .yt-embed iframe{width:100%;height:100%;border:none;display:block}
@@ -372,8 +374,10 @@ function catPal(cat,cats){const i=cats.indexOf(cat);return PALETTES[(i>=0?i:0)%P
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function affData(v){return AFFINITY.find(a=>a.value===v)||null;}
 function ytId(url){const m=(url||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/\s]+)/);return m?m[1]:null;}
-function lkIcon(url){if(ytId(url))return'▶';if(/twitter\.com|x\.com/.test(url))return'𝕏';if(/instagram\.com/.test(url))return'📷';if(/tiktok\.com/.test(url))return'♪';if(/twitch\.tv/.test(url))return'🎮';if(/spotify\.com/.test(url))return'♫';return'🔗';}
-function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:'',artistId:null}:{src:x.src||'',caption:x.caption||'',artistId:x.artistId||null});}
+function tweetId(url){const m=(url||'').match(/(?:twitter\.com|x\.com)\/[^/]+\/status\/([\d]+)/);return m?m[1]:null;}
+function isEmbeddable(url){return !!(ytId(url)||tweetId(url));}
+function lkIcon(url){if(ytId(url))return'▶';if(tweetId(url))return'▶';if(/twitter\.com|x\.com/.test(url))return'𝕏';if(/instagram\.com/.test(url))return'📷';if(/tiktok\.com/.test(url))return'♪';if(/twitch\.tv/.test(url))return'🎮';if(/spotify\.com/.test(url))return'♫';return'🔗';}
+function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:'',artistId:null,artistLabel:''}:{src:x.src||'',caption:x.caption||'',artistId:x.artistId||null,artistLabel:x.artistLabel||''});}
 function checkAlpha(c){try{const d=c.getContext('2d').getImageData(0,0,Math.min(c.width,80),Math.min(c.height,80)).data;for(let i=3;i<d.length;i+=4)if(d[i]<250)return true;}catch(e){}return false;}
 function toDataUrl(c){return checkAlpha(c)?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.94);}
 function resizeEncode(img,maxPx){let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;if(w>maxPx||h>maxPx){if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return toDataUrl(c);}
@@ -482,11 +486,20 @@ function renderContent(){
   if(S.view==='detail'){
     document.getElementById('app-header').innerHTML='';
     document.getElementById('app-content').innerHTML=detailPageHTML(S.id);
+    loadTwitterWidgets();
   }else if(S.view==='calendar'){
     document.getElementById('app-content').innerHTML=calPageHTML();
   }else{
     document.getElementById('app-content').innerHTML=gridPageHTML();
   }
+}
+function loadTwitterWidgets(){
+  if(!document.querySelector('.twitter-tweet'))return;
+  if(window.twttr&&window.twttr.widgets){window.twttr.widgets.load();return;}
+  if(document.getElementById('twitter-wjs'))return;
+  const s=document.createElement('script');s.id='twitter-wjs';s.async=true;
+  s.src='https://platform.twitter.com/widgets.js';
+  document.head.appendChild(s);
 }
 
 function renderApp(){renderHeader();renderContent();}
@@ -684,8 +697,8 @@ function detailPageHTML(id){
   const heroBg=e.hexColor?e.hexColor+'13':bg;
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
   const gallery=normGal(e.gallery);
-  const regLinks=(e.links||[]).filter(l=>!ytId(l.url));
-  const ytLinks=(e.links||[]).filter(l=>ytId(l.url));
+  const regLinks=(e.links||[]).filter(l=>!isEmbeddable(l.url));
+  const ytLinks=(e.links||[]).filter(l=>isEmbeddable(l.url));
   const backTarget=S.fromCal?`go('calendar')`:`go('grid')`;
   const backLabel=S.fromCal?'← Calendar':'← Journal';
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
@@ -713,10 +726,16 @@ function detailPageHTML(id){
       <div class="gallery-item">
         <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onclick="openLB(${e.id},${i})" onerror="this.closest('.gallery-item').style.display='none'">
         ${item.caption?`<div class="g-caption">${renderMentions(item.caption)}</div>`:''}
-        ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>by ${esc(a.name)}</span></div>`;})():''}
+        ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';const lbl=item.artistLabel||'Linked';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>${esc(lbl)}: ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
-  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="yt-list">${ytLinks.map(l=>`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${ytId(l.url)}" allowfullscreen loading="lazy"></iframe></div></div>`).join('')}</div></div>`:'';
+  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="yt-list">${ytLinks.map(l=>{
+    const yid=ytId(l.url);const tid=tweetId(l.url);
+    const embed=yid
+      ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
+      :`<div class="tw-embed"><blockquote class="twitter-tweet" data-conversation="none"><a href="${esc(l.url)}"></a></blockquote></div>`;
+    return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
+  }).join('')}</div></div>`:'';
   return`<div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" onclick="${backTarget}">${backLabel}</button>
@@ -766,7 +785,7 @@ function renderLB(){
     ${gallery.length>1?`<button class="lb-arrow lb-prev" onclick="lbNav(-1)">‹</button><button class="lb-arrow lb-next" onclick="lbNav(1)">›</button>`:''}
     <div class="lb-bottom">
       ${item.caption?`<div class="lb-caption">${renderMentions(item.caption)}</div>`:''}
-      ${item.artistId?(()=>{const a=lbState.entryRef&&getDB().entries.find(x=>x.id===item.artistId);return a?`<div class="lb-caption" style="cursor:pointer;opacity:.7;font-size:12px" onclick="closeLB();go('detail',${a?a.id:0})">by ${esc(a?a.name:'')}</div>`:'';})():''}
+      ${item.artistId?(()=>{const a=getDB().entries.find(x=>x.id===item.artistId);if(!a)return'';const lbl=item.artistLabel||'Linked';return`<div class="lb-caption" style="cursor:pointer;opacity:.7;font-size:12px" onclick="closeLB();go('detail',${a.id})">${esc(lbl)}: ${esc(a.name)}</div>`;})():''}
       ${gallery.length>1?`<div class="lb-counter">${idx+1} / ${gallery.length}</div>`:''}
     </div>
     <div class="lb-zoom-hint">Scroll/pinch to zoom · drag to pan · long-press image to save</div>
@@ -1050,9 +1069,12 @@ function renderGalList(){
     </div>
     <div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">
       <div class="mention-field-wrap"><input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px"><button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" title="Link an entry" style="top:5px;right:5px">@</button></div>
-      <select onchange="F.gallery[${i}].artistId=this.value?parseInt(this.value):null" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
-        ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
-      </select>
+      <div style="display:flex;gap:5px;align-items:center">
+        <input placeholder="Label (e.g. Drawn by, Feat., With…)" value="${esc(item.artistLabel||'')}" oninput="F.gallery[${i}].artistLabel=this.value" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
+        <select onchange="F.gallery[${i}].artistId=this.value?parseInt(this.value):null" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
+          ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
+        </select>
+      </div>
     </div>
   </div>`).join('');
 }
