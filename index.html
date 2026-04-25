@@ -73,8 +73,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .link-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center}
 .link-label{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .link-arr{color:#bbb;font-size:13px}
+
+/* video compact mode */
+.vid-toggle-btn{padding:5px 12px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;margin-bottom:.75rem}
+.vid-toggle-btn:hover{border-color:#7c3aed;color:#7c3aed}
+.yt-list.compact{gap:8px}
+.yt-list.compact .yt-embed{border-radius:8px}
+.yt-list.compact .yt-label{font-size:12px;margin-bottom:4px}
+.yt-list.compact .tw-embed{max-width:100%}
 .yt-list{display:flex;flex-direction:column;gap:16px}
-.tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto}
+.tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto;min-height:60px}
 .yt-label{font-size:14px;font-weight:500;color:#555;margin-bottom:8px}
 .yt-embed{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
 .yt-embed iframe{width:100%;height:100%;border:none;display:block}
@@ -126,6 +134,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .mention-field-wrap{position:relative}
 .mention-at-btn{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:6px;border:1px solid #e0e0e0;background:white;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit;z-index:1;padding:0;-webkit-tap-highlight-color:transparent}
 .mention-at-btn:hover{background:#f5f3ff;color:#7c3aed;border-color:#7c3aed}
+
+/* wheel */
+.wheel-wrap{max-width:960px;margin:0 auto;padding:1rem}
+.wheel-container{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+.wheel-canvas-wrap{position:relative;width:min(440px,90vw);height:min(440px,90vw);flex-shrink:0}
+#wheel-canvas{border-radius:50%;display:block;cursor:pointer;filter:drop-shadow(0 6px 24px rgba(124,58,237,.2))}
+.wheel-pointer{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:32px;line-height:1;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.wheel-spin-btn{padding:12px 32px;border-radius:12px;border:none;background:#7c3aed;color:white;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;box-shadow:0 4px 14px rgba(124,58,237,.4);touch-action:manipulation}
+.wheel-spin-btn:hover{background:#6d28d9}
+.wheel-spin-btn:disabled{opacity:.5;cursor:default}
+.wheel-result{text-align:center;padding:1rem 1.5rem;background:white;border-radius:14px;border:1px solid #ede9fe;min-width:240px;cursor:pointer;transition:box-shadow .2s}
+.wheel-result:hover{box-shadow:0 4px 16px rgba(124,58,237,.13)}
+.wheel-result-label{font-size:12px;color:#aaa;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.wheel-result-avatar{width:56px;height:56px;margin:6px auto 8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;overflow:hidden}
+.wheel-result-name{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+.wheel-result-sub{font-size:13px;color:#888}
+.wheel-empty{text-align:center;padding:3rem 1rem;color:#bbb}
+.wheel-filter-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:640px}
 /* connections */
 .conn-list{display:flex;flex-direction:column;gap:8px}
 .conn-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#faf8ff;border:1px solid #ede9fe;border-radius:12px;cursor:pointer;transition:background .15s;color:#1a1a1a}
@@ -453,7 +479,7 @@ function dismissNotifs(keys){
    APP STATE
 ═══════════════════════════════════ */
 const _now=new Date();
-const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All'};
+const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTag:'All',wheelSpin:null};
 const F={gallery:[],links:[],connections:[],shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
@@ -465,13 +491,14 @@ let cropData=null,lbState=null;
 function renderHeader(){
   if(S.view==='detail')return; // detail has its own header inside content
   const db=getDB();
-  const activeTab=S.view==='calendar'?'calendar':'journal';
+  const activeTab=S.view==='calendar'?'calendar':S.view==='wheel'?'wheel':'journal';
   document.getElementById('app-header').innerHTML=`<div class="header"><div class="header-inner">
     <div class="header-top">
       <div class="site-title">✦ ${esc(db.title)}</div>
       <div class="tab-nav">
         <button class="tab-btn${activeTab==='journal'?' active':''}" onclick="switchTab('journal')">Journal</button>
         <button class="tab-btn${activeTab==='calendar'?' active':''}" onclick="switchTab('calendar')">Calendar</button>
+        <button class="tab-btn${activeTab==='wheel'?' active':''}" onclick="switchTab('wheel')">Wheel</button>
       </div>
       <div class="header-actions">
         <button class="add-btn" onclick="openAdd()">+ Add</button>
@@ -487,6 +514,9 @@ function renderContent(){
     document.getElementById('app-content').innerHTML=detailPageHTML(S.id);
   }else if(S.view==='calendar'){
     document.getElementById('app-content').innerHTML=calPageHTML();
+  }else if(S.view==='wheel'){
+    document.getElementById('app-content').innerHTML=wheelPageHTML();
+    setTimeout(()=>{const entries=wheelEntries();if(entries.length>=2)drawWheel(0,entries);},0);
   }else{
     document.getElementById('app-content').innerHTML=gridPageHTML();
   }
@@ -496,7 +526,7 @@ function renderContent(){
 function renderApp(){renderHeader();renderContent();}
 
 function switchTab(tab){
-  S.view=tab==='calendar'?'calendar':'grid';
+  S.view=tab==='calendar'?'calendar':tab==='wheel'?'wheel':'grid';
   renderApp();window.scrollTo(0,0);
 }
 
@@ -720,11 +750,11 @@ function detailPageHTML(id){
         ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';const lbl=item.artistLabel||'Linked';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>${esc(lbl)}: ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
-  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="yt-list">${ytLinks.map(l=>{
+  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><button class="vid-toggle-btn" id="vid-toggle-btn" onclick="toggleVidSize()">⊟ Compact view</button><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
     const yid=ytId(l.url);const tid=tweetId(l.url);
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
-      :`<div class="tw-embed"><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&theme=light&cards=visible&conversation=none" allowfullscreen loading="lazy" style="border:none;width:100%;min-height:300px;border-radius:12px;overflow:hidden"></iframe></div>`;
+      :(()=>{const turl=encodeURIComponent(l.url);return`<div class="tw-embed" id="twe-${tid}"><div style="padding:1rem;text-align:center;font-size:13px;color:#aaa">Loading tweet…</div></div><script>fetchTweet("${tid}","${esc(l.url)}")<\/script>`;})();
     return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
@@ -750,9 +780,9 @@ function detailPageHTML(id){
           ${notifLabels.length?`<div class="detail-meta" style="font-size:12px">🔔 ${notifLabels.join(', ')}</div>`:''}
         </div>
       </div>
-      ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
       ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${renderMentions(e.note)}</div></div>`:''}
+      ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
       ${connSec}${gallSec}${linkSec}${ytSec}
     </div>
   </div>`;
@@ -1074,6 +1104,147 @@ function addGalUrl(){const inp=document.getElementById('gal-url-inp');const url=
 function addGalFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{F.gallery.push({src,caption:''});renderGalList();});};reader.readAsDataURL(file);input.value='';}
 
 
+
+/* ── TWITTER EMBED ── */
+
+function toggleVidSize(){
+  const list=document.getElementById('yt-list-wrap');
+  const btn=document.getElementById('vid-toggle-btn');
+  if(!list||!btn)return;
+  const compact=list.classList.toggle('compact');
+  btn.textContent=compact?'⊞ Full view':'⊟ Compact view';
+}
+function fetchTweet(id,url){
+  const el=document.getElementById('twe-'+id);if(!el)return;
+  // Use nitter as fallback proxy pattern; try official oembed
+  fetch('https://publish.twitter.com/oembed?url='+encodeURIComponent(url)+'&omit_script=true&hide_thread=true')
+    .then(r=>r.json())
+    .then(d=>{if(el&&d.html){el.innerHTML=d.html;el.style.cssText='border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto';
+      // load widget script once
+      if(!window.twttr){const s=document.createElement('script');s.src='https://platform.twitter.com/widgets.js';s.async=true;document.head.appendChild(s);}
+      else if(window.twttr&&window.twttr.widgets)window.twttr.widgets.load(el);}})
+    .catch(()=>{if(el)el.innerHTML=`<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#faf8ff;border:1px solid #ede9fe;border-radius:12px;color:#1a1a1a;text-decoration:none;font-size:14px">𝕏 Open tweet ↗</a>`;});
+}
+
+/* ── WHEEL ── */
+function wheelEntries(){
+  const db=getDB();
+  return db.entries.filter(e=>{
+    if(S.wheelCat!=='All'&&e.cat!==S.wheelCat)return false;
+    if(S.wheelTag!=='All'&&!(e.tags||[]).includes(S.wheelTag))return false;
+    return true;
+  });
+}
+
+function wheelPageHTML(){
+  const db=getDB();
+  const entries=wheelEntries();
+  const usedCats=['All',...new Set(db.entries.map(e=>e.cat))];
+  const usedTags=['All',...new Set(db.entries.flatMap(e=>e.tags||[]))].sort((a,b)=>a.localeCompare(b));
+  const catPills=usedCats.map(f=>`<button type="button" class="pill${S.wheelCat===f?' active':''}" data-f="${esc(f)}" onclick="S.wheelCat=this.dataset.f;S.wheelSpin=null;renderApp()">${esc(f)}</button>`).join('');
+  const tagPills=usedTags.map(f=>`<button type="button" class="pill${S.wheelTag===f?' active':''}" data-f="${esc(f)}" onclick="S.wheelTag=this.dataset.f;S.wheelSpin=null;renderApp()">${esc(f)}</button>`).join('');
+  const resultHTML=S.wheelSpin!=null?(()=>{
+    const e=entries[S.wheelSpin];if(!e)return'';
+    const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id);
+    const sh=e.imgShape||'circle';
+    const av=e.img?`<img src="${esc(e.img)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'';
+    return`<div class="wheel-result" onclick="go('detail',${e.id})">
+      <div class="wheel-result-label">You got\u2026</div>
+      <div class="wheel-result-avatar sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+      <div class="wheel-result-name">${esc(e.name)}</div>
+      ${e.cat?`<div class="wheel-result-sub">${esc(e.cat)}</div>`:''}
+      <div style="font-size:11px;color:#aaa;margin-top:4px">Tap to open profile \u2192</div>
+    </div>`;
+  })():'';
+  return`<div class="content-search"><div class="content-search-inner">
+    <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.5rem">Filter by category</div>
+    <div class="wheel-filter-row">${catPills}</div>
+    <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin:.75rem 0 .5rem">Filter by tag</div>
+    <div class="wheel-filter-row">${tagPills}</div>
+  </div></div>
+  <div class="wheel-wrap">
+    ${entries.length<2?`<div class="wheel-empty"><div style="font-size:48px;margin-bottom:.75rem">&#127905;</div><p>Add at least 2 entries matching your filter to spin!</p></div>`:`
+    <div class="wheel-container">
+      <div class="wheel-canvas-wrap">
+        <canvas id="wheel-canvas" width="440" height="440"></canvas>
+        <div class="wheel-pointer">&#9660;</div>
+      </div>
+      <button class="wheel-spin-btn" id="wheel-spin-btn" onclick="spinWheel()">Spin!</button>
+      ${resultHTML}
+    </div>`}
+  </div>
+  <button class="fab" onclick="openAdd()">+</button>`;
+}
+
+let _wheelAnim=null;
+function spinWheel(){
+  const entries=wheelEntries();
+  if(entries.length<2)return;
+  const btn=document.getElementById('wheel-spin-btn');
+  if(btn)btn.disabled=true;
+  const n=entries.length;
+  const slice=(2*Math.PI)/n;
+  const spinAmount=Math.PI*2*(8+Math.random()*6);
+  const targetIdx=Math.floor(Math.random()*n);
+  const targetAngle=spinAmount+(Math.PI*1.5)-(targetIdx*slice+slice/2);
+  let start=null;
+  const duration=4200;
+  let curAngle=0;
+  function easeOut(t){return 1-Math.pow(1-t,4);}
+  function frame(ts){
+    if(!start)start=ts;
+    const t=Math.min((ts-start)/duration,1);
+    curAngle=easeOut(t)*targetAngle;
+    drawWheel(curAngle,entries);
+    if(t<1){_wheelAnim=requestAnimationFrame(frame);}
+    else{
+      drawWheel(targetAngle,entries);
+      S.wheelSpin=targetIdx;
+      const container=document.querySelector('.wheel-container');
+      if(container){
+        const old=container.querySelector('.wheel-result');if(old)old.remove();
+        const e=entries[targetIdx];
+        const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id);
+        const sh=e.imgShape||'circle';
+        const av=e.img?`<img src="${esc(e.img)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'';
+        const div=document.createElement('div');div.className='wheel-result';div.onclick=()=>go('detail',e.id);
+        div.innerHTML=`<div class="wheel-result-label">You got\u2026</div>
+          <div class="wheel-result-avatar sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+          <div class="wheel-result-name">${esc(e.name)}</div>
+          ${e.cat?`<div class="wheel-result-sub">${esc(e.cat)}</div>`:''}
+          <div style="font-size:11px;color:#aaa;margin-top:4px">Tap to open profile \u2192</div>`;
+        container.appendChild(div);
+      }
+      if(btn)btn.disabled=false;
+    }
+  }
+  _wheelAnim=requestAnimationFrame(frame);
+}
+
+function drawWheel(angle,entries){
+  const canvas=document.getElementById('wheel-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,cy=W/2,r=cy-4,n=entries.length,slice=(2*Math.PI)/n;
+  ctx.clearRect(0,0,W,W);
+  entries.forEach((e,i)=>{
+    const a0=angle+i*slice-Math.PI/2,a1=a0+slice;
+    ctx.beginPath();ctx.moveTo(cy,cy);ctx.arc(cy,cy,r,a0,a1);ctx.closePath();
+    ctx.fillStyle=e.hexColor||PALETTES[i%PALETTES.length][0];ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.save();ctx.translate(cy,cy);ctx.rotate(a0+slice/2);
+    ctx.textAlign='right';
+    const bg=e.hexColor||PALETTES[i%PALETTES.length][0];
+    ctx.fillStyle=contrastColor(bg);
+    ctx.font=`bold ${Math.max(10,Math.min(14,260/n))}px -apple-system,sans-serif`;
+    ctx.shadowColor='rgba(0,0,0,.2)';ctx.shadowBlur=2;
+    const name=e.name.length>18?e.name.slice(0,16)+'\u2026':e.name;
+    ctx.fillText(name,r-10,4);ctx.restore();
+  });
+  ctx.beginPath();ctx.arc(cy,cy,26,0,Math.PI*2);
+  ctx.fillStyle='white';ctx.fill();ctx.strokeStyle='#ede9fe';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#7c3aed';ctx.font='bold 13px -apple-system,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('\u2736',cy,cy);
+}
 /* ── MENTION SYSTEM ── */
 const MENTION_RE=/\[\[([^\]|]+)\|(\d+)\]\]/g;
 
