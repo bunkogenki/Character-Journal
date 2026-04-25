@@ -74,14 +74,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .link-label{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .link-arr{color:#bbb;font-size:13px}
 
-/* video compact mode */
-.vid-toggle-btn{padding:5px 12px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;margin-bottom:.75rem}
-.vid-toggle-btn:hover{border-color:#7c3aed;color:#7c3aed}
-.yt-list.compact{gap:8px}
-.yt-list.compact .yt-embed{border-radius:8px}
-.yt-list.compact .yt-label{font-size:12px;margin-bottom:4px}
-.yt-list.compact .tw-embed{max-width:100%}
+/* video size control */
+.vid-size-row{display:flex;align-items:center;gap:6px;margin-bottom:.75rem;flex-wrap:wrap}
+.vid-size-label{font-size:11px;color:#aaa;font-weight:500}
+.vid-size-btn{padding:4px 10px;border-radius:6px;border:1px solid #e0e0e0;background:white;font-size:11px;color:#666;cursor:pointer;font-family:inherit;transition:all .15s;line-height:1.4}
+.vid-size-btn:hover{border-color:#7c3aed;color:#7c3aed}
+.vid-size-btn.active{background:#7c3aed;color:white;border-color:#7c3aed}
 .yt-list{display:flex;flex-direction:column;gap:16px}
+.yt-list.sz-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.yt-list.sz-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
+.yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
 .tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto;min-height:60px}
 .yt-label{font-size:14px;font-weight:500;color:#555;margin-bottom:8px}
 .yt-embed{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
@@ -479,7 +484,7 @@ function dismissNotifs(keys){
    APP STATE
 ═══════════════════════════════════ */
 const _now=new Date();
-const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTag:'All',wheelSpin:null};
+const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
 const F={gallery:[],links:[],connections:[],shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
@@ -750,11 +755,11 @@ function detailPageHTML(id){
         ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';const lbl=item.artistLabel||'Linked';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>${esc(lbl)}: ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
-  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><button class="vid-toggle-btn" id="vid-toggle-btn" onclick="toggleVidSize()">⊟ Compact view</button><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
+  const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="vid-size-row"><span class="vid-size-label">Size:</span><button class="vid-size-btn active" onclick="setVidSize(this,'')">1 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-2')">2 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-3')">3 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-4')">4 col</button></div><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
     const yid=ytId(l.url);const tid=tweetId(l.url);
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
-      :(()=>{const turl=encodeURIComponent(l.url);return`<div class="tw-embed" id="twe-${tid}"><div style="padding:1rem;text-align:center;font-size:13px;color:#aaa">Loading tweet…</div></div><script>fetchTweet("${tid}","${esc(l.url)}")<\/script>`;})();
+      :`<div class="tw-embed"><iframe src="https://twitframe.com/show?url=${encodeURIComponent(l.url)}" frameborder="0" scrolling="no" allowfullscreen style="width:100%;height:300px;border-radius:12px;display:block;border:1px solid #ede9fe" loading="lazy"></iframe></div>`;
     return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
@@ -1107,42 +1112,44 @@ function addGalFile(input){const file=input.files[0];if(!file)return;const reade
 
 /* ── TWITTER EMBED ── */
 
-function toggleVidSize(){
-  const list=document.getElementById('yt-list-wrap');
-  const btn=document.getElementById('vid-toggle-btn');
-  if(!list||!btn)return;
-  const compact=list.classList.toggle('compact');
-  btn.textContent=compact?'⊞ Full view':'⊟ Compact view';
+function setVidSize(btn,cls){
+  const list=document.getElementById('yt-list-wrap');if(!list)return;
+  list.className='yt-list'+(cls?' '+cls:'');
+  document.querySelectorAll('.vid-size-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
 }
-function fetchTweet(id,url){
-  const el=document.getElementById('twe-'+id);if(!el)return;
-  // Use nitter as fallback proxy pattern; try official oembed
-  fetch('https://publish.twitter.com/oembed?url='+encodeURIComponent(url)+'&omit_script=true&hide_thread=true')
-    .then(r=>r.json())
-    .then(d=>{if(el&&d.html){el.innerHTML=d.html;el.style.cssText='border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto';
-      // load widget script once
-      if(!window.twttr){const s=document.createElement('script');s.src='https://platform.twitter.com/widgets.js';s.async=true;document.head.appendChild(s);}
-      else if(window.twttr&&window.twttr.widgets)window.twttr.widgets.load(el);}})
-    .catch(()=>{if(el)el.innerHTML=`<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#faf8ff;border:1px solid #ede9fe;border-radius:12px;color:#1a1a1a;text-decoration:none;font-size:14px">𝕏 Open tweet ↗</a>`;});
-}
+
 
 /* ── WHEEL ── */
 function wheelEntries(){
   const db=getDB();
   return db.entries.filter(e=>{
     if(S.wheelCat!=='All'&&e.cat!==S.wheelCat)return false;
-    if(S.wheelTag!=='All'&&!(e.tags||[]).includes(S.wheelTag))return false;
+    if(S.wheelTags.length>0){
+      const et=e.tags||[];
+      if(S.wheelTagMode==='and'){
+        if(!S.wheelTags.every(t=>et.includes(t)))return false;
+      }else{
+        if(!S.wheelTags.some(t=>et.includes(t)))return false;
+      }
+    }
     return true;
   });
 }
 
+function toggleWheelTag(tag){
+  const i=S.wheelTags.indexOf(tag);
+  if(i>=0)S.wheelTags.splice(i,1);else S.wheelTags.push(tag);
+  S.wheelSpin=null;renderApp();
+}
 function wheelPageHTML(){
   const db=getDB();
   const entries=wheelEntries();
   const usedCats=['All',...new Set(db.entries.map(e=>e.cat))];
-  const usedTags=['All',...new Set(db.entries.flatMap(e=>e.tags||[]))].sort((a,b)=>a.localeCompare(b));
+  const allTags=[...new Set(db.entries.flatMap(e=>e.tags||[]))].sort((a,b)=>a.localeCompare(b));
   const catPills=usedCats.map(f=>`<button type="button" class="pill${S.wheelCat===f?' active':''}" data-f="${esc(f)}" onclick="S.wheelCat=this.dataset.f;S.wheelSpin=null;renderApp()">${esc(f)}</button>`).join('');
-  const tagPills=usedTags.map(f=>`<button type="button" class="pill${S.wheelTag===f?' active':''}" data-f="${esc(f)}" onclick="S.wheelTag=this.dataset.f;S.wheelSpin=null;renderApp()">${esc(f)}</button>`).join('');
+  const isOr=S.wheelTagMode==='or';
+  const tagPills=allTags.length?allTags.map(f=>`<button type="button" class="pill${S.wheelTags.includes(f)?' active':''}" data-f="${esc(f)}" onclick="toggleWheelTag(this.dataset.f)">${esc(f)}</button>`).join(''):'<span style="font-size:12px;color:#bbb">No tags added yet</span>';
   const resultHTML=S.wheelSpin!=null?(()=>{
     const e=entries[S.wheelSpin];if(!e)return'';
     const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id);
@@ -1159,8 +1166,16 @@ function wheelPageHTML(){
   return`<div class="content-search"><div class="content-search-inner">
     <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.5rem">Filter by category</div>
     <div class="wheel-filter-row">${catPills}</div>
-    <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin:.75rem 0 .5rem">Filter by tag</div>
+    <div style="display:flex;align-items:center;gap:8px;margin:.75rem 0 .5rem;flex-wrap:wrap">
+      <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase">Filter by tag</div>
+      ${allTags.length?`<div style="display:flex;gap:4px;background:#f0eeff;border-radius:7px;padding:2px">
+        <button type="button" class="vid-size-btn${isOr?' active':''}" onclick="S.wheelTagMode='or';S.wheelSpin=null;renderApp()" style="font-size:10px;padding:3px 8px">ANY tag (OR)</button>
+        <button type="button" class="vid-size-btn${!isOr?' active':''}" onclick="S.wheelTagMode='and';S.wheelSpin=null;renderApp()" style="font-size:10px;padding:3px 8px">ALL tags (AND)</button>
+      </div>`:''}
+      ${S.wheelTags.length?`<button type="button" class="vid-size-btn" onclick="S.wheelTags=[];S.wheelSpin=null;renderApp()" style="font-size:10px;padding:3px 8px;color:#dc2626;border-color:#fecaca">Clear</button>`:''}
+    </div>
     <div class="wheel-filter-row">${tagPills}</div>
+    ${S.wheelTags.length?`<div style="font-size:11px;color:#7c3aed;margin-top:4px">Active: ${S.wheelTags.map(t=>`<b>${esc(t)}</b>`).join(isOr?' or ':' and ')}</div>`:''}
   </div></div>
   <div class="wheel-wrap">
     ${entries.length<2?`<div class="wheel-empty"><div style="font-size:48px;margin-bottom:.75rem">&#127905;</div><p>Add at least 2 entries matching your filter to spin!</p></div>`:`
@@ -1184,9 +1199,15 @@ function spinWheel(){
   if(btn)btn.disabled=true;
   const n=entries.length;
   const slice=(2*Math.PI)/n;
-  const spinAmount=Math.PI*2*(8+Math.random()*6);
   const targetIdx=Math.floor(Math.random()*n);
-  const targetAngle=spinAmount+(Math.PI*1.5)-(targetIdx*slice+slice/2);
+  // Pointer is at top = -π/2. Slice i center = angle + i*slice - π/2 + slice/2.
+  // We want slice center = -π/2, so: angle = -(i*slice + slice/2).
+  // Add full rotations for spin effect.
+  // Pointer at canvas top = angle -π/2. Slice i center = curAngle+i*slice-π/2+slice/2.
+  // For targetIdx center at -π/2: curAngle = -(targetIdx*slice+slice/2) mod 2π
+  const landAngle=((-(targetIdx*slice+slice/2))%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const spins=2*Math.PI*(8+Math.floor(Math.random()*5));
+  const targetAngle=spins+landAngle;
   let start=null;
   const duration=4200;
   let curAngle=0;
