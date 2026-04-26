@@ -143,9 +143,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 
 /* wheel */
 .wheel-wrap{max-width:960px;margin:0 auto;padding:1rem}
-.wheel-container{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
-.wheel-canvas-wrap{position:relative;width:min(440px,90vw);height:min(440px,90vw);flex-shrink:0}
-#wheel-canvas{border-radius:50%;display:block;cursor:pointer;filter:drop-shadow(0 6px 24px rgba(124,58,237,.2))}
+.wheel-container{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.wheel-canvas-wrap{position:relative;width:min(440px,90vw);height:min(440px,90vw);flex-shrink:0;max-height:55vh}
+#wheel-canvas{border-radius:50%;display:block;cursor:pointer;filter:drop-shadow(0 6px 24px rgba(124,58,237,.2));width:100%;height:100%}
 .wheel-pointer{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:32px;line-height:1;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
 .wheel-spin-btn{padding:12px 32px;border-radius:12px;border:none;background:#7c3aed;color:white;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;box-shadow:0 4px 14px rgba(124,58,237,.4);touch-action:manipulation}
 .wheel-spin-btn:hover{background:#6d28d9}
@@ -299,12 +299,18 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
   .add-btn{display:none}
   .modal{padding:1.25rem;border-radius:14px}
   .site-title{font-size:15px}
-  .tab-btn{padding:5px 10px;font-size:12px}
+  .tab-btn{padding:5px 8px;font-size:11px}
   .detail-hero{flex-direction:column;align-items:center;text-align:center}
   .detail-badges{justify-content:center}
   .gallery-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
   .cal-cell{min-height:60px;padding:4px 3px}
   .cal-chip{font-size:9px;padding:1px 5px}
+  .yt-list.sz-3{grid-template-columns:1fr 1fr}
+  .yt-list.sz-4{grid-template-columns:1fr 1fr}
+  .wheel-canvas-wrap{width:min(300px,78vw)!important;height:min(300px,78vw)!important;max-height:42vh!important}
+  .wheel-spin-btn{padding:10px 26px;font-size:14px}
+  .wheel-wrap{padding:.5rem}
+  .wheel-container{gap:.75rem}
 }
 </style>
 </head>
