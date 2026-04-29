@@ -141,6 +141,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .mention-at-btn{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:6px;border:1px solid #e0e0e0;background:white;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit;z-index:1;padding:0;-webkit-tap-highlight-color:transparent}
 .mention-at-btn:hover{background:#f5f3ff;color:#7c3aed;border-color:#7c3aed}
 
+
+/* accordion */
+.accordion{border:1px solid #ede9fe;border-radius:12px;overflow:hidden;margin-bottom:.8rem}
+.accordion-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#faf8ff;border:none;font-size:13px;font-weight:600;color:#4c1d95;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
+.accordion-trigger:hover{background:#f0eeff}
+.accordion-trigger .acc-arrow{transition:transform .2s;font-size:11px;flex-shrink:0}
+.accordion-trigger.open .acc-arrow{transform:rotate(180deg)}
+.accordion-body{display:none;padding:1rem;background:white;border-top:1px solid #ede9fe}
+.accordion-body.open{display:block}
+.extra-field{margin-bottom:.75rem}
+.extra-field label{display:block;font-size:12px;color:#888;margin-bottom:4px;font-weight:500}
+.extra-field input,.extra-field textarea{width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:white;color:#1a1a1a;transition:border-color .15s}
+.extra-field input:focus,.extra-field textarea:focus{outline:none;border-color:#7c3aed}
+.extra-field textarea{min-height:72px;resize:vertical}
+/* extra fields in detail view */
+.extra-view-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem 1.25rem}
+.extra-view-item{}
+.extra-view-label{font-size:10px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.extra-view-val{font-size:13px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap}
+/* auth */
+.auth-bar{background:white;border-bottom:1px solid #ede9fe;padding:.5rem 1rem}
+.auth-bar-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.auth-user{display:flex;align-items:center;gap:8px;font-size:13px;color:#555}
+.auth-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.auth-btn{padding:5px 14px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a1a;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.auth-btn:hover{background:#f5f3ff;border-color:#7c3aed}
+.auth-btn.sign-in{background:#7c3aed;color:white;border-color:#7c3aed}
+.auth-btn.sign-in:hover{background:#6d28d9}
+.auth-sync-note{font-size:11px;color:#aaa}
+.firebase-config-notice{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem;margin:1rem;font-size:13px;line-height:1.6;color:#78350f}
+.firebase-config-notice code{background:#fde68a;padding:1px 5px;border-radius:4px;font-size:12px}
+@media(max-width:640px){.extra-view-grid{grid-template-columns:1fr}}
 /* wheel */
 .wheel-wrap{max-width:960px;margin:0 auto;padding:1rem}
 .wheel-container{display:flex;flex-direction:column;align-items:center;gap:1rem}
@@ -315,6 +347,7 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 </style>
 </head>
 <body>
+<div id="auth-bar-root"></div>
 <div id="notif-banner-root"></div>
 <div id="mention-picker-root"></div>
 <div id="app-header"></div>
@@ -492,7 +525,7 @@ function dismissNotifs(keys){
 ═══════════════════════════════════ */
 const _now=new Date();
 const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
-const F={gallery:[],links:[],connections:[],shape:'circle',heightUnit:'cm'};
+const F={gallery:[],links:[],connections:[],extras:{},shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
 /* ═══════════════════════════════════
@@ -754,6 +787,47 @@ function detailPageHTML(id){
       </div>`;
     }).join('')}</div></div>`:'';
   // gallery
+
+  // extras accordion
+  const extraItems=(()=>{
+    if(!e.extras)return'';
+    const items=[];
+          {const v=e.extras&&e.extras['pronouns'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Pronouns</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['personality'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Personality</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['cursing'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Cursing</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['memory'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Memory</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['howIKnow'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">How / Why I know them</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['sleepSchedule'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Sleep schedule</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['theyLike'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Things they like</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['theyHate'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Things they hate</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['insecurities'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Insecurities</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['iLike'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Things I like (about them)</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['iDislike'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Things I dislike</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['looks'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Looks / appearance</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['speechPatterns'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Speech patterns</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['patterns'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Patterns / habits</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['musicTaste'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Music taste</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['petPeeves'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Pet peeves</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['sexuality'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Sexuality</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['familyInfo'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Family info</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['crushesDating'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Crushes / dating info</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['boundaries'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Boundaries</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['idols'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Idols</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['skills'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Skills</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['charDev'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Character development</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+        {const v=e.extras&&e.extras['myThoughts'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">My thoughts / overall extras</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+    if(!items.length)return'';
+    return`<div class="detail-section">
+      <div class="accordion" id="detail-extras-acc">
+        <button type="button" class="accordion-trigger" onclick="toggleAccordion('detail-extras-acc')">
+          <span>✦ Extra info</span><span class="acc-arrow">▼</span>
+        </button>
+        <div class="accordion-body" id="detail-extras-acc-body">
+          <div class="extra-view-grid">${items.join('')}</div>
+        </div>
+      </div>
+    </div>`;
+  })();
   const gallSec=gallery.length?`<div class="detail-section"><div class="section-label">Gallery</div>
     <div class="gallery-grid">${gallery.map((item,i)=>`
       <div class="gallery-item">
@@ -795,7 +869,7 @@ function detailPageHTML(id){
       ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${renderMentions(e.note)}</div></div>`:''}
       ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
-      ${connSec}${gallSec}${linkSec}${ytSec}
+      ${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
     </div>
   </div>`;
 }
@@ -953,8 +1027,8 @@ function cropCancel(){document.getElementById('crop-root').innerHTML='';cropData
 /* ═══════════════════════════════════
    FORM
 ═══════════════════════════════════ */
-function openAdd(){const db=getDB();F.gallery=[];F.links=[];F.connections=[];F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
-function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
+function openAdd(){const db=getDB();F.gallery=[];F.links=[];F.connections=[];F.extras={};F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
+function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
 
 function formHTML(e,cats){
   const sh=e?e.imgShape||'circle':'circle';
@@ -1050,6 +1124,38 @@ function formHTML(e,cats){
       <div id="conn-list-form"></div>
       <button type="button" class="sm-btn" style="margin-top:6px" onclick="addConn()">+ Add connection</button>
       <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"</div>
+    </div>
+    <div class="accordion" id="extras-accordion">
+      <button type="button" class="accordion-trigger" onclick="toggleAccordion('extras-accordion')">
+        <span>✦ Extra info <span style="color:#bbb;font-weight:400;font-size:11px">(pronouns, personality, notes…)</span></span>
+        <span class="acc-arrow">▼</span>
+      </button>
+      <div class="accordion-body" id="extras-accordion-body">
+      <div class="extra-field"><label>Pronouns</label><input id="f-extra-pronouns" placeholder="e.g. she/her, they/them" value="${''+(e&&e.extras&&e.extras.pronouns?esc(e.extras.pronouns):'')}" oninput="F.extras['pronouns']=this.value"></div>
+      <div class="extra-field"><label>Personality</label><div class="mention-field-wrap"><textarea id="f-extra-personality" placeholder="How would you describe their personality?" style="padding-right:30px" oninput="F.extras['personality']=this.value">${''+(e&&e.extras&&e.extras.personality?esc(e.extras.personality):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-personality')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Cursing</label><input id="f-extra-cursing" placeholder="e.g. never, rarely, a lot…" value="${''+(e&&e.extras&&e.extras.cursing?esc(e.extras.cursing):'')}" oninput="F.extras['cursing']=this.value"></div>
+      <div class="extra-field"><label>Memory</label><div class="mention-field-wrap"><textarea id="f-extra-memory" placeholder="Notes on your memories with/of them" style="padding-right:30px" oninput="F.extras['memory']=this.value">${''+(e&&e.extras&&e.extras.memory?esc(e.extras.memory):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-memory')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>How / Why I know them</label><div class="mention-field-wrap"><textarea id="f-extra-howIKnow" placeholder="How did you discover them?" style="padding-right:30px" oninput="F.extras['howIKnow']=this.value">${''+(e&&e.extras&&e.extras.howIKnow?esc(e.extras.howIKnow):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-howIKnow')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Sleep schedule</label><input id="f-extra-sleepSchedule" placeholder="e.g. night owl, early bird…" value="${''+(e&&e.extras&&e.extras.sleepSchedule?esc(e.extras.sleepSchedule):'')}" oninput="F.extras['sleepSchedule']=this.value"></div>
+      <div class="extra-field"><label>Things they like</label><div class="mention-field-wrap"><textarea id="f-extra-theyLike" placeholder="Interests, hobbies, favourites…" style="padding-right:30px" oninput="F.extras['theyLike']=this.value">${''+(e&&e.extras&&e.extras.theyLike?esc(e.extras.theyLike):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-theyLike')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Things they hate</label><div class="mention-field-wrap"><textarea id="f-extra-theyHate" placeholder="Dislikes, pet peeves of theirs…" style="padding-right:30px" oninput="F.extras['theyHate']=this.value">${''+(e&&e.extras&&e.extras.theyHate?esc(e.extras.theyHate):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-theyHate')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Insecurities</label><div class="mention-field-wrap"><textarea id="f-extra-insecurities" placeholder="" style="padding-right:30px" oninput="F.extras['insecurities']=this.value">${''+(e&&e.extras&&e.extras.insecurities?esc(e.extras.insecurities):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-insecurities')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Things I like (about them)</label><div class="mention-field-wrap"><textarea id="f-extra-iLike" placeholder="" style="padding-right:30px" oninput="F.extras['iLike']=this.value">${''+(e&&e.extras&&e.extras.iLike?esc(e.extras.iLike):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-iLike')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Things I dislike</label><div class="mention-field-wrap"><textarea id="f-extra-iDislike" placeholder="" style="padding-right:30px" oninput="F.extras['iDislike']=this.value">${''+(e&&e.extras&&e.extras.iDislike?esc(e.extras.iDislike):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-iDislike')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Looks / appearance</label><div class="mention-field-wrap"><textarea id="f-extra-looks" placeholder="Physical description, style…" style="padding-right:30px" oninput="F.extras['looks']=this.value">${''+(e&&e.extras&&e.extras.looks?esc(e.extras.looks):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-looks')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Speech patterns</label><div class="mention-field-wrap"><textarea id="f-extra-speechPatterns" placeholder="How they talk, catchphrases…" style="padding-right:30px" oninput="F.extras['speechPatterns']=this.value">${''+(e&&e.extras&&e.extras.speechPatterns?esc(e.extras.speechPatterns):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-speechPatterns')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Patterns / habits</label><div class="mention-field-wrap"><textarea id="f-extra-patterns" placeholder="Recurring behaviours, routines…" style="padding-right:30px" oninput="F.extras['patterns']=this.value">${''+(e&&e.extras&&e.extras.patterns?esc(e.extras.patterns):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-patterns')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Music taste</label><div class="mention-field-wrap"><textarea id="f-extra-musicTaste" placeholder="" style="padding-right:30px" oninput="F.extras['musicTaste']=this.value">${''+(e&&e.extras&&e.extras.musicTaste?esc(e.extras.musicTaste):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-musicTaste')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Pet peeves</label><div class="mention-field-wrap"><textarea id="f-extra-petPeeves" placeholder="" style="padding-right:30px" oninput="F.extras['petPeeves']=this.value">${''+(e&&e.extras&&e.extras.petPeeves?esc(e.extras.petPeeves):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-petPeeves')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Sexuality</label><input id="f-extra-sexuality" placeholder="" value="${''+(e&&e.extras&&e.extras.sexuality?esc(e.extras.sexuality):'')}" oninput="F.extras['sexuality']=this.value"></div>
+      <div class="extra-field"><label>Family info</label><div class="mention-field-wrap"><textarea id="f-extra-familyInfo" placeholder="" style="padding-right:30px" oninput="F.extras['familyInfo']=this.value">${''+(e&&e.extras&&e.extras.familyInfo?esc(e.extras.familyInfo):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-familyInfo')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Crushes / dating info</label><div class="mention-field-wrap"><textarea id="f-extra-crushesDating" placeholder="" style="padding-right:30px" oninput="F.extras['crushesDating']=this.value">${''+(e&&e.extras&&e.extras.crushesDating?esc(e.extras.crushesDating):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-crushesDating')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Boundaries</label><div class="mention-field-wrap"><textarea id="f-extra-boundaries" placeholder="" style="padding-right:30px" oninput="F.extras['boundaries']=this.value">${''+(e&&e.extras&&e.extras.boundaries?esc(e.extras.boundaries):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-boundaries')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Idols</label><div class="mention-field-wrap"><textarea id="f-extra-idols" placeholder="Who they look up to" style="padding-right:30px" oninput="F.extras['idols']=this.value">${''+(e&&e.extras&&e.extras.idols?esc(e.extras.idols):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-idols')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Skills</label><div class="mention-field-wrap"><textarea id="f-extra-skills" placeholder="" style="padding-right:30px" oninput="F.extras['skills']=this.value">${''+(e&&e.extras&&e.extras.skills?esc(e.extras.skills):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-skills')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>Character development</label><div class="mention-field-wrap"><textarea id="f-extra-charDev" placeholder="Their arc, growth, changes over time" style="padding-right:30px" oninput="F.extras['charDev']=this.value">${''+(e&&e.extras&&e.extras.charDev?esc(e.extras.charDev):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-charDev')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      <div class="extra-field"><label>My thoughts / overall extras</label><div class="mention-field-wrap"><textarea id="f-extra-myThoughts" placeholder="Anything else you want to note" style="padding-right:30px" oninput="F.extras['myThoughts']=this.value">${''+(e&&e.extras&&e.extras.myThoughts?esc(e.extras.myThoughts):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-myThoughts')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
+      </div>
     </div>`;
 }
 
@@ -1119,6 +1225,13 @@ function addGalFile(input){const file=input.files[0];if(!file)return;const reade
 
 /* ── TWITTER EMBED ── */
 
+function toggleAccordion(id){
+  const t=document.getElementById(id).querySelector('.accordion-trigger');
+  const b=document.getElementById(id+'-body');
+  if(!t||!b)return;
+  const open=b.classList.toggle('open');
+  t.classList.toggle('open',open);
+}
 function setVidSize(btn,cls){
   const list=document.getElementById('yt-list-wrap');if(!list)return;
   list.className='yt-list'+(cls?' '+cls:'');
@@ -1273,6 +1386,125 @@ function drawWheel(angle,entries){
   ctx.fillStyle='#7c3aed';ctx.font='bold 13px -apple-system,sans-serif';
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('\u2736',cy,cy);
 }
+
+/* ── FIREBASE / AUTH ── */
+// ↓ PASTE YOUR FIREBASE CONFIG HERE (see setup guide)
+const FIREBASE_CONFIG = null; // e.g. { apiKey:"...", authDomain:"...", projectId:"...", ... }
+
+let _fbApp=null,_fbAuth=null,_fbDb=null,_fbUser=null,_fbUnsubscribe=null;
+
+async function initFirebase(){
+  if(!FIREBASE_CONFIG)return;
+  try{
+    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const {getFirestore,doc,getDoc,setDoc,onSnapshot}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    _fbApp=initializeApp(FIREBASE_CONFIG);
+    _fbAuth=getAuth(_fbApp);
+    _fbDb=getFirestore(_fbApp);
+    window._fbModules={getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged,getFirestore,doc,getDoc,setDoc,onSnapshot};
+    onAuthStateChanged(_fbAuth,async user=>{
+      _fbUser=user;
+      if(user){
+        // load user's data from Firestore
+        const docRef=doc(_fbDb,'journals',user.uid);
+        const snap=await getDoc(docRef);
+        if(snap.exists()){
+          const d=snap.data().journal;
+          if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();}
+        }else{
+          // first login — push local data
+          await setDoc(docRef,{journal:_db});
+        }
+        // real-time listener
+        if(_fbUnsubscribe)_fbUnsubscribe();
+        _fbUnsubscribe=onSnapshot(docRef,snap=>{
+          if(snap.metadata.hasPendingWrites)return; // ignore local writes
+          const d=snap.data()?.journal;
+          if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();renderApp();}
+        });
+      }
+      renderAuthBar();
+      renderApp();
+    });
+  }catch(e){console.warn('Firebase init failed:',e);}
+}
+
+function _ensureSchema(){
+  if(!Array.isArray(_db.entries))_db.entries=[];
+  if(!Array.isArray(_db.cats))_db.cats=[...DEFAULT_CATS];
+  if(!_db.title)_db.title='My Journal';
+  if(typeof _db.nextId!=='number')_db.nextId=1;
+  if(!_db.dismissedNotifs)_db.dismissedNotifs=[];
+}
+
+async function fbSave(d){
+  if(!_fbUser||!_fbDb||!window._fbModules)return;
+  try{
+    const {doc,setDoc}=window._fbModules;
+    await setDoc(doc(_fbDb,'journals',_fbUser.uid),{journal:d});
+  }catch(e){console.warn('Firestore save failed:',e);}
+}
+
+async function signInWithGoogle(){
+  if(!_fbAuth||!window._fbModules)return;
+  const {GoogleAuthProvider,signInWithPopup}=window._fbModules;
+  try{await signInWithPopup(_fbAuth,new GoogleAuthProvider());}
+  catch(e){console.warn('Sign in failed:',e);}
+}
+
+async function signOutUser(){
+  if(!_fbAuth||!window._fbModules)return;
+  if(_fbUnsubscribe){_fbUnsubscribe();_fbUnsubscribe=null;}
+  await window._fbModules.signOut(_fbAuth);
+  _fbUser=null;
+  renderAuthBar();
+}
+
+function renderAuthBar(){
+  const root=document.getElementById('auth-bar-root');
+  if(!root)return;
+  if(!FIREBASE_CONFIG){
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <span class="auth-sync-note">☁ Cloud sync not set up — <a href="#" onclick="showFirebaseSetup();return false" style="color:#7c3aed">set up guide</a></span>
+    </div></div>`;
+    return;
+  }
+  if(_fbUser){
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <div class="auth-user">${_fbUser.photoURL?`<img src="${_fbUser.photoURL}" class="auth-avatar" alt="">`:'👤'}
+        <span>${_fbUser.displayName||_fbUser.email}</span>
+        <span class="auth-sync-note">☁ Synced</span>
+      </div>
+      <button class="auth-btn" onclick="signOutUser()">Sign out</button>
+    </div></div>`;
+  }else{
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <span class="auth-sync-note">Sign in to sync across all your devices</span>
+      <button class="auth-btn sign-in" onclick="signInWithGoogle()">Sign in with Google</button>
+    </div></div>`;
+  }
+}
+
+function showFirebaseSetup(){
+  document.getElementById('modal-root').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Set up cloud sync</div>
+    <div class="firebase-config-notice">
+      <strong>One-time setup — takes about 5 minutes.</strong><br><br>
+      <b>1.</b> Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#7c3aed">console.firebase.google.com</a> and create a free project.<br><br>
+      <b>2.</b> In your project → <b>Authentication</b> → Get started → Enable <b>Google</b> sign-in.<br><br>
+      <b>3.</b> In your project → <b>Firestore Database</b> → Create database → Start in <b>production mode</b>.<br><br>
+      <b>4.</b> In Firestore → <b>Rules</b> tab, paste this and publish:<br>
+      <code>rules_version='2'; service cloud.firestore { match /databases/{database}/documents { match /journals/{uid} { allow read,write: if request.auth.uid==uid; } } }</code><br><br>
+      <b>5.</b> Project settings (gear icon) → Your apps → Add app → Web → copy the <code>firebaseConfig</code> object.<br><br>
+      <b>6.</b> Open your <code>index.html</code> file, find the line:<br>
+      <code>const FIREBASE_CONFIG = null;</code><br>
+      Replace <code>null</code> with your config object, save, and re-upload to GitHub.<br><br>
+      After that, just sign in with Google on any device and your data is always in sync!
+    </div>
+  </div></div>`;
+}
 /* ── MENTION SYSTEM ── */
 const MENTION_RE=/\[\[([^\]|]+)\|(\d+)\]\]/g;
 
@@ -1379,6 +1611,7 @@ function collectForm(){
     gallery:[...F.gallery],
     links:F.links.filter(l=>l.url.trim()),
     connections:F.connections.filter(c=>c.entryId),
+    extras:{...F.extras},
   };
 }
 
@@ -1487,7 +1720,9 @@ async function requestNotifPerm(){
 (async()=>{
   await initDB();
   checkBirthdayNotifications();
+  renderAuthBar();
   renderApp();
+  initFirebase(); // async — updates UI when ready
 })();
 </script>
 </body>
