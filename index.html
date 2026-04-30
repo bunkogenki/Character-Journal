@@ -142,6 +142,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .mention-at-btn:hover{background:#f5f3ff;color:#7c3aed;border-color:#7c3aed}
 
 
+
+/* sort */
+.sort-row{display:flex;align-items:center;gap:6px;padding-top:8px;flex-wrap:wrap}
+.sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
+.sort-select{padding:4px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#444;cursor:pointer;-webkit-appearance:none;appearance:none}
+.sort-select:focus{outline:none;border-color:#7c3aed}
+.sort-dir-btn{padding:4px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:13px;background:white;cursor:pointer;line-height:1;font-family:inherit;color:#666;-webkit-tap-highlight-color:transparent}
+.sort-dir-btn:hover{border-color:#7c3aed;color:#7c3aed}
 /* accordion */
 .accordion{border:1px solid #ede9fe;border-radius:12px;overflow:hidden;margin-bottom:.8rem}
 .accordion-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#faf8ff;border:none;font-size:13px;font-weight:600;color:#4c1d95;cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent}
@@ -524,7 +532,7 @@ function dismissNotifs(keys){
    APP STATE
 ═══════════════════════════════════ */
 const _now=new Date();
-const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
+const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',sortBy:'default',sortDir:'asc',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
 const F={gallery:[],links:[],connections:[],extras:{},shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
@@ -585,12 +593,47 @@ function go(view,id,fromCal){
 ═══════════════════════════════════ */
 function filterEntries(){
   const db=getDB();const q=(S.search||'').toLowerCase();
-  return db.entries.filter(e=>{
+  const filtered=db.entries.filter(e=>{
     if(S.filter!=='All'&&e.cat!==S.filter)return false;
     if(!q)return true;
     return[e.name,e.kanji,e.source,e.note,...(e.tags||[])].join(' ').toLowerCase().includes(q);
   });
+  return sortEntries(filtered);
 }
+
+const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutral','neg_neutral','dislike','hate','mixed'];
+
+function sortEntries(list){
+  const dir=S.sortDir==='asc'?1:-1;
+  const clone=[...list];
+  switch(S.sortBy){
+    case'name':return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||''));
+    case'kanji':return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||''));
+    case'cat':return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
+    case'affinity':return clone.sort((a,b)=>{
+      const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');
+      return dir*((ai<0?99:ai)-(bi<0?99:bi));
+    });
+    case'age':return clone.sort((a,b)=>{
+      const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;
+      const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;
+      return dir*(aa-ba);
+    });
+    case'height':return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
+    case'birthday':return clone.sort((a,b)=>{
+      const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);
+      if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;
+      return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));
+    });
+    case'added':return clone.sort((a,b)=>dir*(a.id-b.id));
+    case'source':return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
+    default:return clone; // default = insertion order
+  }
+}
+
+function setSort(val){S.sortBy=val;updateCards();}
+function toggleSortDir(){S.sortDir=S.sortDir==='asc'?'desc':'asc';updateCards();}
+
 
 function cardHTML(e,cats){
   const sh=e.imgShape||'circle';
@@ -617,8 +660,10 @@ function updateCards(){
   const list=filterEntries();
   const countEl=document.getElementById('grid-count');
   const gridEl=document.getElementById('grid-cards');
-  // update pill active states
   document.querySelectorAll('#grid-pills .pill').forEach(p=>{p.classList.toggle('active',p.dataset.f===S.filter);});
+  // update sort select and dir button if present
+  const ss=document.querySelector('.sort-select');if(ss)ss.value=S.sortBy;
+  const sd=document.querySelector('.sort-dir-btn');if(sd)sd.textContent=S.sortDir==='asc'?'↑':'↓';
   if(countEl)countEl.textContent=list.length+' entr'+(list.length===1?'y':'ies');
   if(gridEl)gridEl.innerHTML=list.length
     ?list.map(e=>cardHTML(e,db.cats)).join('')
@@ -638,9 +683,26 @@ function gridPageHTML(){
   const cards=list.length
     ?list.map(e=>cardHTML(e,db.cats)).join('')
     :`<div class="empty"><div class="empty-icon">${db.entries.length?'🔍':'✨'}</div><p>${db.entries.length?'No results found.':'No entries yet — hit + Add to start!'}</p></div>`;
+  const sortDirIcon=S.sortDir==='asc'?'↑':'↓';
   return`<div class="content-search"><div class="content-search-inner">
       <input class="search-bar" type="text" placeholder="Search by name, kanji, show, tag…" value="${esc(S.search)}" oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <div class="filters" id="grid-pills">${pills}</div>
+      <div class="sort-row">
+        <span class="sort-label">Sort:</span>
+        <select class="sort-select" onchange="setSort(this.value)">
+          <option value="default"${S.sortBy==='default'?' selected':''}>Default</option>
+          <option value="name"${S.sortBy==='name'?' selected':''}>Name (A–Z)</option>
+          <option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji name</option>
+          <option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option>
+          <option value="age"${S.sortBy==='age'?' selected':''}>Age</option>
+          <option value="height"${S.sortBy==='height'?' selected':''}>Height</option>
+          <option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday (month/day)</option>
+          <option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option>
+          <option value="source"${S.sortBy==='source'?' selected':''}>Source</option>
+          <option value="added"${S.sortBy==='added'?' selected':''}>Date added</option>
+        </select>
+        <button class="sort-dir-btn" onclick="toggleSortDir()" title="Reverse order">${sortDirIcon}</button>
+      </div>
     </div></div>
     <div class="main">
       <div class="count-label" id="grid-count">${list.length} entr${list.length===1?'y':'ies'}</div>
@@ -1389,53 +1451,91 @@ function drawWheel(angle,entries){
 
 /* ── FIREBASE / AUTH ── */
 // ↓ PASTE YOUR FIREBASE CONFIG HERE (see setup guide)
-const FIREBASE_CONFIG =   {
- apiKey: "AIzaSyDYgrC3viZuJf6udI-40abn3s3YDgYwfL8",
-    authDomain: "character-journal.firebaseapp.com",
-    projectId: "character-journal",
-    storageBucket: "character-journal.firebasestorage.app",
-    messagingSenderId: "809963947276",
-    appId: "1:809963947276:web:a6a113efef66d9dd4db529",
-    measurementId: "G-8C7N12RFBV"
-}
+const FIREBASE_CONFIG = null; // e.g. { apiKey:"...", authDomain:"...", projectId:"...", ... }
 
 let _fbApp=null,_fbAuth=null,_fbDb=null,_fbUser=null,_fbUnsubscribe=null;
 
-async function initFirebase(){
+function initFirebase(){
   if(!FIREBASE_CONFIG)return;
-  try{
-    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-    const {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    const {getFirestore,doc,getDoc,setDoc,onSnapshot}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    _fbApp=initializeApp(FIREBASE_CONFIG);
-    _fbAuth=getAuth(_fbApp);
-    _fbDb=getFirestore(_fbApp);
-    window._fbModules={getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged,getFirestore,doc,getDoc,setDoc,onSnapshot};
-    onAuthStateChanged(_fbAuth,async user=>{
-      _fbUser=user;
-      if(user){
-        // load user's data from Firestore
-        const docRef=doc(_fbDb,'journals',user.uid);
-        const snap=await getDoc(docRef);
-        if(snap.exists()){
-          const d=snap.data().journal;
-          if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();}
-        }else{
-          // first login — push local data
-          await setDoc(docRef,{journal:_db});
+  // Load Firebase via script tags — more reliable than dynamic import
+  function loadScript(src,cb){
+    if(document.querySelector('script[src="'+src+'"]')){if(cb)cb();return;}
+    const s=document.createElement('script');s.src=src;s.onload=cb||null;document.head.appendChild(s);
+  }
+  const BASE='https://www.gstatic.com/firebasejs/10.12.0';
+  loadScript(BASE+'/firebase-app-compat.js',()=>{
+    loadScript(BASE+'/firebase-auth-compat.js',()=>{
+      loadScript(BASE+'/firebase-firestore-compat.js',()=>{
+        try{
+          if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
+          _fbAuth=firebase.auth();
+          _fbDb=firebase.firestore();
+          // handle redirect result first (for mobile redirect flow)
+          _fbAuth.getRedirectResult().then(result=>{
+            // result.user handled by onAuthStateChanged below
+          }).catch(err=>{
+            if(err.code!=='auth/credential-already-in-use')
+              console.warn('Redirect result error:',err);
+          });
+          _fbAuth.onAuthStateChanged(async user=>{
+            _fbUser=user;
+            if(user){
+              const docRef=_fbDb.collection('journals').doc(user.uid);
+              const snap=await docRef.get();
+              if(snap.exists){
+                const d=snap.data().journal;
+                if(d&&Array.isArray(d.entries)){
+                  // Merge with any local images (base64 not stored in Firestore)
+                  const localMap={};
+                  (_db.entries||[]).forEach(e=>{localMap[e.id]=e;});
+                  d.entries=d.entries.map(e=>{
+                    const loc=localMap[e.id];if(!loc)return e;
+                    return{...e,
+                      img:e.img==='__local__'?(loc.img||''):e.img,
+                      gallery:(e.gallery||[]).map((g,i)=>({...g,
+                        src:g.src==='__local__'?((loc.gallery||[])[i]?.src||''):g.src
+                      }))
+                    };
+                  });
+                  _db=d;_ensureSchema();
+                }
+              }else{
+                // First login — push local data (strip images for size)
+                await fbSave(_db);
+              }
+              if(_fbUnsubscribe)_fbUnsubscribe();
+              _fbUnsubscribe=docRef.onSnapshot(snap=>{
+                if(snap.metadata.hasPendingWrites)return;
+                const d=snap.data()?.journal;
+                if(d&&Array.isArray(d.entries)){
+                  // Restore local images that weren't synced (base64)
+                  const localMap={};
+                  (_db.entries||[]).forEach(e=>{localMap[e.id]=e;});
+                  d.entries=d.entries.map(e=>{
+                    const loc=localMap[e.id];
+                    if(!loc)return e;
+                    return{...e,
+                      img:e.img==='__local__'?(loc.img||''):e.img,
+                      gallery:(e.gallery||[]).map((g,i)=>({...g,
+                        src:g.src==='__local__'?((loc.gallery||[])[i]?.src||''):g.src
+                      }))
+                    };
+                  });
+                  _db=d;_ensureSchema();renderApp();
+                }
+              });
+            }
+            renderAuthBar();
+            renderApp();
+          });
+        }catch(e){
+          console.error('Firebase setup error:',e);
+          document.getElementById('auth-bar-root').innerHTML=
+            '<div class="auth-bar"><div class="auth-bar-inner"><span class="auth-sync-note" style="color:#dc2626">Firebase error: '+e.message+' — check your config</span></div></div>';
         }
-        // real-time listener
-        if(_fbUnsubscribe)_fbUnsubscribe();
-        _fbUnsubscribe=onSnapshot(docRef,snap=>{
-          if(snap.metadata.hasPendingWrites)return; // ignore local writes
-          const d=snap.data()?.journal;
-          if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();renderApp();}
-        });
-      }
-      renderAuthBar();
-      renderApp();
+      });
     });
-  }catch(e){console.warn('Firebase init failed:',e);}
+  });
 }
 
 function _ensureSchema(){
@@ -1447,24 +1547,45 @@ function _ensureSchema(){
 }
 
 async function fbSave(d){
-  if(!_fbUser||!_fbDb||!window._fbModules)return;
+  if(!_fbUser||!_fbDb)return;
   try{
-    const {doc,setDoc}=window._fbModules;
-    await setDoc(doc(_fbDb,'journals',_fbUser.uid),{journal:d});
-  }catch(e){console.warn('Firestore save failed:',e);}
+    // Strip base64 images before sending to Firestore (1MB doc limit)
+    // Images uploaded from device are stored locally only; URL images sync fine
+    const stripped={...d,entries:d.entries.map(e=>({
+      ...e,
+      img:(e.img&&e.img.startsWith('data:'))?'__local__':e.img,
+      gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'__local__':g.src}))
+    }))};
+    await _fbDb.collection('journals').doc(_fbUser.uid).set({journal:stripped,ts:Date.now()});
+  }catch(e){
+    console.warn('Firestore save failed:',e);
+  }
 }
 
 async function signInWithGoogle(){
-  if(!_fbAuth||!window._fbModules)return;
-  const {GoogleAuthProvider,signInWithPopup}=window._fbModules;
-  try{await signInWithPopup(_fbAuth,new GoogleAuthProvider());}
-  catch(e){console.warn('Sign in failed:',e);}
+  if(!_fbAuth)return;
+  try{
+    const provider=new firebase.auth.GoogleAuthProvider();
+    // Try popup first; fall back to redirect on mobile/blocked
+    try{
+      await _fbAuth.signInWithPopup(provider);
+    }catch(popupErr){
+      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/popup-closed-by-user'||/popup/i.test(popupErr.message)){
+        await _fbAuth.signInWithRedirect(provider);
+      }else{
+        throw popupErr;
+      }
+    }
+  }catch(e){
+    console.warn('Sign in error:',e);
+    alert('Sign in failed: '+e.message);
+  }
 }
 
 async function signOutUser(){
-  if(!_fbAuth||!window._fbModules)return;
+  if(!_fbAuth)return;
   if(_fbUnsubscribe){_fbUnsubscribe();_fbUnsubscribe=null;}
-  await window._fbModules.signOut(_fbAuth);
+  await _fbAuth.signOut();
   _fbUser=null;
   renderAuthBar();
 }
