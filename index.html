@@ -1451,7 +1451,15 @@ function drawWheel(angle,entries){
 
 /* ── FIREBASE / AUTH ── */
 // ↓ PASTE YOUR FIREBASE CONFIG HERE (see setup guide)
-const FIREBASE_CONFIG = null; // e.g. { apiKey:"...", authDomain:"...", projectId:"...", ... }
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDYgrC3viZuJf6udI-40abn3s3YDgYwfL8",
+  authDomain: "character-journal.firebaseapp.com",
+  projectId: "character-journal",
+  storageBucket: "character-journal.firebasestorage.app",
+  messagingSenderId: "809963947276",
+  appId: "1:809963947276:web:a6a113efef66d9dd4db529",
+  measurementId: "G-8C7N12RFBV"
+};
 
 let _fbApp=null,_fbAuth=null,_fbDb=null,_fbUser=null,_fbUnsubscribe=null;
 
