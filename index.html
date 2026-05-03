@@ -142,13 +142,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .mention-at-btn:hover{background:#f5f3ff;color:#7c3aed;border-color:#7c3aed}
 
 
-
 /* sort */
 .sort-row{display:flex;align-items:center;gap:6px;padding-top:8px;flex-wrap:wrap}
 .sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
-.sort-select{padding:4px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#444;cursor:pointer;-webkit-appearance:none;appearance:none}
+.sort-select{padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:inherit;background:white;color:#444;cursor:pointer;-webkit-appearance:none;appearance:none}
 .sort-select:focus{outline:none;border-color:#7c3aed}
-.sort-dir-btn{padding:4px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:13px;background:white;cursor:pointer;line-height:1;font-family:inherit;color:#666;-webkit-tap-highlight-color:transparent}
+.sort-dir-btn{width:30px;height:30px;border:1px solid #e0e0e0;border-radius:8px;background:white;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent;font-family:inherit}
 .sort-dir-btn:hover{border-color:#7c3aed;color:#7c3aed}
 /* accordion */
 .accordion{border:1px solid #ede9fe;border-radius:12px;overflow:hidden;margin-bottom:.8rem}
@@ -434,6 +433,7 @@ async function initDB(){
 function getDB(){return _db;}
 function saveDB(d){
   _db=d;
+  // LOCAL save always happens first, never blocked by Firebase
   if(_idb){
     idbPut('main',d).catch(err=>{
       try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}
@@ -441,6 +441,8 @@ function saveDB(d){
   }else{
     try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}
   }
+  // Firebase sync is fire-and-forget — never blocks local save
+  fbSave(d);
 }
 
 /* ═══════════════════════════════════
@@ -591,6 +593,41 @@ function go(view,id,fromCal){
 /* ═══════════════════════════════════
    GRID PAGE — partial card update
 ═══════════════════════════════════ */
+
+const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutral','neg_neutral','dislike','hate','mixed'];
+
+function sortEntries(list){
+  const dir=S.sortDir==='asc'?1:-1;
+  const clone=[...list];
+  switch(S.sortBy){
+    case 'name':     return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||'','ja'));
+    case 'kanji':    return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||'','ja'));
+    case 'cat':      return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
+    case 'source':   return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
+    case 'affinity': return clone.sort((a,b)=>{
+      const ai=AFFINITY_ORDER.indexOf(a.affinity||'');
+      const bi=AFFINITY_ORDER.indexOf(b.affinity||'');
+      return dir*((ai<0?99:ai)-(bi<0?99:bi));
+    });
+    case 'age':      return clone.sort((a,b)=>{
+      const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;
+      const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;
+      return dir*(aa-ba);
+    });
+    case 'height':   return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
+    case 'birthday': return clone.sort((a,b)=>{
+      const pa=parseBirthday(a.birthday);
+      const pb=parseBirthday(b.birthday);
+      if(!pa&&!pb)return 0; if(!pa)return dir; if(!pb)return-dir;
+      return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));
+    });
+    case 'added':    return clone.sort((a,b)=>dir*(a.id-b.id));
+    default:         return clone;
+  }
+}
+function setSort(val){S.sortBy=val;updateCards();}
+function toggleSortDir(){S.sortDir=S.sortDir==='asc'?'desc':'asc';updateCards();}
+
 function filterEntries(){
   const db=getDB();const q=(S.search||'').toLowerCase();
   const filtered=db.entries.filter(e=>{
@@ -600,40 +637,6 @@ function filterEntries(){
   });
   return sortEntries(filtered);
 }
-
-const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutral','neg_neutral','dislike','hate','mixed'];
-
-function sortEntries(list){
-  const dir=S.sortDir==='asc'?1:-1;
-  const clone=[...list];
-  switch(S.sortBy){
-    case'name':return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||''));
-    case'kanji':return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||''));
-    case'cat':return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
-    case'affinity':return clone.sort((a,b)=>{
-      const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');
-      return dir*((ai<0?99:ai)-(bi<0?99:bi));
-    });
-    case'age':return clone.sort((a,b)=>{
-      const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;
-      const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;
-      return dir*(aa-ba);
-    });
-    case'height':return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
-    case'birthday':return clone.sort((a,b)=>{
-      const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);
-      if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;
-      return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));
-    });
-    case'added':return clone.sort((a,b)=>dir*(a.id-b.id));
-    case'source':return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
-    default:return clone; // default = insertion order
-  }
-}
-
-function setSort(val){S.sortBy=val;updateCards();}
-function toggleSortDir(){S.sortDir=S.sortDir==='asc'?'desc':'asc';updateCards();}
-
 
 function cardHTML(e,cats){
   const sh=e.imgShape||'circle';
@@ -661,7 +664,6 @@ function updateCards(){
   const countEl=document.getElementById('grid-count');
   const gridEl=document.getElementById('grid-cards');
   document.querySelectorAll('#grid-pills .pill').forEach(p=>{p.classList.toggle('active',p.dataset.f===S.filter);});
-  // update sort select and dir button if present
   const ss=document.querySelector('.sort-select');if(ss)ss.value=S.sortBy;
   const sd=document.querySelector('.sort-dir-btn');if(sd)sd.textContent=S.sortDir==='asc'?'↑':'↓';
   if(countEl)countEl.textContent=list.length+' entr'+(list.length===1?'y':'ies');
@@ -683,26 +685,9 @@ function gridPageHTML(){
   const cards=list.length
     ?list.map(e=>cardHTML(e,db.cats)).join('')
     :`<div class="empty"><div class="empty-icon">${db.entries.length?'🔍':'✨'}</div><p>${db.entries.length?'No results found.':'No entries yet — hit + Add to start!'}</p></div>`;
-  const sortDirIcon=S.sortDir==='asc'?'↑':'↓';
   return`<div class="content-search"><div class="content-search-inner">
       <input class="search-bar" type="text" placeholder="Search by name, kanji, show, tag…" value="${esc(S.search)}" oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <div class="filters" id="grid-pills">${pills}</div>
-      <div class="sort-row">
-        <span class="sort-label">Sort:</span>
-        <select class="sort-select" onchange="setSort(this.value)">
-          <option value="default"${S.sortBy==='default'?' selected':''}>Default</option>
-          <option value="name"${S.sortBy==='name'?' selected':''}>Name (A–Z)</option>
-          <option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji name</option>
-          <option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option>
-          <option value="age"${S.sortBy==='age'?' selected':''}>Age</option>
-          <option value="height"${S.sortBy==='height'?' selected':''}>Height</option>
-          <option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday (month/day)</option>
-          <option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option>
-          <option value="source"${S.sortBy==='source'?' selected':''}>Source</option>
-          <option value="added"${S.sortBy==='added'?' selected':''}>Date added</option>
-        </select>
-        <button class="sort-dir-btn" onclick="toggleSortDir()" title="Reverse order">${sortDirIcon}</button>
-      </div>
     </div></div>
     <div class="main">
       <div class="count-label" id="grid-count">${list.length} entr${list.length===1?'y':'ies'}</div>
@@ -1459,7 +1444,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "809963947276",
   appId: "1:809963947276:web:a6a113efef66d9dd4db529",
   measurementId: "G-8C7N12RFBV"
-};
+};}
 
 let _fbApp=null,_fbAuth=null,_fbDb=null,_fbUser=null,_fbUnsubscribe=null;
 
@@ -1491,45 +1476,51 @@ function initFirebase(){
               const docRef=_fbDb.collection('journals').doc(user.uid);
               const snap=await docRef.get();
               if(snap.exists){
-                const d=snap.data().journal;
-                if(d&&Array.isArray(d.entries)){
-                  // Merge with any local images (base64 not stored in Firestore)
-                  const localMap={};
-                  (_db.entries||[]).forEach(e=>{localMap[e.id]=e;});
-                  d.entries=d.entries.map(e=>{
-                    const loc=localMap[e.id];if(!loc)return e;
+                const remote=snap.data().journal;
+                if(remote&&Array.isArray(remote.entries)){
+                  // Merge: keep local images for entries that exist locally
+                  const localById={};
+                  (_db.entries||[]).forEach(e=>{localById[e.id]=e;});
+                  remote.entries=remote.entries.map(e=>{
+                    const loc=localById[e.id];
+                    if(!loc)return e;
+                    // Restore local images that weren't synced (base64)
                     return{...e,
-                      img:e.img==='__local__'?(loc.img||''):e.img,
-                      gallery:(e.gallery||[]).map((g,i)=>({...g,
-                        src:g.src==='__local__'?((loc.gallery||[])[i]?.src||''):g.src
-                      }))
+                      img:(!e.img&&loc.img)?loc.img:e.img,
+                      gallery:(e.gallery||[]).map((g,i)=>
+                        (!g.src&&loc.gallery&&loc.gallery[i]?.src)
+                          ?{...g,src:loc.gallery[i].src}:g
+                      )
                     };
                   });
-                  _db=d;_ensureSchema();
+                  _db=remote;_ensureSchema();
+                  // Save merged result locally so images persist
+                  if(_idb)idbPut('main',_db).catch(()=>{});
                 }
               }else{
-                // First login — push local data (strip images for size)
-                await fbSave(_db);
+                // First sign-in: push local data to Firestore
+                fbSave(_db);
               }
               if(_fbUnsubscribe)_fbUnsubscribe();
               _fbUnsubscribe=docRef.onSnapshot(snap=>{
                 if(snap.metadata.hasPendingWrites)return;
-                const d=snap.data()?.journal;
-                if(d&&Array.isArray(d.entries)){
-                  // Restore local images that weren't synced (base64)
-                  const localMap={};
-                  (_db.entries||[]).forEach(e=>{localMap[e.id]=e;});
-                  d.entries=d.entries.map(e=>{
-                    const loc=localMap[e.id];
-                    if(!loc)return e;
+                const remote=snap.data()?.journal;
+                if(remote&&Array.isArray(remote.entries)){
+                  const localById={};
+                  (_db.entries||[]).forEach(e=>{localById[e.id]=e;});
+                  remote.entries=remote.entries.map(e=>{
+                    const loc=localById[e.id];if(!loc)return e;
                     return{...e,
-                      img:e.img==='__local__'?(loc.img||''):e.img,
-                      gallery:(e.gallery||[]).map((g,i)=>({...g,
-                        src:g.src==='__local__'?((loc.gallery||[])[i]?.src||''):g.src
-                      }))
+                      img:(!e.img&&loc.img)?loc.img:e.img,
+                      gallery:(e.gallery||[]).map((g,i)=>
+                        (!g.src&&loc.gallery&&loc.gallery[i]?.src)
+                          ?{...g,src:loc.gallery[i].src}:g
+                      )
                     };
                   });
-                  _db=d;_ensureSchema();renderApp();
+                  _db=remote;_ensureSchema();
+                  if(_idb)idbPut('main',_db).catch(()=>{});
+                  renderApp();
                 }
               });
             }
@@ -1557,17 +1548,18 @@ function _ensureSchema(){
 async function fbSave(d){
   if(!_fbUser||!_fbDb)return;
   try{
-    // Strip base64 images before sending to Firestore (1MB doc limit)
-    // Images uploaded from device are stored locally only; URL images sync fine
-    const stripped={...d,entries:d.entries.map(e=>({
+    // Strip base64 images — too large for Firestore 1MB limit.
+    // URL-based images (pasted links) sync fine. Uploaded photos stay device-local.
+    const stripped={...d,entries:(d.entries||[]).map(e=>({
       ...e,
-      img:(e.img&&e.img.startsWith('data:'))?'__local__':e.img,
-      gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'__local__':g.src}))
+      img:(e.img&&e.img.startsWith('data:'))?'':e.img,
+      gallery:(e.gallery||[]).map(g=>({
+        ...g,src:(g.src&&g.src.startsWith('data:'))?'':g.src
+      }))
     }))};
-    await _fbDb.collection('journals').doc(_fbUser.uid).set({journal:stripped,ts:Date.now()});
-  }catch(e){
-    console.warn('Firestore save failed:',e);
-  }
+    await _fbDb.collection('journals').doc(_fbUser.uid)
+      .set({journal:stripped,updated:Date.now()},{merge:false});
+  }catch(e){console.warn('Firestore sync failed (local save unaffected):',e);}
 }
 
 async function signInWithGoogle(){
