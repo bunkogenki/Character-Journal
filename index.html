@@ -142,6 +142,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .mention-at-btn:hover{background:#f5f3ff;color:#7c3aed;border-color:#7c3aed}
 
 
+/* copy-paste backup */
+.backup-textarea{width:100%;height:200px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333;line-height:1.4}
+.backup-textarea:focus{outline:none;border-color:#7c3aed}
 /* sort */
 .sort-row{display:flex;align-items:center;gap:6px;padding-top:8px;flex-wrap:wrap}
 .sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
@@ -167,7 +170,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .extra-view-item{}
 .extra-view-label{font-size:10px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
 .extra-view-val{font-size:13px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap}
-
+/* auth */
+.auth-bar{background:white;border-bottom:1px solid #ede9fe;padding:.5rem 1rem}
+.auth-bar-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.auth-user{display:flex;align-items:center;gap:8px;font-size:13px;color:#555}
+.auth-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.auth-btn{padding:5px 14px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a1a;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.auth-btn:hover{background:#f5f3ff;border-color:#7c3aed}
+.auth-btn.sign-in{background:#7c3aed;color:white;border-color:#7c3aed}
+.auth-btn.sign-in:hover{background:#6d28d9}
+.auth-sync-note{font-size:11px;color:#aaa}
+.firebase-config-notice{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem;margin:1rem;font-size:13px;line-height:1.6;color:#78350f}
+.firebase-config-notice code{background:#fde68a;padding:1px 5px;border-radius:4px;font-size:12px}
 @media(max-width:640px){.extra-view-grid{grid-template-columns:1fr}}
 /* wheel */
 .wheel-wrap{max-width:960px;margin:0 auto;padding:1rem}
@@ -343,6 +357,7 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 </style>
 </head>
 <body>
+<div id="auth-bar-root"></div>
 <div id="notif-banner-root"></div>
 <div id="mention-picker-root"></div>
 <div id="app-header"></div>
@@ -583,16 +598,17 @@ const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutra
 function sortEntries(list){
   const dir=S.sortDir==='asc'?1:-1;const clone=[...list];
   switch(S.sortBy){
-    case'name':return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||'','ja'));
-    case'kanji':return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||'','ja'));
-    case'cat':return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
-    case'source':return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
-    case'affinity':return clone.sort((a,b)=>{const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');return dir*((ai<0?99:ai)-(bi<0?99:bi));});
-    case'age':return clone.sort((a,b)=>{const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;return dir*(aa-ba);});
-    case'height':return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
-    case'birthday':return clone.sort((a,b)=>{const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));});
-    case'added':return clone.sort((a,b)=>dir*(a.id-b.id));
-    default:return clone;
+    case 'fav':    return clone.sort((a,b)=>(a.fav?0:1)-(b.fav?0:1));
+    case 'name':   return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||'','ja'));
+    case 'kanji':  return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||'','ja'));
+    case 'cat':    return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
+    case 'source': return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
+    case 'affinity':return clone.sort((a,b)=>{const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');return dir*((ai<0?99:ai)-(bi<0?99:bi));});
+    case 'age':    return clone.sort((a,b)=>{const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;return dir*(aa-ba);});
+    case 'height': return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
+    case 'birthday':return clone.sort((a,b)=>{const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));});
+    case 'added':  return clone.sort((a,b)=>dir*(a.id-b.id));
+    default:       return clone;
   }
 }
 function setSort(val){S.sortBy=val;updateCards();}
@@ -615,7 +631,7 @@ function cardHTML(e,cats){
   const aff=affData(e.affinity);
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
-  return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})">
+  return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'❤':'♡'}</button>
     <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
     <div class="card-name">${esc(e.name)}</div>
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
@@ -635,6 +651,8 @@ function updateCards(){
   const gridEl=document.getElementById('grid-cards');
   // update pill active states
   document.querySelectorAll('#grid-pills .pill').forEach(p=>{p.classList.toggle('active',p.dataset.f===S.filter);});
+  const _ss=document.querySelector('.sort-select');if(_ss)_ss.value=S.sortBy;
+  const _sd=document.querySelector('.sort-dir-btn');if(_sd)_sd.textContent=S.sortDir==='asc'?'↑':'↓';
   if(countEl)countEl.textContent=list.length+' entr'+(list.length===1?'y':'ies');
   if(gridEl)gridEl.innerHTML=list.length
     ?list.map(e=>cardHTML(e,db.cats)).join('')
@@ -809,6 +827,7 @@ function detailPageHTML(id){
     if(!e.extras)return'';
     const items=[];
           {const v=e.extras&&e.extras['pronouns'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Pronouns</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
+    {const v=e.extras&&e.extras['callsSelf'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Calls self</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
         {const v=e.extras&&e.extras['personality'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Personality</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
         {const v=e.extras&&e.extras['cursing'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Cursing</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
         {const v=e.extras&&e.extras['memory'];if(v)items.push(`<div class="extra-view-item"><div class="extra-view-label">Memory</div><div class="extra-view-val">${renderMentions(v)}</div></div>`);}
@@ -863,6 +882,7 @@ function detailPageHTML(id){
     <div class="detail-header">
       <button class="back-btn" onclick="${backTarget}">${backLabel}</button>
       <div class="detail-header-name">${esc(e.name)}</div>
+      <button class="detail-heart-btn${e.fav?' on':''}" id="detail-heart-btn" onclick="toggleFav(${e.id})">${e.fav?'❤ Favourited':'♡ Favourite'}</button>
       <button class="detail-edit-btn" onclick="openEdit(${e.id})">Edit</button>
     </div>
     <div class="detail-body">
@@ -1148,6 +1168,7 @@ function formHTML(e,cats){
       </button>
       <div class="accordion-body" id="extras-accordion-body">
       <div class="extra-field"><label>Pronouns</label><input id="f-extra-pronouns" placeholder="e.g. she/her, they/them" value="${''+(e&&e.extras&&e.extras.pronouns?esc(e.extras.pronouns):'')}" oninput="F.extras['pronouns']=this.value"></div>
+      <div class="extra-field"><label>Calls self <span style="color:#bbb;font-weight:400">(first-person pronoun)</span></label><input id="f-extra-callsSelf" placeholder="e.g. 僕, 俺, わらわ, わし, 私, I…" value="${''+(e&&e.extras&&e.extras.callsSelf?esc(e.extras.callsSelf):'')}" oninput="F.extras['callsSelf']=this.value"></div>
       <div class="extra-field"><label>Personality</label><div class="mention-field-wrap"><textarea id="f-extra-personality" placeholder="How would you describe their personality?" style="padding-right:30px" oninput="F.extras['personality']=this.value">${''+(e&&e.extras&&e.extras.personality?esc(e.extras.personality):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-personality')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
       <div class="extra-field"><label>Cursing</label><input id="f-extra-cursing" placeholder="e.g. never, rarely, a lot…" value="${''+(e&&e.extras&&e.extras.cursing?esc(e.extras.cursing):'')}" oninput="F.extras['cursing']=this.value"></div>
       <div class="extra-field"><label>Memory</label><div class="mention-field-wrap"><textarea id="f-extra-memory" placeholder="Notes on your memories with/of them" style="padding-right:30px" oninput="F.extras['memory']=this.value">${''+(e&&e.extras&&e.extras.memory?esc(e.extras.memory):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-memory')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
@@ -1403,6 +1424,215 @@ function drawWheel(angle,entries){
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('\u2736',cy,cy);
 }
 
+/* ── FIREBASE / AUTH ── */
+// ↓ PASTE YOUR FIREBASE CONFIG HERE (see setup guide)
+const FIREBASE_CONFIG = null; // e.g. { apiKey:"...", authDomain:"...", projectId:"...", ... }
+
+let _fbApp=null,_fbAuth=null,_fbDb=null,_fbUser=null,_fbUnsubscribe=null;
+
+function initFirebase(){
+  if(!FIREBASE_CONFIG)return;
+  // Load Firebase via script tags — more reliable than dynamic import
+  function loadScript(src,cb){
+    if(document.querySelector('script[src="'+src+'"]')){if(cb)cb();return;}
+    const s=document.createElement('script');s.src=src;s.onload=cb||null;document.head.appendChild(s);
+  }
+  const BASE='https://www.gstatic.com/firebasejs/10.12.0';
+  loadScript(BASE+'/firebase-app-compat.js',()=>{
+    loadScript(BASE+'/firebase-auth-compat.js',()=>{
+      loadScript(BASE+'/firebase-firestore-compat.js',()=>{
+        try{
+          if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
+          _fbAuth=firebase.auth();
+          _fbDb=firebase.firestore();
+          // handle redirect result first (for mobile redirect flow)
+          _fbAuth.getRedirectResult().then(result=>{
+            // result.user handled by onAuthStateChanged below
+          }).catch(err=>{
+            if(err.code!=='auth/credential-already-in-use')
+              console.warn('Redirect result error:',err);
+          });
+          _fbAuth.onAuthStateChanged(async user=>{
+            _fbUser=user;
+            if(user){
+              const docRef=_fbDb.collection('journals').doc(user.uid);
+              const snap=await docRef.get();
+              if(snap.exists){
+                const d=snap.data().journal;
+                if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();}
+              }else{
+                await docRef.set({journal:_db});
+              }
+              if(_fbUnsubscribe)_fbUnsubscribe();
+              _fbUnsubscribe=docRef.onSnapshot(snap=>{
+                if(snap.metadata.hasPendingWrites)return;
+                const d=snap.data()?.journal;
+                if(d&&Array.isArray(d.entries)){_db=d;_ensureSchema();renderApp();}
+              });
+            }
+            renderAuthBar();
+            renderApp();
+          });
+        }catch(e){
+          console.error('Firebase setup error:',e);
+          document.getElementById('auth-bar-root').innerHTML=
+            '<div class="auth-bar"><div class="auth-bar-inner"><span class="auth-sync-note" style="color:#dc2626">Firebase error: '+e.message+' — check your config</span></div></div>';
+        }
+      });
+    });
+  });
+}
+
+function _ensureSchema(){
+  if(!Array.isArray(_db.entries))_db.entries=[];
+  if(!Array.isArray(_db.cats))_db.cats=[...DEFAULT_CATS];
+  if(!_db.title)_db.title='My Journal';
+  if(typeof _db.nextId!=='number')_db.nextId=1;
+  if(!_db.dismissedNotifs)_db.dismissedNotifs=[];
+}
+
+async function fbSave(d){
+  if(!_fbUser||!_fbDb)return;
+  try{
+    await _fbDb.collection('journals').doc(_fbUser.uid).set({journal:d});
+  }catch(e){console.warn('Firestore save failed:',e);}
+}
+
+async function signInWithGoogle(){
+  if(!_fbAuth)return;
+  try{
+    const provider=new firebase.auth.GoogleAuthProvider();
+    // Try popup first; fall back to redirect on mobile/blocked
+    try{
+      await _fbAuth.signInWithPopup(provider);
+    }catch(popupErr){
+      if(popupErr.code==='auth/popup-blocked'||popupErr.code==='auth/popup-closed-by-user'||/popup/i.test(popupErr.message)){
+        await _fbAuth.signInWithRedirect(provider);
+      }else{
+        throw popupErr;
+      }
+    }
+  }catch(e){
+    console.warn('Sign in error:',e);
+    alert('Sign in failed: '+e.message);
+  }
+}
+
+async function signOutUser(){
+  if(!_fbAuth)return;
+  if(_fbUnsubscribe){_fbUnsubscribe();_fbUnsubscribe=null;}
+  await _fbAuth.signOut();
+  _fbUser=null;
+  renderAuthBar();
+}
+
+function renderAuthBar(){
+  const root=document.getElementById('auth-bar-root');
+  if(!root)return;
+  if(!FIREBASE_CONFIG){
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <span class="auth-sync-note">☁ Cloud sync not set up — <a href="#" onclick="showFirebaseSetup();return false" style="color:#7c3aed">set up guide</a></span>
+    </div></div>`;
+    return;
+  }
+  if(_fbUser){
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <div class="auth-user">${_fbUser.photoURL?`<img src="${_fbUser.photoURL}" class="auth-avatar" alt="">`:'👤'}
+        <span>${_fbUser.displayName||_fbUser.email}</span>
+        <span class="auth-sync-note">☁ Synced</span>
+      </div>
+      <button class="auth-btn" onclick="signOutUser()">Sign out</button>
+    </div></div>`;
+  }else{
+    root.innerHTML=`<div class="auth-bar"><div class="auth-bar-inner">
+      <span class="auth-sync-note">Sign in to sync across all your devices</span>
+      <button class="auth-btn sign-in" onclick="signInWithGoogle()">Sign in with Google</button>
+    </div></div>`;
+  }
+}
+
+function showFirebaseSetup(){
+  document.getElementById('modal-root').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Set up cloud sync</div>
+    <div class="firebase-config-notice">
+      <strong>One-time setup — takes about 5 minutes.</strong><br><br>
+      <b>1.</b> Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#7c3aed">console.firebase.google.com</a> and create a free project.<br><br>
+      <b>2.</b> In your project → <b>Authentication</b> → Get started → Enable <b>Google</b> sign-in.<br><br>
+      <b>3.</b> In your project → <b>Firestore Database</b> → Create database → Start in <b>production mode</b>.<br><br>
+      <b>4.</b> In Firestore → <b>Rules</b> tab, paste this and publish:<br>
+      <code>rules_version='2'; service cloud.firestore { match /databases/{database}/documents { match /journals/{uid} { allow read,write: if request.auth.uid==uid; } } }</code><br><br>
+      <b>5.</b> Project settings (gear icon) → Your apps → Add app → Web → copy the <code>firebaseConfig</code> object.<br><br>
+      <b>6.</b> Open your <code>index.html</code> file, find the line:<br>
+      <code>const FIREBASE_CONFIG = null;</code><br>
+      Replace <code>null</code> with your config object, save, and re-upload to GitHub.<br><br>
+      After that, just sign in with Google on any device and your data is always in sync!
+    </div>
+  </div></div>`;
+}
+
+function openCopyBackup(){
+  const db=getDB();
+  const json=JSON.stringify(db,null,2);
+  document.getElementById('modal-root').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Copy backup text</div>
+    <p style="font-size:13px;color:#666;margin-bottom:.75rem">Select all and copy this text. To restore, use "Paste backup text" and paste it back.</p>
+    <textarea class="backup-textarea" id="copy-backup-ta" readonly onclick="this.select()">${json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+    <div class="btn-row" style="margin-top:.75rem">
+      <button class="btn btn-primary" onclick="doCopyBackup()">Copy to clipboard</button>
+      <button class="btn" onclick="closeModal()">Close</button>
+    </div>
+    <div id="copy-backup-status" style="font-size:12px;color:#065f46;margin-top:6px;display:none">✓ Copied!</div>
+  </div></div>\`;
+}
+function doCopyBackup(){
+  const ta=document.getElementById('copy-backup-ta');
+  if(!ta)return;
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const s=document.getElementById('copy-backup-status');if(s){s.style.display='block';setTimeout(()=>s.style.display='none',2500);}
+  }).catch(()=>{ta.select();document.execCommand('copy');});
+}
+
+function openPasteBackup(){
+  document.getElementById('modal-root').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Paste backup text</div>
+    <p style="font-size:13px;color:#666;margin-bottom:.75rem">Paste the full backup text below, then click Import.</p>
+    <textarea class="backup-textarea" id="paste-backup-ta" placeholder="Paste your backup JSON here…"></textarea>
+    <div class="btn-row" style="margin-top:.75rem">
+      <button class="btn btn-primary" onclick="doPasteBackup()">Import</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+    </div>
+    <div id="paste-backup-status" style="font-size:12px;color:#991b1b;margin-top:6px;display:none"></div>
+  </div></div>\`;
+}
+function doPasteBackup(){
+  const ta=document.getElementById('paste-backup-ta');
+  if(!ta)return;
+  let text=(ta.value||'').replace(/^\uFEFF/,'').trim();
+  let d;
+  try{d=JSON.parse(text);}
+  catch(e){
+    const s=document.getElementById('paste-backup-status');
+    if(s){s.textContent='Could not parse — make sure you pasted the full backup text.';s.style.display='block';}
+    return;
+  }
+  if(!d||!Array.isArray(d.entries)){
+    const s=document.getElementById('paste-backup-status');
+    if(s){s.textContent='This does not look like a valid backup.';s.style.display='block';}
+    return;
+  }
+  if(!confirm('Import '+d.entries.length+' entries? This replaces all current data.'))return;
+  if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];
+  if(!d.title)d.title='My Journal';
+  if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;
+  if(!d.dismissedNotifs)d.dismissedNotifs=[];
+  _db=d;
+  if(_idb)idbPut('main',d).catch(()=>{});
+  else{try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}}
+  closeModal();
+}
 /* ── MENTION SYSTEM ── */
 const MENTION_RE=/\[\[([^\]|]+)\|(\d+)\]\]/g;
 
@@ -1543,9 +1773,14 @@ function openMenu(){
     <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem">Backup & Restore</div>
     <p style="font-size:12px;color:#aaa;margin-bottom:8px">Export regularly. Storage now uses IndexedDB — much larger capacity than before, so images should import fine on mobile.</p>
     <div class="settings-row">
-      <button class="btn" onclick="exportData()">Export backup (.json)</button>
-      <button class="btn" onclick="document.getElementById('imp-inp').click()">Import backup</button>
+      <button class="btn" onclick="exportData()">⬇ Export (.json file)</button>
+      <button class="btn" onclick="document.getElementById('imp-inp').click()">⬆ Import (.json file)</button>
     </div>
+    <div class="settings-row" style="margin-top:6px">
+      <button class="btn" onclick="openCopyBackup()">⧉ Copy backup text</button>
+      <button class="btn" onclick="openPasteBackup()">⧈ Paste backup text</button>
+    </div>
+    <p style="font-size:11px;color:#aaa;margin-top:6px">Use "Copy / Paste text" if you can't download files on a device.</p>
     <input type="file" id="imp-inp" accept=".json,application/json,text/plain,text/*" style="display:none" onchange="importData(event)">
   </div></div>`;
 }
@@ -1618,7 +1853,9 @@ async function requestNotifPerm(){
 (async()=>{
   await initDB();
   checkBirthdayNotifications();
+  renderAuthBar();
   renderApp();
+  initFirebase(); // async — updates UI when ready
 })();
 </script>
 </body>
