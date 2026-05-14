@@ -145,6 +145,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 /* copy-paste backup */
 .backup-textarea{width:100%;height:200px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333;line-height:1.4}
 .backup-textarea:focus{outline:none;border-color:#7c3aed}
+/* heart favorite */
+.card-heart{position:absolute;top:6px;right:8px;width:26px;height:26px;border-radius:50%;border:1.5px solid #ccc;background:white;color:transparent;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .18s;-webkit-tap-highlight-color:transparent;z-index:2;padding:0;font-family:inherit}
+.card-heart::after{content:'♡';color:#ccc;font-size:14px;transition:all .18s}
+.card-heart.on{border-color:#e879a0;background:#fff0f5}
+.card-heart.on::after{content:'♥';color:#e03c7a}
+.card-heart:hover{border-color:#e879a0;background:#fff0f5}
+.card-heart:hover::after{color:#e03c7a}
+.detail-heart-btn{padding:7px 14px;border-radius:8px;border:1.5px solid #ccc;background:white;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .18s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:5px;white-space:nowrap;color:#888}
+.detail-heart-btn:hover{border-color:#e879a0;background:#fff0f5;color:#e03c7a}
+.detail-heart-btn.on{border-color:#e879a0;background:#fff0f5;color:#e03c7a}
 /* sort */
 .sort-row{display:flex;align-items:center;gap:6px;padding-top:8px;flex-wrap:wrap}
 .sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
@@ -595,6 +605,25 @@ function go(view,id,fromCal){
 ═══════════════════════════════════ */
 
 const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutral','neg_neutral','dislike','hate','mixed'];
+
+function toggleFav(entryId, ev){
+  if(ev){ev.stopPropagation();}
+  const db=getDB();
+  const e=db.entries.find(x=>x.id===entryId);
+  if(!e)return;
+  e.fav=!e.fav;
+  saveDB(db);
+  // update card heart without full re-render
+  const btn=document.querySelector('.card-heart[data-id="'+entryId+'"]');
+  if(btn)btn.classList.toggle('on',!!e.fav);
+  // update detail heart button if visible
+  const dbtn=document.getElementById('detail-heart-btn');
+  if(dbtn){
+    dbtn.classList.toggle('on',!!e.fav);
+    dbtn.textContent=e.fav?'❤ Favourited':'♡ Favourite';
+  }
+}
+
 function sortEntries(list){
   const dir=S.sortDir==='asc'?1:-1;const clone=[...list];
   switch(S.sortBy){
@@ -631,7 +660,7 @@ function cardHTML(e,cats){
   const aff=affData(e.affinity);
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
-  return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'❤':'♡'}</button>
+  return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)"></button>
     <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
     <div class="card-name">${esc(e.name)}</div>
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
