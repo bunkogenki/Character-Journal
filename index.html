@@ -1183,10 +1183,93 @@ function drawWheel(angle,entries){
 
 /* ── FIREBASE / AUTH ── */
 // ↓ PASTE YOUR FIREBASE CONFIG HERE (see setup guide)
+
+/* ── SHARE PROFILE ── */
+function openShare(id){
+  const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;
+  const shareable={...e,
+    img:(e.img&&e.img.startsWith('data:'))?'':e.img,
+    gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'':g.src}))
+  };
+  let encoded='';
+  try{encoded=btoa(unescape(encodeURIComponent(JSON.stringify(shareable))));}catch(err){}
+  const url=window.location.origin+window.location.pathname+'#share='+encoded;
+  const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id);
+  const sh=e.imgShape||'circle';
+  const aff=affData(e.affinity);
+  const av=e.img&&!e.img.startsWith('data:')?`<img src="${esc(e.img)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'';
+  document.getElementById('modal-root').innerHTML=`<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Share profile</div>
+    <div style="display:flex;gap:12px;align-items:center;padding:1rem;background:#faf8ff;border:1px solid #ede9fe;border-radius:12px;margin-bottom:1rem">
+      <div class="sh-${sh}" style="width:52px;height:52px;background:${bg};color:${fg};font-size:18px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden">${av||initials(e.name)}</div>
+      <div><div style="font-size:16px;font-weight:700">${esc(e.name)}</div>${e.kanji?`<div style="font-size:13px;color:#888">${esc(e.kanji)}</div>`:''}</div>
+    </div>
+    <p style="font-size:13px;color:#666;margin-bottom:.5rem">Anyone with this link can view this profile (read-only). Uploaded photos are not included.</p>
+    <div style="display:flex;gap:6px">
+      <input style="flex:1;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:monospace;background:#f9f9f9;color:#444" id="share-link-inp" value="${esc(url)}" readonly onclick="this.select()">
+      <button class="btn btn-primary" style="flex-shrink:0" onclick="copyShareLink()">Copy</button>
+    </div>
+    <div id="share-copy-st" style="font-size:12px;color:#065f46;margin-top:6px;display:none">✓ Copied!</div>
+  </div></div>`;
+}
+
+function copyShareLink(){
+  const inp=document.getElementById('share-link-inp');if(!inp)return;
+  navigator.clipboard.writeText(inp.value)
+    .then(()=>{const s=document.getElementById('share-copy-st');if(s){s.style.display='block';setTimeout(()=>s.style.display='none',2000);}})
+    .catch(()=>{inp.select();document.execCommand('copy');});
+}
+
+function checkShareLink(){
+  const hash=window.location.hash;
+  if(!hash.startsWith('#share='))return false;
+  try{
+    const e=JSON.parse(decodeURIComponent(escape(atob(hash.slice(7)))));
+    if(!e||!e.name)return false;
+    renderSharedProfile(e);return true;
+  }catch(err){return false;}
+}
+
+function renderSharedProfile(e){
+  const[bg,fg]=e.hexColor?[e.hexColor+'22',e.hexColor]:pal(e.id||0);
+  const sh=e.imgShape||'circle';
+  const aff=affData(e.affinity);
+  const av=e.img?`<img src="${esc(e.img)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'';
+  const gallery=(e.gallery||[]).filter(g=>g.src&&!g.src.startsWith('data:'));
+  const gallHtml=gallery.length?`<div class="detail-section"><div class="section-label">Gallery</div><div class="gallery-grid">${gallery.map(g=>`<div class="gallery-item"><img class="g-thumb" src="${esc(g.src)}" onerror="this.closest('.gallery-item').style.display='none'">${g.caption?`<div class="g-caption">${esc(g.caption)}</div>`:''}</div>`).join('')}</div></div>`:'';
+  document.getElementById('app-header').innerHTML='';
+  document.getElementById('app-content').innerHTML=`<div class="detail-page">
+    <div class="detail-header">
+      <button class="back-btn" onclick="window.location.hash='';location.reload()">← Back</button>
+      <div class="detail-header-name">${esc(e.name)} — shared profile</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-hero" style="background:${e.hexColor?e.hexColor+'13':bg}">
+        <div class="detail-avatar sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+        <div class="detail-info">
+          <div class="detail-name">${esc(e.name)}</div>
+          ${e.kanji?`<div class="detail-kanji">${esc(e.kanji)}</div>`:''}
+          <div class="detail-badges">
+            <span class="badge" style="background:${bg};color:${fg}">${esc(e.cat||'')}</span>
+            ${aff?`<span class="badge" style="background:${aff.bg};color:${aff.color}">${aff.short}</span>`:''}
+          </div>
+          ${e.source?`<div class="detail-meta">📍 ${esc(e.source)}</div>`:''}
+          ${e.birthday?`<div class="detail-meta">🎂 ${esc(e.birthday)}</div>`:''}
+          ${e.heightCm?`<div class="detail-meta">📏 ${heightDisplay(e.heightCm)}</div>`:''}
+        </div>
+      </div>
+      ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
+      ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${esc(e.note)}</div></div>`:''}
+      ${gallHtml}
+      <div style="margin-top:2rem;padding:1rem;background:#f5f3ff;border-radius:10px;text-align:center;font-size:13px;color:#7c3aed">Shared from <b>Character Journal</b></div>
+    </div>
+  </div>`;
+}
 /* ── GIST SYNC ── */
 // Paste your GitHub Personal Access Token here (scope: gist only)
 // Generate at: github.com/settings/tokens → New token → check "gist" → Generate
-const GIST_TOKEN='';   // e.g. 'ghp_xxxxxxxxxxxx'
+const GIST_TOKEN='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';
 const GIST_FILENAME='character-journal-data.json';
 let _gistId=null; // discovered or created on first sync
 
@@ -1413,8 +1496,7 @@ async function importData(ev){
 
 (async()=>{
   await initDB();
-  checkBirthdayNotifications();
-  renderApp();
+  if(!checkShareLink()){checkBirthdayNotifications();renderApp();}
 })();
 </script>
 </body>
