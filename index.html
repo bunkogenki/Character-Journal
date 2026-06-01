@@ -1704,22 +1704,32 @@ function gistOn(){ return GIST_TOKEN.trim().length > 10; }
 
 async function gistFetch(url, opts){
   const body = opts && opts.body;
-  return fetch(url, {
+  // ghp_ = classic token (uses "token"), github_pat_ = fine-grained (uses "Bearer")
+  const authPrefix = GIST_TOKEN.startsWith('github_pat_') ? 'Bearer' : 'token';
+  const res = await fetch(url, {
     method: (opts && opts.method) || 'GET',
     headers: {
-      'Authorization': 'Bearer ' + GIST_TOKEN,
+      'Authorization': authPrefix + ' ' + GIST_TOKEN,
       'Content-Type': 'application/json',
       'Accept': 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28'
     },
     body: body || undefined
   });
+  if(!res.ok){
+    let msg = 'GitHub ' + res.status;
+    if(res.status === 401) msg += ' — token invalid or expired. Go to github.com/settings/tokens and check it still exists and has the "gist" scope.';
+    if(res.status === 403) msg += ' — token does not have gist permission. Edit your token at github.com/settings/tokens and make sure "gist" is checked.';
+    if(res.status === 404) msg += ' — Gist not found.';
+    throw new Error(msg);
+  }
+  return res;
 }
 
 async function gistFindOrCreate(){
   if(_gistId) return _gistId;
   const r = await gistFetch('https://api.github.com/gists');
-  if(!r.ok) throw new Error('GitHub ' + r.status + ' — check your token and make sure it has the "gist" scope');
+  // error thrown by gistFetch now
   const list = await r.json();
   const found = list.find(g => g.files && g.files[GIST_FILE]);
   if(found){ _gistId = found.id; return _gistId; }
