@@ -660,6 +660,7 @@ function gridPageHTML(){
   return`<div class="content-search"><div class="content-search-inner">
       <input class="search-bar" type="text" placeholder="Search by name, kanji, show, tag…" value="${esc(S.search)}" oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <div class="filters" id="grid-pills">${pills}</div>
+      <div class="sort-row"><span class="sort-label">Sort:</span><select class="sort-select" onchange="setSort(this.value)"><option value="default"${S.sortBy==='default'?' selected':''}>Default</option><option value="fav"${S.sortBy==='fav'?' selected':''}>❤ Favourites first</option><option value="name"${S.sortBy==='name'?' selected':''}>Name A–Z</option><option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji name</option><option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option><option value="age"${S.sortBy==='age'?' selected':''}>Age</option><option value="height"${S.sortBy==='height'?' selected':''}>Height</option><option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday</option><option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option><option value="source"${S.sortBy==='source'?' selected':''}>Source</option><option value="added"${S.sortBy==='added'?' selected':''}>Recently added</option></select><button class="sort-dir-btn" onclick="toggleSortDir()">${S.sortDir==='asc'?'↑':'↓'}</button></div>
     </div></div>
     <div class="main">
       <div class="count-label" id="grid-count">${list.length} entr${list.length===1?'y':'ies'}</div>
@@ -1702,14 +1703,16 @@ let _gistId = null;
 function gistOn(){ return GIST_TOKEN.trim().length > 10; }
 
 async function gistFetch(url, opts){
+  const body = opts && opts.body;
   return fetch(url, {
-    ...opts,
+    method: (opts && opts.method) || 'GET',
     headers: {
-      'Authorization': 'token ' + GIST_TOKEN,
+      'Authorization': 'Bearer ' + GIST_TOKEN,
       'Content-Type': 'application/json',
       'Accept': 'application/vnd.github+json',
-      ...(opts && opts.headers)
-    }
+      'X-GitHub-Api-Version': '2022-11-28'
+    },
+    body: body || undefined
   });
 }
 
