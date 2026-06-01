@@ -358,6 +358,9 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .sort-dir-btn:hover{border-color:#7c3aed;color:#7c3aed}
 .backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333;line-height:1.4}
 .backup-textarea:focus{outline:none;border-color:#7c3aed}
+
+.sync-info{font-size:12px;color:#aaa;margin-bottom:8px}
+.sync-info a{color:#7c3aed}
 </style>
 </head>
 <body>
@@ -1552,6 +1555,13 @@ function openMenu(){
       <button class="btn" onclick="openPasteBackup()">⧈ Paste text</button>
     </div>
     <input type="file" id="imp-inp" accept=".json,application/json,text/plain,text/*" style="display:none" onchange="importData(event)">
+    <hr class="div">
+    <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem">Gist sync</div>
+    <p class="sync-info">Sync to a private GitHub Gist so your data is accessible on any device. <a href="#" onclick="closeModal();showGistGuide();return false">Setup guide →</a></p>
+    <div class="settings-row">
+      <button class="btn" id="gist-push-btn" onclick="gistPush()">↑ Push (save to Gist)</button>
+      <button class="btn" id="gist-pull-btn" onclick="gistPull()">↓ Pull (load from Gist)</button>
+    </div>
   </div></div>`;
 }
 
@@ -1679,6 +1689,119 @@ function doPasteBackup(){
   if(_idb)idbPut('main',d).catch(()=>{});
   else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}
   closeModal();
+}
+
+
+/* ── GIST SYNC ── */
+// Generate a token at: github.com/settings/tokens/new
+// Tick the "gist" scope only, then paste the token below
+const GIST_TOKEN = '';  // paste your token here e.g. 'github_pat_...'
+const GIST_FILE  = 'character-journal-data.json';
+let _gistId = null;
+
+function gistOn(){ return GIST_TOKEN.trim().length > 10; }
+
+async function gistFetch(url, opts){
+  return fetch(url, {
+    ...opts,
+    headers: {
+      'Authorization': 'token ' + GIST_TOKEN,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json',
+      ...(opts && opts.headers)
+    }
+  });
+}
+
+async function gistFindOrCreate(){
+  if(_gistId) return _gistId;
+  const r = await gistFetch('https://api.github.com/gists');
+  if(!r.ok) throw new Error('GitHub ' + r.status + ' — check your token and make sure it has the "gist" scope');
+  const list = await r.json();
+  const found = list.find(g => g.files && g.files[GIST_FILE]);
+  if(found){ _gistId = found.id; return _gistId; }
+  const c = await gistFetch('https://api.github.com/gists', {
+    method: 'POST',
+    body: JSON.stringify({ description:'Character Journal Data', public: false,
+      files:{ [GIST_FILE]:{ content: JSON.stringify(getDB()) } } })
+  });
+  if(!c.ok) throw new Error('Could not create Gist: ' + c.status);
+  _gistId = (await c.json()).id;
+  return _gistId;
+}
+
+async function gistPush(){
+  if(!gistOn()){ alert('Paste your GitHub token into GIST_TOKEN first.'); return; }
+  const btn = document.getElementById('gist-push-btn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+  try{
+    const db = getDB();
+    // Strip base64 images — too large for Gist text storage
+    const stripped = {...db, entries: db.entries.map(e => ({...e,
+      img:  (e.img  && e.img.startsWith('data:'))  ? '' : e.img,
+      gallery: (e.gallery||[]).map(g => ({...g,
+        src: (g.src && g.src.startsWith('data:')) ? '' : g.src }))
+    }))};
+    const id = await gistFindOrCreate();
+    const r = await gistFetch('https://api.github.com/gists/' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ files:{ [GIST_FILE]:{ content: JSON.stringify(stripped) } } })
+    });
+    if(!r.ok) throw new Error('Save failed: ' + r.status);
+    if(btn){ btn.disabled = false; btn.textContent = '↑ Push'; }
+    alert('Saved to Gist ✓');
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = '↑ Push'; }
+    alert('Sync error: ' + e.message);
+  }
+}
+
+async function gistPull(){
+  if(!gistOn()){ alert('Paste your GitHub token into GIST_TOKEN first.'); return; }
+  const btn = document.getElementById('gist-pull-btn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
+  try{
+    const id = await gistFindOrCreate();
+    const r = await gistFetch('https://api.github.com/gists/' + id);
+    if(!r.ok) throw new Error('Load failed: ' + r.status);
+    const g = await r.json();
+    const raw = g.files[GIST_FILE] && g.files[GIST_FILE].content;
+    if(!raw) throw new Error('No data found in Gist');
+    const d = JSON.parse(raw);
+    if(!Array.isArray(d.entries)) throw new Error('Invalid data format');
+    // Merge: keep local base64 images for matching entries
+    const localById = {};
+    (_db.entries||[]).forEach(e => { localById[e.id] = e; });
+    d.entries = d.entries.map(e => {
+      const loc = localById[e.id];
+      if(!loc) return e;
+      return { ...e,
+        img: (!e.img && loc.img) ? loc.img : e.img,
+        gallery: (e.gallery||[]).map((g,i) =>
+          (!g.src && loc.gallery && loc.gallery[i] && loc.gallery[i].src)
+            ? {...g, src: loc.gallery[i].src} : g)
+      };
+    });
+    if(!Array.isArray(d.cats)) d.cats = [...DEFAULT_CATS];
+    if(!d.title) d.title = 'Character Journal';
+    if(typeof d.nextId !== 'number') d.nextId = d.entries.length + 1;
+    if(!d.dismissedNotifs) d.dismissedNotifs = [];
+    _db = d;
+    if(_idb) await idbPut('main', d).catch(()=>{});
+    else try{ localStorage.setItem('cj_v3', JSON.stringify(d)); }catch(e){}
+    if(btn){ btn.disabled = false; btn.textContent = '↓ Pull'; }
+    closeModal();
+    renderApp();
+    alert('Loaded from Gist ✓  (' + d.entries.length + ' entries)');
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = '↓ Pull'; }
+    alert('Sync error: ' + e.message);
+  }
+}
+
+
+function showGistGuide(){
+  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.9;color:#444"><b>One-time setup:</b><br><br><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Give it any name (e.g. \"Journal sync\")<br><b>3.</b> Tick only the <b>gist</b> scope<br><b>4.</b> Click <b>Generate token</b> and copy it<br><b>5.</b> Open your <code style="background:#f5f3ff;padding:1px 6px;border-radius:4px">index.html</code> file and find this line near the top of the script:<br><div style="background:#f5f3ff;border-radius:8px;padding:8px 12px;font-size:12px;margin:6px 0;font-family:monospace">const GIST_TOKEN = \'\';</div>Paste your token between the quotes and upload to GitHub.<br><br><b>Using it:</b><br>\u2022 <b>\u2191 Push</b> — saves your current data to the Gist<br>\u2022 <b>\u2193 Pull</b> — loads data from the Gist onto this device<br><br>Note: uploaded images stay device-local (too large for Gist text storage). URL-linked images sync fine.</div></div></div>';
 }
 
 (async()=>{
