@@ -1558,7 +1558,7 @@ function openMenu(){
     <input type="file" id="imp-inp" accept=".json,application/json,text/plain,text/*" style="display:none" onchange="importData(event)">
     <hr class="div">
     <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem">Gist sync</div>
-    <p class="sync-info">Sync to a private GitHub Gist so your data is accessible on any device. <a href="#" onclick="closeModal();showGistGuide();return false">Setup guide →</a></p>
+    ${gistOn()?"<p class=\"sync-info\">\u2713 Token saved. Push to save, Pull to load on another device.</p>":"<p class=\"sync-info\">No token set. <a href=\"#\" onclick=\"closeModal();showGistGuide();return false\" style=\"color:#7c3aed\">Enter your GitHub token \u2192</a></p>"}
     <div class="settings-row">
       <button class="btn" id="gist-push-btn" onclick="gistPush()">↑ Push (save to Gist)</button>
       <button class="btn" id="gist-pull-btn" onclick="gistPull()">↓ Pull (load from Gist)</button>
@@ -1696,20 +1696,22 @@ function doPasteBackup(){
 /* ── GIST SYNC ── */
 // Generate a token at: github.com/settings/tokens/new
 // Tick the "gist" scope only, then paste the token below
-const GIST_TOKEN = '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';  // paste your token here e.g. 'github_pat_...'
+// Token is stored in localStorage, never in the code (GitHub revokes embedded tokens)
+const GIST_TOKEN = localStorage.getItem('cj_gist_token') || '';
 const GIST_FILE  = 'character-journal-data.json';
 let _gistId = null;
 
-function gistOn(){ return GIST_TOKEN.trim().length > 10; }
+function getGistToken(){ return localStorage.getItem('cj_gist_token') || ''; }
+function gistOn(){ return getGistToken().trim().length > 10; }
 
 async function gistFetch(url, opts){
   const body = opts && opts.body;
   // ghp_ = classic token (uses "token"), github_pat_ = fine-grained (uses "Bearer")
-  const authPrefix = GIST_TOKEN.startsWith('github_pat_') ? 'Bearer' : 'token';
+  const tok = getGistToken(); const authPrefix = tok.startsWith('github_pat_') ? 'Bearer' : 'token';
   const res = await fetch(url, {
     method: (opts && opts.method) || 'GET',
     headers: {
-      'Authorization': authPrefix + ' ' + GIST_TOKEN,
+      'Authorization': authPrefix + ' ' + tok,
       'Content-Type': 'application/json',
       'Accept': 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28'
@@ -1744,7 +1746,7 @@ async function gistFindOrCreate(){
 }
 
 async function gistPush(){
-  if(!gistOn()){ alert('Paste your GitHub token into GIST_TOKEN first.'); return; }
+  if(!gistOn()){ showGistGuide(); return; }
   const btn = document.getElementById('gist-push-btn');
   if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
   try{
@@ -1770,7 +1772,7 @@ async function gistPush(){
 }
 
 async function gistPull(){
-  if(!gistOn()){ alert('Paste your GitHub token into GIST_TOKEN first.'); return; }
+  if(!gistOn()){ showGistGuide(); return; }
   const btn = document.getElementById('gist-pull-btn');
   if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
   try{
@@ -1814,7 +1816,23 @@ async function gistPull(){
 
 
 function showGistGuide(){
-  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.9;color:#444"><b>One-time setup:</b><br><br><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Give it any name (e.g. \"Journal sync\")<br><b>3.</b> Tick only the <b>gist</b> scope<br><b>4.</b> Click <b>Generate token</b> and copy it<br><b>5.</b> Open your <code style="background:#f5f3ff;padding:1px 6px;border-radius:4px">index.html</code> file and find this line near the top of the script:<br><div style="background:#f5f3ff;border-radius:8px;padding:8px 12px;font-size:12px;margin:6px 0;font-family:monospace">const GIST_TOKEN = \'\';</div>Paste your token between the quotes and upload to GitHub.<br><br><b>Using it:</b><br>\u2022 <b>\u2191 Push</b> — saves your current data to the Gist<br>\u2022 <b>\u2193 Pull</b> — loads data from the Gist onto this device<br><br>Note: uploaded images stay device-local (too large for Gist text storage). URL-linked images sync fine.</div></div></div>';
+  const current = getGistToken();
+  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.8;color:#444"><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Note: anything &mdash; Expiration: <b>No expiration</b> &mdash; tick only <b>gist</b><br><b>3.</b> Generate token, copy the <code style="background:#f5f3ff;padding:1px 5px;border-radius:4px">ghp_</code> value immediately<br><b>4.</b> Paste it below &mdash; it saves in your browser only, never in the code file<br><br><div style="display:flex;gap:6px;margin:8px 0"><input id="gist-token-inp" type="password" placeholder="Paste ghp_... token here" value="'+(current?'(token saved ✓)':'')+'" style="flex:1;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit"><button onclick="saveGistToken()" style="padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Save</button></div><div id="token-save-status" style="font-size:12px;color:#065f46;display:none">\u2713 Token saved to this browser!</div><button onclick="clearGistToken()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;padding:0;font-family:inherit">Clear saved token</button><br><br><b>Using it:</b> \u2191 Push saves to Gist &mdash; \u2193 Pull loads on a new device (repeat token entry on each device).<br><br><span style="color:#aaa;font-size:12px">Uploaded images stay device-local. URL-linked images sync fine.</span></div></div></div>';
+}
+function saveGistToken(){
+  const val = (document.getElementById('gist-token-inp').value||'').trim();
+  if(!val || val.includes('(token saved')){ return; }
+  localStorage.setItem('cj_gist_token', val);
+  _gistId = null; // reset cached gist id
+  const s = document.getElementById('token-save-status');
+  if(s){ s.style.display='block'; }
+  setTimeout(()=>closeModal(), 1200);
+}
+function clearGistToken(){
+  localStorage.removeItem('cj_gist_token');
+  _gistId = null;
+  alert('Token cleared.');
+  closeModal();
 }
 
 (async()=>{
