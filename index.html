@@ -1719,29 +1719,31 @@ async function gistFetch(url, opts){
     body: body || undefined
   });
   if(!res.ok){
-    let msg = 'GitHub ' + res.status;
-    if(res.status === 401) msg += ' — token invalid or expired. Go to github.com/settings/tokens and check it still exists and has the "gist" scope.';
-    if(res.status === 403) msg += ' — token does not have gist permission. Edit your token at github.com/settings/tokens and make sure "gist" is checked.';
-    if(res.status === 404) msg += ' — Gist not found.';
-    throw new Error(msg);
+    let body='';try{body=await res.text();}catch(e){}
+    throw new Error('GitHub error '+res.status+': '+body.slice(0,300));
   }
   return res;
 }
 
 async function gistFindOrCreate(){
+  if(!_gistId) _gistId = localStorage.getItem('cj_gist_id') || null;
   if(_gistId) return _gistId;
-  const r = await gistFetch('https://api.github.com/gists');
-  // error thrown by gistFetch now
+  const r = await gistFetch('https://api.github.com/gists?per_page=100');
   const list = await r.json();
   const found = list.find(g => g.files && g.files[GIST_FILE]);
-  if(found){ _gistId = found.id; return _gistId; }
+  if(found){
+    _gistId = found.id;
+    localStorage.setItem('cj_gist_id', _gistId);
+    return _gistId;
+  }
   const c = await gistFetch('https://api.github.com/gists', {
     method: 'POST',
     body: JSON.stringify({ description:'Character Journal Data', public: false,
-      files:{ [GIST_FILE]:{ content: JSON.stringify(getDB()) } } })
+      files:{ [GIST_FILE]:{ content: '{}' } } })
   });
-  if(!c.ok) throw new Error('Could not create Gist: ' + c.status);
-  _gistId = (await c.json()).id;
+  const g = await c.json();
+  _gistId = g.id;
+  localStorage.setItem('cj_gist_id', _gistId);
   return _gistId;
 }
 
@@ -1830,8 +1832,9 @@ function saveGistToken(){
 }
 function clearGistToken(){
   localStorage.removeItem('cj_gist_token');
+  localStorage.removeItem('cj_gist_id');
   _gistId = null;
-  alert('Token cleared.');
+  alert('Token and cached Gist ID cleared.');
   closeModal();
 }
 
