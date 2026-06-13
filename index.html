@@ -371,6 +371,12 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .gwheel-result-wrap{display:flex;justify-content:center;margin:1rem 0}
 .gwheel-result-img{max-width:100%;max-height:280px;border-radius:12px;object-fit:contain;transition:opacity .1s}
 .gwheel-spinning .gwheel-result-img{opacity:.4}
+
+.gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.gal-order-btn{padding:4px 9px!important;font-size:13px!important;line-height:1}
+.gal-order-btn:disabled{opacity:.3;cursor:default}
+.g-source-link{font-size:11px;color:#7c3aed;padding:3px 8px;display:flex;align-items:center;gap:4px;text-decoration:none;background:white;transition:background .12s}
+.g-source-link:hover{background:#f5f3ff}
 </style>
 </head>
 <body>
@@ -473,7 +479,7 @@ function ytId(url){const m=(url||'').match(/(?:youtube\.com\/watch\?v=|youtu\.be
 function tweetId(url){const m=(url||'').match(/(?:twitter\.com|x\.com)\/[^/]+\/status\/([\d]+)/);return m?m[1]:null;}
 function isEmbeddable(url){return !!(ytId(url)||tweetId(url));}
 function lkIcon(url){if(ytId(url))return'▶';if(tweetId(url))return'▶';if(/twitter\.com|x\.com/.test(url))return'𝕏';if(/instagram\.com/.test(url))return'📷';if(/tiktok\.com/.test(url))return'♪';if(/twitch\.tv/.test(url))return'🎮';if(/spotify\.com/.test(url))return'♫';return'🔗';}
-function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:'',artistId:null,artistLabel:''}:{src:x.src||'',caption:x.caption||'',artistId:x.artistId||null,artistLabel:x.artistLabel||''});}
+function normGal(g){if(!Array.isArray(g))return[];return g.map(x=>typeof x==='string'?{src:x,caption:'',artistId:null,artistLabel:'',sourceUrl:''}:{src:x.src||'',caption:x.caption||'',artistId:x.artistId||null,artistLabel:x.artistLabel||'',sourceUrl:x.sourceUrl||''});}
 function checkAlpha(c){try{const d=c.getContext('2d').getImageData(0,0,Math.min(c.width,80),Math.min(c.height,80)).data;for(let i=3;i<d.length;i+=4)if(d[i]<250)return true;}catch(e){}return false;}
 function toDataUrl(c){return checkAlpha(c)?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.94);}
 function resizeEncode(img,maxPx){let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;if(w>maxPx||h>maxPx){if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return toDataUrl(c);}
@@ -863,6 +869,7 @@ function detailPageHTML(id){
     <div class="gallery-grid">${gallery.map((item,i)=>`
       <div class="gallery-item">
         <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onclick="openLB(${e.id},${i})" onerror="this.closest('.gallery-item').style.display='none'">
+        ${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" class="g-source-link" title="View source" onclick="event.stopPropagation()">🔗 Source</a>`:''}
         ${item.caption?`<div class="g-caption">${renderMentions(item.caption)}</div>`:''}
         ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';const lbl=item.artistLabel||'Linked';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>${esc(lbl)}: ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
@@ -924,6 +931,7 @@ function renderLB(){
     ${gallery.length>1?`<button class="lb-arrow lb-prev" onclick="lbNav(-1)">‹</button><button class="lb-arrow lb-next" onclick="lbNav(1)">›</button>`:''}
     <div class="lb-bottom">
       ${item.caption?`<div class="lb-caption">${renderMentions(item.caption)}</div>`:''}
+      ${item.sourceUrl?`<div class="lb-caption"><a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" style="color:#a78bfa">🔗 View source</a></div>`:''}
       ${item.artistId?(()=>{const a=getDB().entries.find(x=>x.id===item.artistId);if(!a)return'';const lbl=item.artistLabel||'Linked';return`<div class="lb-caption" style="cursor:pointer;opacity:.7;font-size:12px" onclick="closeLB();go('detail',${a.id})">${esc(lbl)}: ${esc(a.name)}</div>`;})():''}
       ${gallery.length>1?`<div class="lb-counter">${idx+1} / ${gallery.length}</div>`:''}
     </div>
@@ -1240,6 +1248,12 @@ function renderGalList(){
       <button type="button" class="gal-rm" onclick="rmGal(${i})">✕</button>
     </div>
     <div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">
+      <div class="gal-order-row">
+        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},-1)" ${i===0?'disabled':''} title="Move up">↑</button>
+        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''} title="Move down">↓</button>
+        <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace image</button>
+        <input type="file" id="gal-replace-${i}" accept="image/*" style="display:none" onchange="onGalReplaceFile(${i},this)">
+      </div>
       <div class="mention-field-wrap"><input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px"><button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" title="Link an entry" style="top:5px;right:5px">@</button></div>
       <div style="display:flex;gap:5px;align-items:center">
         <input placeholder="Label (e.g. Drawn by, Feat., With…)" value="${esc(item.artistLabel||'')}" oninput="F.gallery[${i}].artistLabel=this.value" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
@@ -1247,8 +1261,33 @@ function renderGalList(){
           ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
         </select>
       </div>
+      <input placeholder="Source link (e.g. original post URL)…" value="${esc(item.sourceUrl||'')}" oninput="F.gallery[${i}].sourceUrl=this.value" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
     </div>
   </div>`).join('');
+}
+
+function moveGal(i,dir){
+  const j=i+dir;
+  if(j<0||j>=F.gallery.length)return;
+  [F.gallery[i],F.gallery[j]]=[F.gallery[j],F.gallery[i]];
+  renderGalList();
+}
+
+function replaceGalImg(i){
+  document.getElementById('gal-replace-'+i).click();
+}
+
+function onGalReplaceFile(i,input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    initCrop(ev.target.result,src=>{
+      F.gallery[i]={...F.gallery[i],src};
+      renderGalList();
+    });
+  };
+  reader.readAsDataURL(file);
+  input.value='';
 }
 function rmGal(i){F.gallery.splice(i,1);renderGalList();}
 function addGalUrl(){
