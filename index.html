@@ -361,6 +361,16 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 
 .sync-info{font-size:12px;color:#aaa;margin-bottom:8px}
 .sync-info a{color:#7c3aed}
+
+.gwheel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:300px;overflow-y:auto;margin-bottom:1rem;padding:4px}
+.gwheel-item{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;aspect-ratio:1;background:#f5f3ff}
+.gwheel-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gwheel-item.sel{border-color:#7c3aed}
+.gwheel-item .gwheel-check{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb}
+.gwheel-item.sel .gwheel-check{background:#7c3aed;color:white}
+.gwheel-result-wrap{display:flex;justify-content:center;margin:1rem 0}
+.gwheel-result-img{max-width:100%;max-height:280px;border-radius:12px;object-fit:contain;transition:opacity .1s}
+.gwheel-spinning .gwheel-result-img{opacity:.4}
 </style>
 </head>
 <body>
@@ -849,7 +859,7 @@ function detailPageHTML(id){
       </div>
     </div>`;
   })();
-  const gallSec=gallery.length?`<div class="detail-section"><div class="section-label">Gallery</div>
+  const gallSec=gallery.length?`<div class="detail-section"><div class="section-label" style="display:flex;align-items:center;justify-content:space-between">Gallery <button class="sm-btn" onclick="openGalleryWheel(${e.id})" style="font-weight:500;text-transform:none;letter-spacing:0">🎲 Spin gallery</button></div>
     <div class="gallery-grid">${gallery.map((item,i)=>`
       <div class="gallery-item">
         <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onclick="openLB(${e.id},${i})" onerror="this.closest('.gallery-item').style.display='none'">
@@ -1241,7 +1251,12 @@ function renderGalList(){
   </div>`).join('');
 }
 function rmGal(i){F.gallery.splice(i,1);renderGalList();}
-function addGalUrl(){const inp=document.getElementById('gal-url-inp');const url=(inp.value||'').trim();if(!url)return;F.gallery.push({src:url,caption:''});inp.value='';renderGalList();}
+function addGalUrl(){
+  const inp=document.getElementById('gal-url-inp');
+  let url=(inp.value||'').trim();if(!url)return;
+  if(needsProxy(url))url=proxyImageUrl(url);
+  F.gallery.push({src:url,caption:''});inp.value='';renderGalList();
+}
 function addGalFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{F.gallery.push({src,caption:''});renderGalList();});};reader.readAsDataURL(file);input.value='';}
 
 
@@ -1491,7 +1506,16 @@ function syncColor(src){if(src==='picker'){document.getElementById('f-ctext').va
 function clearColor(){document.getElementById('f-ctext').value='';document.getElementById('f-cpicker').value='#7c3aed';}
 function getFormColor(){const v=(document.getElementById('f-ctext').value||'').trim();return/^#[0-9a-fA-F]{6}$/.test(v)?v:'';}
 function setPrevImg(src){const img=document.getElementById('img-prev'),ph=document.getElementById('img-ph');if(img){img.src=src||'';img.style.display=src?'block':'none';}if(ph)ph.style.display=src?'none':'';}
-function onUrlInput(){setPrevImg((document.getElementById('f-img-url').value||'').trim());}
+function onUrlInput(){
+  const inp=document.getElementById('f-img-url');
+  let val=(inp.value||'').trim();
+  if(needsProxy(val)){
+    const fixed=proxyImageUrl(val);
+    inp.value=fixed;
+    val=fixed;
+  }
+  setPrevImg(val);
+}
 function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});};reader.readAsDataURL(file);}
 function cropFromUrl(){const url=(document.getElementById('f-img-url').value||'').trim();if(!url){alert('Paste an image URL first.');return;}initCrop(url,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});}
 function getFormImg(){const prev=document.getElementById('img-prev');if(prev&&prev.style.display!=='none'&&prev.src&&prev.src!==window.location.href)return prev.src;return'';}
@@ -1836,6 +1860,86 @@ function clearGistToken(){
   _gistId = null;
   alert('Token and cached Gist ID cleared.');
   closeModal();
+}
+
+
+/* ── IMAGE URL PROXY FIX (for hotlink-blocked sources like Fandom) ── */
+function needsProxy(url){
+  return /(?:^|\/\/)(?:[\w-]+\.)?(?:fandom\.com|wikia\.nocookie\.net|wikia\.com)/i.test(url||'');
+}
+function proxyImageUrl(url){
+  if(!url) return url;
+  if(needsProxy(url)){
+    const stripped = url.replace(/^https?:\/\//,'');
+    return 'https://images.weserv.nl/?url='+encodeURIComponent(stripped);
+  }
+  return url;
+}
+
+
+/* ── GALLERY WHEEL ── */
+let _gwState = null;
+function openGalleryWheel(entryId){
+  const db=getDB();const e=db.entries.find(x=>x.id===entryId);if(!e)return;
+  const gallery=normGal(e.gallery);
+  if(!gallery.length){alert('This entry has no gallery images.');return;}
+  _gwState = { entryId, selected: gallery.map((_,i)=>i) };
+  renderGalleryWheel(e,gallery);
+}
+
+function renderGalleryWheel(e,gallery){
+  const sel=_gwState.selected;
+  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">'
+    +'<button class="modal-close" onclick="closeModal()">\u2715</button>'
+    +'<div class="modal-title">Gallery wheel \u2014 '+esc(e.name)+'</div>'
+    +'<p style="font-size:13px;color:#666;margin-bottom:.5rem">Tap images to include/exclude, then spin.</p>'
+    +'<div class="gwheel-grid" id="gwheel-grid">'+gallery.map((g,i)=>
+      '<div class="gwheel-item'+(sel.includes(i)?' sel':'')+'" data-i="'+i+'" onclick="toggleGWImg('+i+')">'
+      +'<img src="'+esc(g.src)+'" onerror="this.parentElement.style.display=\'none\'">'
+      +'<div class="gwheel-check">'+(sel.includes(i)?'\u2713':'')+'</div>'
+      +'</div>').join('')+'</div>'
+    +'<div class="gwheel-result-wrap" id="gwheel-result-wrap"></div>'
+    +'<div class="btn-row">'
+    +'<button class="btn btn-primary" onclick="spinGalleryWheel()">\ud83c\udfb2 Spin</button>'
+    +'<button class="btn" onclick="closeModal()">Close</button>'
+    +'</div></div></div>';
+}
+
+function toggleGWImg(i){
+  const sel=_gwState.selected;
+  const idx=sel.indexOf(i);
+  if(idx>=0){ if(sel.length>1) sel.splice(idx,1); }
+  else sel.push(i);
+  const db=getDB();const e=db.entries.find(x=>x.id===_gwState.entryId);
+  renderGalleryWheel(e, normGal(e.gallery));
+}
+
+function spinGalleryWheel(){
+  const db=getDB();const e=db.entries.find(x=>x.id===_gwState.entryId);if(!e)return;
+  const gallery=normGal(e.gallery);
+  const pool=_gwState.selected.map(i=>gallery[i]).filter(Boolean);
+  if(pool.length<1)return;
+  const wrap=document.getElementById('gwheel-result-wrap');
+  if(!wrap)return;
+  wrap.classList.add('gwheel-spinning');
+  const finalIdx=Math.floor(Math.random()*pool.length);
+  let ticks=0;
+  const totalTicks=18+finalIdx+Math.floor(Math.random()*6);
+  let delay=60;
+  function tick(){
+    const idx = ticks<totalTicks-1 ? Math.floor(Math.random()*pool.length) : finalIdx;
+    const item=pool[idx];
+    wrap.innerHTML='<img class="gwheel-result-img" src="'+esc(item.src)+'" onerror="this.style.display=\'none\'">'
+      +(item.caption?'<div style="text-align:center;font-size:12px;color:#666;margin-top:6px;width:100%">'+esc(item.caption)+'</div>':'');
+    ticks++;
+    if(ticks<totalTicks){
+      delay = Math.min(delay*1.12, 320);
+      setTimeout(tick, delay);
+    }else{
+      wrap.classList.remove('gwheel-spinning');
+    }
+  }
+  tick();
 }
 
 (async()=>{
