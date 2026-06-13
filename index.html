@@ -909,6 +909,7 @@ function detailPageHTML(id){
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${renderMentions(e.note)}</div></div>`:''}
       ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
       ${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
+      ${(()=>{const fi=getFeaturedIn(e.id);if(!fi.length)return'';return`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${fi.map(fe=>{const[fbg,ffg]=fe.hexColor?[fe.hexColor+'22',fe.hexColor]:pal(fe.id);const fav=fe.img?`<img src="${esc(fe.img)}" alt="" onerror="this.style.display='none'">`:'';return`<div class="conn-item" onclick="go('detail',${fe.id})"><div class="conn-avatar sh-${fe.imgShape||'circle'}" style="background:${fbg};color:${ffg}">${fav||initials(fe.name)}</div><div class="conn-body"><div class="conn-label">Featured in</div><div class="conn-name">${esc(fe.name)}</div></div><span class="conn-arr">›</span></div>`;}).join('')}</div></div>`;})()}
     </div>
   </div>`;
 }
@@ -1252,7 +1253,6 @@ function renderGalList(){
         <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},-1)" ${i===0?'disabled':''} title="Move up">↑</button>
         <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''} title="Move down">↓</button>
         <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace image</button>
-        <input type="file" id="gal-replace-${i}" accept="image/*" style="display:none" onchange="onGalReplaceFile(${i},this)">
       </div>
       <div class="mention-field-wrap"><input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px"><button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" title="Link an entry" style="top:5px;right:5px">@</button></div>
       <div style="display:flex;gap:5px;align-items:center">
@@ -1274,7 +1274,30 @@ function moveGal(i,dir){
 }
 
 function replaceGalImg(i){
-  document.getElementById('gal-replace-'+i).click();
+  const cur=F.gallery[i]||{};
+  document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Replace image</div>'
+    +'<div class="field"><label>New image URL</label><input id="ri-url" type="text" placeholder="Paste image URL or Fandom link…" value="" style="width:100%;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit"></div>'
+    +'<div class="field"><label>Source URL <span style="color:#bbb;font-weight:400">(auto-filled from above, edit if needed)</span></label><input id="ri-src" type="text" placeholder="Link to original post…" value="'+esc(cur.sourceUrl||'')+'" style="width:100%;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit"></div>'
+    +'<div id="ri-preview" style="text-align:center;margin:.75rem 0;min-height:60px"></div>'
+    +'<div class="btn-row"><button class="btn btn-primary" onclick="doReplaceGalImg('+i+')">Replace</button><button class="btn" onclick="closeModal()">Cancel</button></div>'
+    +'<div style="font-size:11px;color:#aaa;margin-top:6px">Or upload a file: <input type="file" accept="image/*" onchange="onGalReplaceFile('+i+',this)" style="font-size:11px"></div>'
+    +'</div></div>';
+  // auto-fill source from URL input
+  document.getElementById('ri-url').oninput=function(){
+    let v=this.value.trim();
+    if(needsProxy(v))v=proxyImageUrl(v);
+    document.getElementById('ri-src').value=this.value.trim();
+    document.getElementById('ri-preview').innerHTML=v?'<img src="'+esc(v)+'" style="max-height:140px;max-width:100%;border-radius:8px;object-fit:contain" onerror="this.style.opacity=\'0.3\'">':'';
+  };
+}
+
+function doReplaceGalImg(i){
+  let url=(document.getElementById('ri-url').value||'').trim();
+  const srcUrl=(document.getElementById('ri-src').value||'').trim();
+  if(!url){alert('Please enter an image URL.');return;}
+  if(needsProxy(url))url=proxyImageUrl(url);
+  F.gallery[i]={...F.gallery[i],src:url,sourceUrl:srcUrl||F.gallery[i].sourceUrl||''};
+  closeModal();
 }
 
 function onGalReplaceFile(i,input){
@@ -1284,6 +1307,7 @@ function onGalReplaceFile(i,input){
     initCrop(ev.target.result,src=>{
       F.gallery[i]={...F.gallery[i],src};
       renderGalList();
+      closeModal();
     });
   };
   reader.readAsDataURL(file);
@@ -1537,7 +1561,8 @@ function renderConnList(){
 }
 function rmConn(i){F.connections.splice(i,1);renderConnList();}
 function addConn(){F.connections.push({label:'',entryId:null});renderConnList();}
-function renderLinkList(){const el=document.getElementById('link-list-form');if(!el)return;el.innerHTML=F.links.map((lk,i)=>`<div class="link-form-item"><div class="mention-field-wrap" style="width:130px;flex-shrink:0"><input class="lbl-inp" id="lnklbl-${i}" placeholder="Label" value="${esc(lk.label)}" oninput="F.links[${i}].label=this.value" style="padding-right:26px;width:100%"><button type="button" class="mention-at-btn" onclick="openMentionPicker('lnklbl-${i}')" title="Link an entry" style="top:5px;right:5px;width:20px;height:20px;font-size:11px">@</button></div><input class="url-inp" placeholder="URL" value="${esc(lk.url)}" oninput="F.links[${i}].url=this.value"><button type="button" class="lk-rm" onclick="rmLink(${i})">✕</button></div>`).join('');}
+function renderLinkList(){const el=document.getElementById('link-list-form');if(!el)return;el.innerHTML=F.links.map((lk,i)=>`<div class="link-form-item" style="flex-wrap:wrap;gap:5px"><div style="display:flex;gap:4px;flex-shrink:0"><button type="button" class="sm-btn gal-order-btn" onclick="moveLink(${i},-1)" ${i===0?'disabled':''}>↑</button><button type="button" class="sm-btn gal-order-btn" onclick="moveLink(${i},1)" ${i===F.links.length-1?'disabled':''}>↓</button></div><div class="mention-field-wrap" style="width:120px;flex-shrink:0"><input class="lbl-inp" id="lnklbl-${i}" placeholder="Label" value="${esc(lk.label)}" oninput="F.links[${i}].label=this.value" style="padding-right:26px;width:100%"><button type="button" class="mention-at-btn" onclick="openMentionPicker('lnklbl-${i}')" title="Link an entry" style="top:5px;right:5px;width:20px;height:20px;font-size:11px">@</button></div><input class="url-inp" placeholder="URL" value="${esc(lk.url)}" oninput="F.links[${i}].url=this.value" style="flex:1;min-width:140px"><button type="button" class="lk-rm" onclick="rmLink(${i})">✕</button></div>`).join('');}
+function moveLink(i,dir){const j=i+dir;if(j<0||j>=F.links.length)return;[F.links[i],F.links[j]]=[F.links[j],F.links[i]];renderLinkList();}
 function rmLink(i){F.links.splice(i,1);renderLinkList();}
 function addLink(){F.links.push({label:'',url:''});renderLinkList();}
 function setShape(s){F.shape=s;const box=document.getElementById('img-prev-box');if(box)box.className='img-prev-box sh-'+s;document.querySelectorAll('.shape-opt').forEach(el=>el.classList.toggle('active',el.textContent===s));}
@@ -1979,6 +2004,27 @@ function spinGalleryWheel(){
     }
   }
   tick();
+}
+
+
+/* ── FEATURED IN ── */
+function getFeaturedIn(entryId){
+  const db=getDB();
+  const results=[];
+  const pattern='|'+entryId+']]';
+  db.entries.forEach(e=>{
+    if(e.id===entryId)return;
+    // check all text fields for this entry's mention tag
+    const fields=[
+      e.note||'', e.kanjiInfo||'',
+      ...(e.gallery||[]).map(g=>g.caption||''),
+      ...(e.links||[]).map(l=>l.label||''),
+      ...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])
+    ];
+    const found=fields.some(f=>f.includes(pattern));
+    if(found)results.push(e);
+  });
+  return results;
 }
 
 (async()=>{
