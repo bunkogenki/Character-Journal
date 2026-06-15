@@ -1130,6 +1130,7 @@ function formHTML(e,cats){
         <div class="img-prev-box sh-${sh}" id="img-prev-box">
           <img id="img-prev" src="${imgSrc}" alt="" style="${imgSrc?'':'display:none'}" onerror="this.style.display='none'">
           <span class="img-ph" id="img-ph" style="${imgSrc?'display:none':''}">🖼</span>
+          <input type="hidden" id="f-img-data" value="${imgSrc&&imgSrc.startsWith('data:')?imgSrc:''}">
         </div>
         <div class="img-inputs">
           <div class="img-url-row">
@@ -1254,6 +1255,17 @@ function renderGalList(){
         <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''} title="Move down">↓</button>
         <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace image</button>
       </div>
+      <div id="gal-replace-panel-${i}" style="display:none;margin-top:6px;padding:8px;background:#f5f3ff;border-radius:8px;border:1px solid #ede9fe">
+        <div style="font-size:11px;color:#666;margin-bottom:5px;font-weight:500">Paste new image URL:</div>
+        <div style="display:flex;gap:5px;margin-bottom:5px">
+          <input id="gal-ri-url-${i}" type="text" placeholder="Image URL or Fandom link…" style="flex:1;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white" oninput="(function(el){let v=el.value.trim();if(needsProxy(v))v=proxyImageUrl(v);const s=document.getElementById('gal-ri-src-${i}');if(s)s.value=el.value.trim();})(this)">
+          <button type="button" class="btn btn-primary" style="padding:6px 12px;font-size:12px;flex-shrink:0" onclick="applyGalReplaceUrl(${i})">Apply</button>
+        </div>
+        <div style="font-size:11px;color:#666;margin-bottom:5px;font-weight:500">Source URL (auto-filled, edit if needed):</div>
+        <input id="gal-ri-src-${i}" type="text" placeholder="Link to original post…" value="${esc(item.sourceUrl||'')}" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px">
+        <div style="font-size:11px;color:#aaa">Or upload a file: <input type="file" accept="image/*" style="font-size:11px" onchange="onGalReplaceFile(${i},this)"></div>
+      <div style="display:none">
+      </div>
       <div class="mention-field-wrap"><input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px"><button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" title="Link an entry" style="top:5px;right:5px">@</button></div>
       <div style="display:flex;gap:5px;align-items:center">
         <input placeholder="Label (e.g. Drawn by, Feat., With…)" value="${esc(item.artistLabel||'')}" oninput="F.gallery[${i}].artistLabel=this.value" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
@@ -1274,31 +1286,22 @@ function moveGal(i,dir){
 }
 
 function replaceGalImg(i){
-  const cur=F.gallery[i]||{};
-  document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Replace image</div>'
-    +'<div class="field"><label>New image URL</label><input id="ri-url" type="text" placeholder="Paste image URL or Fandom link…" value="" style="width:100%;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit"></div>'
-    +'<div class="field"><label>Source URL <span style="color:#bbb;font-weight:400">(auto-filled from above, edit if needed)</span></label><input id="ri-src" type="text" placeholder="Link to original post…" value="'+esc(cur.sourceUrl||'')+'" style="width:100%;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit"></div>'
-    +'<div id="ri-preview" style="text-align:center;margin:.75rem 0;min-height:60px"></div>'
-    +'<div class="btn-row"><button class="btn btn-primary" onclick="doReplaceGalImg('+i+')">Replace</button><button class="btn" onclick="closeModal()">Cancel</button></div>'
-    +'<div style="font-size:11px;color:#aaa;margin-top:6px">Or upload a file: <input type="file" accept="image/*" onchange="onGalReplaceFile('+i+',this)" style="font-size:11px"></div>'
-    +'</div></div>';
-  // auto-fill source from URL input
-  document.getElementById('ri-url').oninput=function(){
-    let v=this.value.trim();
-    if(needsProxy(v))v=proxyImageUrl(v);
-    document.getElementById('ri-src').value=this.value.trim();
-    document.getElementById('ri-preview').innerHTML=v?'<img src="'+esc(v)+'" style="max-height:140px;max-width:100%;border-radius:8px;object-fit:contain" onerror="this.style.opacity=\'0.3\'">':'';
-  };
+  // Toggle inline replace panel instead of a modal
+  const panel=document.getElementById('gal-replace-panel-'+i);
+  if(panel){panel.style.display=panel.style.display==='none'?'block':'none';return;}
 }
 
-function doReplaceGalImg(i){
-  let url=(document.getElementById('ri-url').value||'').trim();
-  const srcUrl=(document.getElementById('ri-src').value||'').trim();
-  if(!url){alert('Please enter an image URL.');return;}
+function applyGalReplaceUrl(i){
+  const urlInp=document.getElementById('gal-ri-url-'+i);
+  const srcInp=document.getElementById('gal-ri-src-'+i);
+  if(!urlInp)return;
+  let url=urlInp.value.trim();
+  if(!url)return;
   if(needsProxy(url))url=proxyImageUrl(url);
-  F.gallery[i]={...F.gallery[i],src:url,sourceUrl:srcUrl||F.gallery[i].sourceUrl||''};
-  closeModal();
+  F.gallery[i]={...F.gallery[i],src:url,sourceUrl:srcInp?srcInp.value.trim():url};
+  renderGalList();
 }
+
 
 function onGalReplaceFile(i,input){
   const file=input.files[0];if(!file)return;
@@ -1307,7 +1310,6 @@ function onGalReplaceFile(i,input){
     initCrop(ev.target.result,src=>{
       F.gallery[i]={...F.gallery[i],src};
       renderGalList();
-      closeModal();
     });
   };
   reader.readAsDataURL(file);
@@ -1573,16 +1575,21 @@ function setPrevImg(src){const img=document.getElementById('img-prev'),ph=docume
 function onUrlInput(){
   const inp=document.getElementById('f-img-url');
   let val=(inp.value||'').trim();
-  if(needsProxy(val)){
-    const fixed=proxyImageUrl(val);
-    inp.value=fixed;
-    val=fixed;
-  }
+  if(needsProxy(val)){val=proxyImageUrl(val);inp.value=val;}
+  const hid=document.getElementById('f-img-data');if(hid)hid.value=''; // clear file upload
   setPrevImg(val);
 }
-function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});};reader.readAsDataURL(file);}
+function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,cropped=>{document.getElementById('f-img-url').value='';const hid=document.getElementById('f-img-data');if(hid)hid.value=cropped;setPrevImg(cropped);});};reader.readAsDataURL(file);}
 function cropFromUrl(){const url=(document.getElementById('f-img-url').value||'').trim();if(!url){alert('Paste an image URL first.');return;}initCrop(url,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});}
-function getFormImg(){const prev=document.getElementById('img-prev');if(prev&&prev.style.display!=='none'&&prev.src&&prev.src!==window.location.href)return prev.src;return'';}
+function getFormImg(){
+  const urlInp=document.getElementById('f-img-url');
+  const urlVal=(urlInp?.value||'').trim();
+  if(urlVal)return urlVal;
+  const hid=document.getElementById('f-img-data');
+  const hidVal=(hid?.value||'').trim();
+  if(hidVal)return hidVal;
+  return '';
+}
 function collectForm(){
   return{
     name:(document.getElementById('f-name').value||'').trim(),
