@@ -1251,32 +1251,39 @@ function renderGalList(){
     </div>
     <div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">
       <div class="gal-order-row">
-        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},-1)" ${i===0?'disabled':''} title="Move up">↑</button>
-        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''} title="Move down">↓</button>
-        <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace image</button>
+        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''}>↓</button>
+        <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace</button>
       </div>
-      <div id="gal-replace-panel-${i}" style="display:none;margin-top:6px;padding:8px;background:#f5f3ff;border-radius:8px;border:1px solid #ede9fe">
-        <div style="font-size:11px;color:#666;margin-bottom:5px;font-weight:500">Paste new image URL:</div>
-        <div style="display:flex;gap:5px;margin-bottom:5px">
-          <input id="gal-ri-url-${i}" type="text" placeholder="Image URL or Fandom link…" style="flex:1;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white" oninput="(function(el){let v=el.value.trim();if(needsProxy(v))v=proxyImageUrl(v);const s=document.getElementById('gal-ri-src-${i}');if(s)s.value=el.value.trim();})(this)">
-          <button type="button" class="btn btn-primary" style="padding:6px 12px;font-size:12px;flex-shrink:0" onclick="applyGalReplaceUrl(${i})">Apply</button>
+      <div id="gal-replace-panel-${i}" style="display:none;padding:8px;background:#f5f3ff;border-radius:8px;border:1px solid #ede9fe">
+        <input id="gal-ri-url-${i}" type="text" placeholder="Paste image URL or Fandom link…" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px" oninput="galRiUrlChange(${i},this.value)">
+        <input id="gal-ri-src-${i}" type="text" placeholder="Source URL (auto-filled, edit if needed)…" value="${esc(item.sourceUrl||'')}" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px">
+        <div style="display:flex;gap:5px;align-items:center">
+          <button type="button" class="btn btn-primary" style="padding:5px 12px;font-size:12px" onclick="applyGalReplaceUrl(${i})">Apply URL</button>
+          <label style="font-size:12px;color:#888;cursor:pointer">or upload file: <input type="file" accept="image/*" style="font-size:11px" onchange="onGalReplaceFile(${i},this)"></label>
         </div>
-        <div style="font-size:11px;color:#666;margin-bottom:5px;font-weight:500">Source URL (auto-filled, edit if needed):</div>
-        <input id="gal-ri-src-${i}" type="text" placeholder="Link to original post…" value="${esc(item.sourceUrl||'')}" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px">
-        <div style="font-size:11px;color:#aaa">Or upload a file: <input type="file" accept="image/*" style="font-size:11px" onchange="onGalReplaceFile(${i},this)"></div>
-      <div style="display:none">
       </div>
-      <div class="mention-field-wrap"><input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px"><button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" title="Link an entry" style="top:5px;right:5px">@</button></div>
+      <div class="mention-field-wrap">
+        <input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px">
+        <button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" style="top:5px;right:5px">@</button>
+      </div>
       <div style="display:flex;gap:5px;align-items:center">
         <input placeholder="Label (e.g. Drawn by, Feat., With…)" value="${esc(item.artistLabel||'')}" oninput="F.gallery[${i}].artistLabel=this.value" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
         <select onchange="F.gallery[${i}].artistId=this.value?parseInt(this.value):null" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
           ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
         </select>
       </div>
-      <input placeholder="Source link (e.g. original post URL)…" value="${esc(item.sourceUrl||'')}" oninput="F.gallery[${i}].sourceUrl=this.value" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
+      <input placeholder="Source link (original post URL)…" value="${esc(item.sourceUrl||'')}" oninput="F.gallery[${i}].sourceUrl=this.value" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
     </div>
   </div>`).join('');
 }
+
+function galRiUrlChange(i,val){
+  if(needsProxy(val))val=proxyImageUrl(val);
+  const s=document.getElementById('gal-ri-src-'+i);
+  if(s&&!s.value)s.value=val; // auto-fill source only if empty
+}
+
 
 function moveGal(i,dir){
   const j=i+dir;
