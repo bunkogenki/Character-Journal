@@ -84,7 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .yt-list.sz-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
 .yt-list.sz-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 .yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-items:start}
-.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%}
+.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%;display:flex;flex-direction:column}
 .yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
 .yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
@@ -377,6 +377,15 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .gal-order-btn:disabled{opacity:.3;cursor:default}
 .g-source-link{font-size:11px;color:#7c3aed;padding:3px 8px;display:flex;align-items:center;gap:4px;text-decoration:none;background:white;transition:background .12s}
 .g-source-link:hover{background:#f5f3ff}
+
+.card--todo{outline:2.5px solid #f59e0b!important;outline-offset:-2px}
+.card--todo::before{content:'TODO';position:absolute;top:6px;left:8px;font-size:9px;font-weight:700;background:#f59e0b;color:white;padding:1px 5px;border-radius:4px;letter-spacing:.05em;z-index:1}
+.todo-toggle-btn{padding:5px 12px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.todo-toggle-btn.on{background:#fef3c7;border-color:#f59e0b;color:#92400e}
+
+.card--org .card-img{border-radius:10px!important}
+.card--org{border-style:dashed!important}
+.org-badge{font-size:10px;padding:1px 7px;border-radius:3px;font-weight:700;display:inline-block;background:#e0f2fe;color:#0369a1;letter-spacing:.04em;border:1px solid #bae6fd}
 </style>
 </head>
 <body>
@@ -404,7 +413,7 @@ const AFFINITY=[
   {value:'hate',        label:'Hate',                short:'Hate',     bg:'#fee2e2',color:'#991b1b'},
   {value:'mixed',       label:'Mixed Feelings',      short:'Mixed',    bg:'#faf5ff',color:'#6b21a8'},
 ];
-const DEFAULT_CATS=['VTuber','Streamer','Utaite','Artist','Musician','Anime character','Game character','Fictional character','IRL friend','Online friend','Other'];
+const DEFAULT_CATS=['VTuber','Streamer','Utaite','Artist','Musician','Anime character','Game character','Fictional character','IRL friend','Online friend','Organization','Channel','Other'];
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const NOTIF_OPTS=[{value:'day_of',label:'Day of'},{value:'day_before',label:'Day before'},{value:'week_before',label:'Week before'},{value:'month_before',label:'Month before'}];
@@ -632,7 +641,7 @@ function cardHTML(e,cats){
   const aff=affData(e.affinity);
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
-  return`<div class="card" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'}" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'♥':'♡'}</button>
+  return`<div class="card${(todoHighlightOn()&&entryHasTodo(e))?' card--todo':''} ${['Organization','Channel'].includes(e.cat)?' card--org':''}" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'};position:relative" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'♥':'♡'}</button>
     <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
     <div class="card-name">${esc(e.name)}</div>
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
@@ -807,6 +816,29 @@ function detailPageHTML(id){
   const notifLabels=NOTIF_OPTS.filter(o=>(e.notifOptions||[]).includes(o.value)).map(o=>o.label);
   // connections
   const conns=(e.connections||[]).filter(c=>c.entryId);
+  // Org hierarchy — find parent and children via connections
+  const isOrg=['Organization','Channel'].includes(e.cat);
+  const orgSec=isOrg?(()=>{
+    const db2=getDB();
+    // Parent = a connection on THIS entry labeled "Sub-channel of", "Owned by", "Part of"
+    const parentConn=conns.find(c=>/sub.channel of|owned by|part of|under|parent/i.test(c.label||''));
+    const parent=parentConn?db2.entries.find(x=>x.id===parentConn.entryId):null;
+    // Children = other entries that have a connection pointing TO this entry with same labels
+    const children=db2.entries.filter(x=>x.id!==e.id&&(x.connections||[]).some(c=>c.entryId===e.id&&/sub.channel of|owned by|part of|under|parent/i.test(c.label||'')));
+    if(!parent&&!children.length)return'';
+    const mkCard=(ent,lbl)=>{
+      const[bg,fg]=ent.hexColor?[ent.hexColor+'22',ent.hexColor]:pal(ent.id);
+      const av=ent.img?`<img src="${esc(ent.img)}" alt="" onerror="this.style.display='none'">`:'';
+      return`<div class="conn-item" onclick="go('detail',${ent.id})">
+        <div class="conn-avatar sh-${ent.imgShape||'circle'}" style="background:${bg};color:${fg}">${av||initials(ent.name)}</div>
+        <div class="conn-body"><div class="conn-label">${esc(lbl)}</div><div class="conn-name">${esc(ent.name)}</div></div>
+        <span class="conn-arr">›</span></div>`;
+    };
+    return`<div class="detail-section"><div class="section-label">🏢 Organization hierarchy</div><div class="conn-list">
+      ${parent?mkCard(parent,'Parent organization'):''}
+      ${children.map(c=>mkCard(c,'Sub-channel / owned channel')).join('')}
+    </div></div>`;
+  })():'';
   const connSec=conns.length?`<div class="detail-section"><div class="section-label">Connections</div>
     <div class="conn-list">${conns.map(c=>{
       const t=db.entries.find(x=>x.id===c.entryId);if(!t)return'';
@@ -876,10 +908,11 @@ function detailPageHTML(id){
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
   const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="vid-size-row"><span class="vid-size-label">Size:</span><button class="vid-size-btn active" onclick="setVidSize(this,'')">1 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-2')">2 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-3')">3 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-4')">4 col</button></div><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
     const yid=ytId(l.url);const tid=tweetId(l.url);
+    const labelHtml=l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:`<div class="yt-label" style="height:0;overflow:hidden"></div>`;
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
       :`<div class="tw-embed"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:7px 11px;background:#f0f6ff;border:1px solid #dbeafe;border-bottom:none;border-radius:10px 10px 0 0;font-size:12px;color:#1d4ed8;text-decoration:none;font-weight:500">𝕏 Open on X ↗</a><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&dnt=false&theme=light&cards=visible&conversation=none" frameborder="0" scrolling="no" allowfullscreen style="width:100%;min-height:250px;border-radius:0 0 10px 10px;display:block;border:1px solid #ede9fe" loading="lazy"></iframe></div>`;
-    return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
+    return`<div>${labelHtml}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
     <div class="detail-header">
@@ -908,7 +941,7 @@ function detailPageHTML(id){
       ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${renderMentions(e.note)}</div></div>`:''}
       ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
-      ${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
+      ${orgSec}${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
       ${(()=>{const fi=getFeaturedIn(e.id);if(!fi.length)return'';return`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${fi.map(fe=>{const[fbg,ffg]=fe.hexColor?[fe.hexColor+'22',fe.hexColor]:pal(fe.id);const fav=fe.img?`<img src="${esc(fe.img)}" alt="" onerror="this.style.display='none'">`:'';return`<div class="conn-item" onclick="go('detail',${fe.id})"><div class="conn-avatar sh-${fe.imgShape||'circle'}" style="background:${fbg};color:${ffg}">${fav||initials(fe.name)}</div><div class="conn-body"><div class="conn-label">Featured in</div><div class="conn-name">${esc(fe.name)}</div></div><span class="conn-arr">›</span></div>`;}).join('')}</div></div>`;})()}
     </div>
   </div>`;
@@ -1165,7 +1198,7 @@ function formHTML(e,cats){
       <label>Connections <span style="color:#bbb;font-weight:400">(link to other entries — artists, characters, previous personas…)</span></label>
       <div id="conn-list-form"></div>
       <button type="button" class="sm-btn" style="margin-top:6px" onclick="addConn()">+ Add connection</button>
-      <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"</div>
+      <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"<br>For organizations: "Sub-channel of", "Owned by", "Part of" to build hierarchy</div>
     </div>
     <div class="accordion" id="extras-accordion">
       <button type="button" class="accordion-trigger" onclick="toggleAccordion('extras-accordion')">
@@ -2039,6 +2072,27 @@ function getFeaturedIn(entryId){
     if(found)results.push(e);
   });
   return results;
+}
+
+
+/* ── ADD/LATER HIGHLIGHT ── */
+function todoHighlightOn(){return localStorage.getItem('cj_todo')==='+1';}
+function toggleTodoHighlight(){
+  localStorage.setItem('cj_todo', todoHighlightOn()?'':'+1');
+  updateCards();
+  const btn=document.getElementById('todo-toggle-btn');
+  if(btn){btn.classList.toggle('on',todoHighlightOn());btn.textContent=todoHighlightOn()?'🔶 TODO: on':'🔶 TODO';}
+}
+function entryHasTodo(e){
+  const fields=[
+    e.note||'', e.kanjiInfo||'',
+    ...(e.links||[]).map(l=>(l.label||'')+' '+(l.url||'')),
+    ...(e.gallery||[]).map(g=>g.caption||''),
+    ...(e.tags||[]).join(' '),
+    e.source||'', e.name||'',
+    ...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])
+  ].join(' ');
+  return /\bADD\b|\bLATER\b/.test(fields);
 }
 
 (async()=>{
