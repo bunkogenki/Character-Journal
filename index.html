@@ -84,7 +84,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .yt-list.sz-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
 .yt-list.sz-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 .yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-items:start}
-.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%;display:flex;flex-direction:column}
+.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%}
 .yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
 .yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
@@ -161,16 +161,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .extra-view-label{font-size:10px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
 .extra-view-val{font-size:13px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap}
 /* auth */
-
-
-
-
-
+.auth-bar{background:white;border-bottom:1px solid #ede9fe;padding:.5rem 1rem}
+.auth-bar-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.auth-user{display:flex;align-items:center;gap:8px;font-size:13px;color:#555}
+.auth-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.auth-btn{padding:5px 14px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a1a;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .auth-btn:hover{background:#f5f3ff;border-color:#7c3aed}
 .auth-btn.sign-in{background:#7c3aed;color:white;border-color:#7c3aed}
 .auth-btn.sign-in:hover{background:#6d28d9}
-
-
+.auth-sync-note{font-size:11px;color:#aaa}
+.firebase-config-notice{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem;margin:1rem;font-size:13px;line-height:1.6;color:#78350f}
 .firebase-config-notice code{background:#fde68a;padding:1px 5px;border-radius:4px;font-size:12px}
 @media(max-width:640px){.extra-view-grid{grid-template-columns:1fr}}
 /* wheel */
@@ -354,38 +354,29 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
 .sort-select{padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:inherit;background:white;color:#444;cursor:pointer;-webkit-appearance:none;appearance:none}
 .sort-select:focus{outline:none;border-color:#7c3aed}
-.sort-dir-btn{width:30px;height:30px;border:1px solid #e0e0e0;border-radius:8px;background:white;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.sort-dir-btn{width:30px;height:30px;border:1px solid #e0e0e0;border-radius:8px;background:white;cursor:pointer;font-size:12px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;font-family:inherit}
 .sort-dir-btn:hover{border-color:#7c3aed;color:#7c3aed}
-.backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333;line-height:1.4}
-.backup-textarea:focus{outline:none;border-color:#7c3aed}
-
-.sync-info{font-size:12px;color:#aaa;margin-bottom:8px}
-.sync-info a{color:#7c3aed}
-
-.gwheel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:300px;overflow-y:auto;margin-bottom:1rem;padding:4px}
-.gwheel-item{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;aspect-ratio:1;background:#f5f3ff}
-.gwheel-item img{width:100%;height:100%;object-fit:cover;display:block}
-.gwheel-item.sel{border-color:#7c3aed}
-.gwheel-item .gwheel-check{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb}
-.gwheel-item.sel .gwheel-check{background:#7c3aed;color:white}
-.gwheel-result-wrap{display:flex;justify-content:center;margin:1rem 0}
-.gwheel-result-img{max-width:100%;max-height:280px;border-radius:12px;object-fit:contain;transition:opacity .1s}
-.gwheel-spinning .gwheel-result-img{opacity:.4}
-
-.gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
-.gal-order-btn{padding:4px 9px!important;font-size:13px!important;line-height:1}
-.gal-order-btn:disabled{opacity:.3;cursor:default}
-.g-source-link{font-size:11px;color:#7c3aed;padding:3px 8px;display:flex;align-items:center;gap:4px;text-decoration:none;background:white;transition:background .12s}
-.g-source-link:hover{background:#f5f3ff}
-
 .card--todo{outline:2.5px solid #f59e0b!important;outline-offset:-2px}
-.card--todo::before{content:'TODO';position:absolute;top:6px;left:8px;font-size:9px;font-weight:700;background:#f59e0b;color:white;padding:1px 5px;border-radius:4px;letter-spacing:.05em;z-index:1}
+.card--todo::before{content:'TODO';position:absolute;top:6px;left:8px;font-size:9px;font-weight:700;background:#f59e0b;color:white;padding:1px 5px;border-radius:4px;z-index:1}
 .todo-toggle-btn{padding:5px 12px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .todo-toggle-btn.on{background:#fef3c7;border-color:#f59e0b;color:#92400e}
-
-.card--org .card-img{border-radius:10px!important}
 .card--org{border-style:dashed!important}
-.org-badge{font-size:10px;padding:1px 7px;border-radius:3px;font-weight:700;display:inline-block;background:#e0f2fe;color:#0369a1;letter-spacing:.04em;border:1px solid #bae6fd}
+.card--org .card-img{border-radius:10px!important}
+.gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.gal-order-btn{padding:4px 9px!important;font-size:12px!important;line-height:1}
+.gal-order-btn:disabled{opacity:.3;cursor:default}
+.g-source-link{font-size:11px;color:#7c3aed;padding:3px 8px;display:flex;align-items:center;gap:4px;text-decoration:none;background:white}
+.g-source-link:hover{background:#f5f3ff}
+.gwheel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:280px;overflow-y:auto;margin-bottom:1rem}
+.gwheel-item{border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;aspect-ratio:1;background:#f5f3ff;position:relative}
+.gwheel-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gwheel-item.sel{border-color:#7c3aed}
+.gwheel-check{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:11px;color:#bbb}
+.gwheel-item.sel .gwheel-check{background:#7c3aed;color:white}
+.gwheel-result{text-align:center;margin-top:1rem}
+.gwheel-result img{max-width:100%;max-height:260px;border-radius:12px;object-fit:contain}
+.backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333}
+.backup-textarea:focus{outline:none;border-color:#7c3aed}
 </style>
 </head>
 <body>
@@ -641,7 +632,7 @@ function cardHTML(e,cats){
   const aff=affData(e.affinity);
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
-  return`<div class="card${(todoHighlightOn()&&entryHasTodo(e))?' card--todo':''} ${['Organization','Channel'].includes(e.cat)?' card--org':''}" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'};position:relative" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'♥':'♡'}</button>
+  return`<div class="card${todoOn()&&hasTodo(e)?' card--todo':''}${['Organization','Channel'].includes(e.cat)?' card--org':''}" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'};position:relative" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'&hearts;':'&heartsuit;'}</button>
     <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
     <div class="card-name">${esc(e.name)}</div>
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
@@ -662,7 +653,7 @@ function updateCards(){
   // update pill active states
   document.querySelectorAll('#grid-pills .pill').forEach(p=>{p.classList.toggle('active',p.dataset.f===S.filter);});
   const _ss=document.querySelector('.sort-select');if(_ss)_ss.value=S.sortBy;
-  const _sd=document.querySelector('.sort-dir-btn');if(_sd)_sd.textContent=S.sortDir==='asc'?'↑':'↓';
+  const _sd=document.querySelector('.sort-dir-btn');if(_sd)_sd.textContent=S.sortDir==='asc'?'Up':'Down';
   if(countEl)countEl.textContent=list.length+' entr'+(list.length===1?'y':'ies');
   if(gridEl)gridEl.innerHTML=list.length
     ?list.map(e=>cardHTML(e,db.cats)).join('')
@@ -685,7 +676,7 @@ function gridPageHTML(){
   return`<div class="content-search"><div class="content-search-inner">
       <input class="search-bar" type="text" placeholder="Search by name, kanji, show, tag…" value="${esc(S.search)}" oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <div class="filters" id="grid-pills">${pills}</div>
-      <div class="sort-row"><span class="sort-label">Sort:</span><select class="sort-select" onchange="setSort(this.value)"><option value="default"${S.sortBy==='default'?' selected':''}>Default</option><option value="fav"${S.sortBy==='fav'?' selected':''}>❤ Favourites first</option><option value="name"${S.sortBy==='name'?' selected':''}>Name A–Z</option><option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji name</option><option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option><option value="age"${S.sortBy==='age'?' selected':''}>Age</option><option value="height"${S.sortBy==='height'?' selected':''}>Height</option><option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday</option><option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option><option value="source"${S.sortBy==='source'?' selected':''}>Source</option><option value="added"${S.sortBy==='added'?' selected':''}>Recently added</option></select><button class="sort-dir-btn" onclick="toggleSortDir()">${S.sortDir==='asc'?'↑':'↓'}</button></div>
+    <div class="sort-row"><span class="sort-label">Sort:</span><select class="sort-select" onchange="setSort(this.value)"><option value="default"${S.sortBy==='default'?' selected':''}>Default</option><option value="fav"${S.sortBy==='fav'?' selected':''}>Favourites first</option><option value="name"${S.sortBy==='name'?' selected':''}>Name A-Z</option><option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji</option><option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option><option value="age"${S.sortBy==='age'?' selected':''}>Age</option><option value="height"${S.sortBy==='height'?' selected':''}>Height</option><option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday</option><option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option><option value="source"${S.sortBy==='source'?' selected':''}>Source</option><option value="added"${S.sortBy==='added'?' selected':''}>Recently added</option></select><button class="sort-dir-btn" onclick="toggleSortDir()">${S.sortDir==='asc'?'Up':'Down'}</button><button class="todo-toggle-btn${todoOn()?' on':''}" id="todo-toggle-btn" onclick="toggleTodo()">${todoOn()?'TODO: ON':'TODO'}</button></div>
     </div></div>
     <div class="main">
       <div class="count-label" id="grid-count">${list.length} entr${list.length===1?'y':'ies'}</div>
@@ -816,29 +807,14 @@ function detailPageHTML(id){
   const notifLabels=NOTIF_OPTS.filter(o=>(e.notifOptions||[]).includes(o.value)).map(o=>o.label);
   // connections
   const conns=(e.connections||[]).filter(c=>c.entryId);
-  // Org hierarchy — find parent and children via connections
   const isOrg=['Organization','Channel'].includes(e.cat);
-  const orgSec=isOrg?(()=>{
-    const db2=getDB();
-    // Parent = a connection on THIS entry labeled "Sub-channel of", "Owned by", "Part of"
-    const parentConn=conns.find(c=>/sub.channel of|owned by|part of|under|parent/i.test(c.label||''));
-    const parent=parentConn?db2.entries.find(x=>x.id===parentConn.entryId):null;
-    // Children = other entries that have a connection pointing TO this entry with same labels
-    const children=db2.entries.filter(x=>x.id!==e.id&&(x.connections||[]).some(c=>c.entryId===e.id&&/sub.channel of|owned by|part of|under|parent/i.test(c.label||'')));
-    if(!parent&&!children.length)return'';
-    const mkCard=(ent,lbl)=>{
-      const[bg,fg]=ent.hexColor?[ent.hexColor+'22',ent.hexColor]:pal(ent.id);
-      const av=ent.img?`<img src="${esc(ent.img)}" alt="" onerror="this.style.display='none'">`:'';
-      return`<div class="conn-item" onclick="go('detail',${ent.id})">
-        <div class="conn-avatar sh-${ent.imgShape||'circle'}" style="background:${bg};color:${fg}">${av||initials(ent.name)}</div>
-        <div class="conn-body"><div class="conn-label">${esc(lbl)}</div><div class="conn-name">${esc(ent.name)}</div></div>
-        <span class="conn-arr">›</span></div>`;
-    };
-    return`<div class="detail-section"><div class="section-label">🏢 Organization hierarchy</div><div class="conn-list">
-      ${parent?mkCard(parent,'Parent organization'):''}
-      ${children.map(c=>mkCard(c,'Sub-channel / owned channel')).join('')}
-    </div></div>`;
-  })():'';
+  const orgKids=db.entries.filter(x=>x.id!==e.id&&(x.connections||[]).some(c=>c.entryId===e.id&&/sub.channel of|owned by|part of|under|parent/i.test(c.label||'')));
+  const orgParConn=conns.find(c=>/sub.channel of|owned by|part of|under|parent/i.test(c.label||''));
+  const orgPar=orgParConn?db.entries.find(x=>x.id===orgParConn.entryId):null;
+  function connCard(ent,lbl){const[bg,fg]=ent.hexColor?[ent.hexColor+'22',ent.hexColor]:pal(ent.id);return`<div class="conn-item" onclick="go('detail',${ent.id})"><div class="conn-avatar sh-${ent.imgShape||'circle'}" style="background:${bg};color:${fg}">${ent.img?`<img src="${esc(ent.img)}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(ent.name)}</div><div class="conn-body"><div class="conn-label">${esc(lbl)}</div><div class="conn-name">${esc(ent.name)}</div></div><span class="conn-arr">&#x203A;</span></div>`;}
+  const orgSec=isOrg&&(orgPar||orgKids.length)?`<div class="detail-section"><div class="section-label">Organization hierarchy</div><div class="conn-list">${orgPar?connCard(orgPar,'Parent organization'):''}${orgKids.map(k=>connCard(k,'Sub-channel / owned')).join('')}</div></div>`:'';
+  const featIn=getFeaturedIn(e.id);
+  const featSec=featIn.length?`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${featIn.map(f=>connCard(f,'Featured in')).join('')}</div></div>`:'';
   const connSec=conns.length?`<div class="detail-section"><div class="section-label">Connections</div>
     <div class="conn-list">${conns.map(c=>{
       const t=db.entries.find(x=>x.id===c.entryId);if(!t)return'';
@@ -897,28 +873,27 @@ function detailPageHTML(id){
       </div>
     </div>`;
   })();
-  const gallSec=gallery.length?`<div class="detail-section"><div class="section-label" style="display:flex;align-items:center;justify-content:space-between">Gallery <button class="sm-btn" onclick="openGalleryWheel(${e.id})" style="font-weight:500;text-transform:none;letter-spacing:0">🎲 Spin gallery</button></div>
+  const gallSec=gallery.length?`<div class="detail-section"><div class="section-label" style="display:flex;align-items:center;justify-content:space-between">Gallery<button class="sm-btn" onclick="openGalleryWheel(${e.id})" style="font-weight:400">Spin</button></div>
     <div class="gallery-grid">${gallery.map((item,i)=>`
       <div class="gallery-item">
         <img class="g-thumb" src="${esc(item.src)}" loading="lazy" onclick="openLB(${e.id},${i})" onerror="this.closest('.gallery-item').style.display='none'">
-        ${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" class="g-source-link" title="View source" onclick="event.stopPropagation()">🔗 Source</a>`:''}
+        ${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" class="g-source-link" onclick="event.stopPropagation()">Source</a>`:''} 
         ${item.caption?`<div class="g-caption">${renderMentions(item.caption)}</div>`:''}
         ${item.artistId?(()=>{const a=db.entries.find(x=>x.id===item.artistId);if(!a)return'';const[abg,afg]=a.hexColor?[a.hexColor+'22',a.hexColor]:pal(a.id);const aav=a.img?`<img src="${esc(a.img)}" alt="">`:'';const lbl=item.artistLabel||'Linked';return`<div class="g-artist" onclick="go('detail',${a.id})"><span class="g-artist-dot" style="background:${abg};color:${afg}">${aav||initials(a.name)}</span><span>${esc(lbl)}: ${esc(a.name)}</span></div>`;})():''}
       </div>`).join('')}</div></div>`:'';
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
   const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="vid-size-row"><span class="vid-size-label">Size:</span><button class="vid-size-btn active" onclick="setVidSize(this,'')">1 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-2')">2 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-3')">3 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-4')">4 col</button></div><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
     const yid=ytId(l.url);const tid=tweetId(l.url);
-    const labelHtml=l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:`<div class="yt-label" style="height:0;overflow:hidden"></div>`;
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
       :`<div class="tw-embed"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:7px 11px;background:#f0f6ff;border:1px solid #dbeafe;border-bottom:none;border-radius:10px 10px 0 0;font-size:12px;color:#1d4ed8;text-decoration:none;font-weight:500">𝕏 Open on X ↗</a><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&dnt=false&theme=light&cards=visible&conversation=none" frameborder="0" scrolling="no" allowfullscreen style="width:100%;min-height:250px;border-radius:0 0 10px 10px;display:block;border:1px solid #ede9fe" loading="lazy"></iframe></div>`;
-    return`<div>${labelHtml}${embed}</div>`;
+    return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
     <div class="detail-header">
       <button class="back-btn" onclick="${backTarget}">${backLabel}</button>
       <div class="detail-header-name">${esc(e.name)}</div>
-      <button class="detail-heart-btn${e.fav?' on':''}" id="detail-heart-btn" onclick="toggleFav(${e.id})">${e.fav?'♥ Favourited':'♡ Favourite'}</button>
+      <button class="detail-heart-btn${e.fav?' on':''}" id="detail-heart-btn" onclick="toggleFav(${e.id})">${e.fav?'&hearts; Favourited':'&heartsuit; Favourite'}</button>
       <button class="detail-edit-btn" onclick="openEdit(${e.id})">Edit</button>
     </div>
     <div class="detail-body">
@@ -941,8 +916,8 @@ function detailPageHTML(id){
       ${(e.tags||[]).length?`<div class="detail-section"><div class="section-label">Tags</div><div class="tags-row">${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>`:''}
       ${e.note?`<div class="detail-section"><div class="section-label">Notes</div><div class="detail-note">${renderMentions(e.note)}</div></div>`:''}
       ${e.kanjiInfo?`<div class="detail-section"><div class="section-label">Kanji information</div><div class="kanji-info-box">${renderMentions(e.kanjiInfo)}</div></div>`:''}
-      ${orgSec}${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
-      ${(()=>{const fi=getFeaturedIn(e.id);if(!fi.length)return'';return`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${fi.map(fe=>{const[fbg,ffg]=fe.hexColor?[fe.hexColor+'22',fe.hexColor]:pal(fe.id);const fav=fe.img?`<img src="${esc(fe.img)}" alt="" onerror="this.style.display='none'">`:'';return`<div class="conn-item" onclick="go('detail',${fe.id})"><div class="conn-avatar sh-${fe.imgShape||'circle'}" style="background:${fbg};color:${ffg}">${fav||initials(fe.name)}</div><div class="conn-body"><div class="conn-label">Featured in</div><div class="conn-name">${esc(fe.name)}</div></div><span class="conn-arr">›</span></div>`;}).join('')}</div></div>`;})()}
+      ${isOrg?orgSec:""}${connSec}${extraItems}${gallSec}${linkSec}${ytSec}
+      ${featSec}
     </div>
   </div>`;
 }
@@ -965,7 +940,7 @@ function renderLB(){
     ${gallery.length>1?`<button class="lb-arrow lb-prev" onclick="lbNav(-1)">‹</button><button class="lb-arrow lb-next" onclick="lbNav(1)">›</button>`:''}
     <div class="lb-bottom">
       ${item.caption?`<div class="lb-caption">${renderMentions(item.caption)}</div>`:''}
-      ${item.sourceUrl?`<div class="lb-caption"><a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" style="color:#a78bfa">🔗 View source</a></div>`:''}
+      ${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noopener" style="color:#a78bfa;font-size:12px">View source</a>`:''} 
       ${item.artistId?(()=>{const a=getDB().entries.find(x=>x.id===item.artistId);if(!a)return'';const lbl=item.artistLabel||'Linked';return`<div class="lb-caption" style="cursor:pointer;opacity:.7;font-size:12px" onclick="closeLB();go('detail',${a.id})">${esc(lbl)}: ${esc(a.name)}</div>`;})():''}
       ${gallery.length>1?`<div class="lb-counter">${idx+1} / ${gallery.length}</div>`:''}
     </div>
@@ -1162,8 +1137,7 @@ function formHTML(e,cats){
       <div class="img-row">
         <div class="img-prev-box sh-${sh}" id="img-prev-box">
           <img id="img-prev" src="${imgSrc}" alt="" style="${imgSrc?'':'display:none'}" onerror="this.style.display='none'">
-          <span class="img-ph" id="img-ph" style="${imgSrc?'display:none':''}">🖼</span>
-          <input type="hidden" id="f-img-data" value="${imgSrc&&imgSrc.startsWith('data:')?imgSrc:''}">
+          <span class="img-ph" id="img-ph" style="${imgSrc?'display:none':''}">🖼</span><input type="hidden" id="f-img-data" value="${imgSrc&&imgSrc.startsWith('data:')?imgSrc:''}">
         </div>
         <div class="img-inputs">
           <div class="img-url-row">
@@ -1198,7 +1172,7 @@ function formHTML(e,cats){
       <label>Connections <span style="color:#bbb;font-weight:400">(link to other entries — artists, characters, previous personas…)</span></label>
       <div id="conn-list-form"></div>
       <button type="button" class="sm-btn" style="margin-top:6px" onclick="addConn()">+ Add connection</button>
-      <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"<br>For organizations: "Sub-channel of", "Owned by", "Part of" to build hierarchy</div>
+      <div style="font-size:11px;color:#aaa;margin-top:5px">Examples: "Drawn by", "Used to be", "Drawn with", "Collaborated with"</div>
     </div>
     <div class="accordion" id="extras-accordion">
       <button type="button" class="accordion-trigger" onclick="toggleAccordion('extras-accordion')">
@@ -1207,7 +1181,7 @@ function formHTML(e,cats){
       </button>
       <div class="accordion-body" id="extras-accordion-body">
       <div class="extra-field"><label>Pronouns</label><input id="f-extra-pronouns" placeholder="e.g. she/her, they/them" value="${''+(e&&e.extras&&e.extras.pronouns?esc(e.extras.pronouns):'')}" oninput="F.extras['pronouns']=this.value"></div>
-      <div class="extra-field"><label>Calls self <span style="color:#bbb;font-weight:400">(first-person pronoun)</span></label><input id="f-extra-callsSelf" placeholder="e.g. 僕, 俺, わらわ, わし, 私, I…" value="${''+(e&&e.extras&&e.extras.callsSelf?esc(e.extras.callsSelf):'')}" oninput="F.extras['callsSelf']=this.value"></div>
+      <div class="extra-field"><label>Calls self</label><input id="f-extra-callsSelf" placeholder="e.g. 属, 俣, わらわ…" value="${''+(e&&e.extras&&e.extras.callsSelf?esc(e.extras.callsSelf):'')}" oninput="F.extras['callsSelf']=this.value"></div>
       <div class="extra-field"><label>Personality</label><div class="mention-field-wrap"><textarea id="f-extra-personality" placeholder="How would you describe their personality?" style="padding-right:30px" oninput="F.extras['personality']=this.value">${''+(e&&e.extras&&e.extras.personality?esc(e.extras.personality):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-personality')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
       <div class="extra-field"><label>Cursing</label><input id="f-extra-cursing" placeholder="e.g. never, rarely, a lot…" value="${''+(e&&e.extras&&e.extras.cursing?esc(e.extras.cursing):'')}" oninput="F.extras['cursing']=this.value"></div>
       <div class="extra-field"><label>Memory</label><div class="mention-field-wrap"><textarea id="f-extra-memory" placeholder="Notes on your memories with/of them" style="padding-right:30px" oninput="F.extras['memory']=this.value">${''+(e&&e.extras&&e.extras.memory?esc(e.extras.memory):'')}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-extra-memory')" style="top:5px;right:5px;width:22px;height:22px;font-size:11px" title="Link an entry">@</button></div></div>
@@ -1276,92 +1250,44 @@ function getFormNotifs(){const out=[];document.querySelectorAll('#notif-options-
 function renderGalList(){
   const el=document.getElementById('gal-list');if(!el)return;
   const db=getDB();
-  const entryOpts='<option value="">— link an entry (artist, character…) —</option>'+db.entries.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
-  el.innerHTML=F.gallery.map((item,i)=>`<div class="gal-form-item">
-    <div class="gal-form-thumb-wrap">
-      <img class="gal-form-thumb" src="${esc(item.src)}" onerror="this.style.opacity='.3'">
-      <button type="button" class="gal-rm" onclick="rmGal(${i})">✕</button>
-    </div>
-    <div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">
-      <div class="gal-order-row">
-        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},-1)" ${i===0?'disabled':''}>↑</button>
-        <button type="button" class="sm-btn gal-order-btn" onclick="moveGal(${i},1)" ${i===F.gallery.length-1?'disabled':''}>↓</button>
-        <button type="button" class="sm-btn" onclick="replaceGalImg(${i})">🔁 Replace</button>
-      </div>
-      <div id="gal-replace-panel-${i}" style="display:none;padding:8px;background:#f5f3ff;border-radius:8px;border:1px solid #ede9fe">
-        <input id="gal-ri-url-${i}" type="text" placeholder="Paste image URL or Fandom link…" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px" oninput="galRiUrlChange(${i},this.value)">
-        <input id="gal-ri-src-${i}" type="text" placeholder="Source URL (auto-filled, edit if needed)…" value="${esc(item.sourceUrl||'')}" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px">
-        <div style="display:flex;gap:5px;align-items:center">
-          <button type="button" class="btn btn-primary" style="padding:5px 12px;font-size:12px" onclick="applyGalReplaceUrl(${i})">Apply URL</button>
-          <label style="font-size:12px;color:#888;cursor:pointer">or upload file: <input type="file" accept="image/*" style="font-size:11px" onchange="onGalReplaceFile(${i},this)"></label>
-        </div>
-      </div>
-      <div class="mention-field-wrap">
-        <input class="gal-caption-inp" id="galcap-${i}" placeholder="Description for this image…" value="${esc(item.caption||'')}" oninput="F.gallery[${i}].caption=this.value" style="padding-right:30px">
-        <button type="button" class="mention-at-btn" onclick="openMentionPicker('galcap-${i}')" style="top:5px;right:5px">@</button>
-      </div>
-      <div style="display:flex;gap:5px;align-items:center">
-        <input placeholder="Label (e.g. Drawn by, Feat., With…)" value="${esc(item.artistLabel||'')}" oninput="F.gallery[${i}].artistLabel=this.value" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
-        <select onchange="F.gallery[${i}].artistId=this.value?parseInt(this.value):null" style="flex:1;min-width:0;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a">
-          ${entryOpts.replace(`value="${item.artistId||''}"`,`value="${item.artistId||''}" selected`)}
-        </select>
-      </div>
-      <input placeholder="Source link (original post URL)…" value="${esc(item.sourceUrl||'')}" oninput="F.gallery[${i}].sourceUrl=this.value" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;color:#1a1a1a;width:100%">
-    </div>
-  </div>`).join('');
+  const baseOpts='<option value="">link an entry...</option>'+db.entries.map(e=>'<option value="'+e.id+'">'+esc(e.name)+'</option>').join('');
+  el.innerHTML=F.gallery.map(function(item,i){
+    const sel=baseOpts.replace('value="'+(item.artistId||'')+'"','value="'+(item.artistId||'')+'" selected');
+    const dis0=i===0?' disabled':'';
+    const disL=i===F.gallery.length-1?' disabled':'';
+    return '<div class="gal-form-item">'
+      +'<div class="gal-form-thumb-wrap">'
+      +'<img class="gal-form-thumb" src="'+esc(item.src)+'" onerror="this.style.opacity=.3">'
+      +'<button type="button" class="gal-rm" onclick="rmGal('+i+')">X</button>'
+      +'</div>'
+      +'<div class="gal-form-right" style="display:flex;flex-direction:column;gap:5px">'
+      +'<div class="gal-order-row">'
+      +'<button type="button" class="sm-btn gal-order-btn" onclick="moveGal('+i+',-1)"'+dis0+'>Up</button>'
+      +'<button type="button" class="sm-btn gal-order-btn" onclick="moveGal('+i+',1)"'+disL+'>Down</button>'
+      +'<button type="button" class="sm-btn" onclick="replaceGalImg('+i+')">Replace</button>'
+      +'</div>'
+      +'<div id="gal-rp-'+i+'" style="display:none;padding:8px;background:#f5f3ff;border-radius:8px;border:1px solid #ede9fe">'
+      +'<input id="gal-ri-'+i+'" type="text" placeholder="Paste image URL..." style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px" oninput="document.getElementById(\x27gal-rs-'+i+'\x27)&&!document.getElementById(\x27gal-rs-'+i+'\x27).value.trim()&&(document.getElementById(\x27gal-rs-'+i+'\x27).value=this.value)">'
+      +'<input id="gal-rs-'+i+'" type="text" placeholder="Source URL (auto-filled)..." value="'+esc(item.sourceUrl||'')+'" style="width:100%;padding:6px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;margin-bottom:5px">'
+      +'<div style="display:flex;gap:5px;align-items:center">'
+      +'<button type="button" class="btn btn-primary" style="padding:5px 12px;font-size:12px" onclick="applyGalReplaceUrl('+i+')">Apply URL</button>'
+      +'<label style="font-size:12px;color:#888">or file: <input type="file" accept="image/*" style="font-size:11px" onchange="onGalReplaceFile('+i+',this)"></label>'
+      +'</div></div>'
+      +'<div class="mention-field-wrap">'
+      +'<input class="gal-caption-inp" id="galcap-'+i+'" placeholder="Description..." value="'+esc(item.caption||'')+'" oninput="F.gallery['+i+'].caption=this.value" style="padding-right:30px">'
+      +'<button type="button" class="mention-at-btn" onclick="openMentionPicker(\x27galcap-'+i+'\x27)" style="top:5px;right:5px">@</button>'
+      +'</div>'
+      +'<div style="display:flex;gap:5px">'
+      +'<input placeholder="Label (Drawn by...)" value="'+esc(item.artistLabel||'')+'" oninput="F.gallery['+i+'].artistLabel=this.value" style="flex:1;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white">'
+      +'<select onchange="F.gallery['+i+'].artistId=this.value?parseInt(this.value):null" style="flex:1;padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white">'+sel+'</select>'
+      +'</div>'
+      +'<input placeholder="Source link..." value="'+esc(item.sourceUrl||'')+'" oninput="F.gallery['+i+'].sourceUrl=this.value" style="padding:5px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white;width:100%">'
+      +'</div></div>';
+  }).join('');
 }
 
-function galRiUrlChange(i,val){
-  if(needsProxy(val))val=proxyImageUrl(val);
-  const s=document.getElementById('gal-ri-src-'+i);
-  if(s&&!s.value)s.value=val; // auto-fill source only if empty
-}
-
-
-function moveGal(i,dir){
-  const j=i+dir;
-  if(j<0||j>=F.gallery.length)return;
-  [F.gallery[i],F.gallery[j]]=[F.gallery[j],F.gallery[i]];
-  renderGalList();
-}
-
-function replaceGalImg(i){
-  // Toggle inline replace panel instead of a modal
-  const panel=document.getElementById('gal-replace-panel-'+i);
-  if(panel){panel.style.display=panel.style.display==='none'?'block':'none';return;}
-}
-
-function applyGalReplaceUrl(i){
-  const urlInp=document.getElementById('gal-ri-url-'+i);
-  const srcInp=document.getElementById('gal-ri-src-'+i);
-  if(!urlInp)return;
-  let url=urlInp.value.trim();
-  if(!url)return;
-  if(needsProxy(url))url=proxyImageUrl(url);
-  F.gallery[i]={...F.gallery[i],src:url,sourceUrl:srcInp?srcInp.value.trim():url};
-  renderGalList();
-}
-
-
-function onGalReplaceFile(i,input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    initCrop(ev.target.result,src=>{
-      F.gallery[i]={...F.gallery[i],src};
-      renderGalList();
-    });
-  };
-  reader.readAsDataURL(file);
-  input.value='';
-}
 function rmGal(i){F.gallery.splice(i,1);renderGalList();}
-function addGalUrl(){
-  const inp=document.getElementById('gal-url-inp');
-  let url=(inp.value||'').trim();if(!url)return;
-  if(needsProxy(url))url=proxyImageUrl(url);
-  F.gallery.push({src:url,caption:''});inp.value='';renderGalList();
-}
+function addGalUrl(){const inp=document.getElementById('gal-url-inp');let url=(inp.value||'').trim();if(!url)return;if(needsProxy(url))url=proxyImageUrl(url);F.gallery.push({src:url,caption:'',artistId:null,artistLabel:'',sourceUrl:''});inp.value='';renderGalList();}
 function addGalFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{F.gallery.push({src,caption:''});renderGalList();});};reader.readAsDataURL(file);input.value='';}
 
 
@@ -1603,8 +1529,25 @@ function renderConnList(){
 }
 function rmConn(i){F.connections.splice(i,1);renderConnList();}
 function addConn(){F.connections.push({label:'',entryId:null});renderConnList();}
-function renderLinkList(){const el=document.getElementById('link-list-form');if(!el)return;el.innerHTML=F.links.map((lk,i)=>`<div class="link-form-item" style="flex-wrap:wrap;gap:5px"><div style="display:flex;gap:4px;flex-shrink:0"><button type="button" class="sm-btn gal-order-btn" onclick="moveLink(${i},-1)" ${i===0?'disabled':''}>↑</button><button type="button" class="sm-btn gal-order-btn" onclick="moveLink(${i},1)" ${i===F.links.length-1?'disabled':''}>↓</button></div><div class="mention-field-wrap" style="width:120px;flex-shrink:0"><input class="lbl-inp" id="lnklbl-${i}" placeholder="Label" value="${esc(lk.label)}" oninput="F.links[${i}].label=this.value" style="padding-right:26px;width:100%"><button type="button" class="mention-at-btn" onclick="openMentionPicker('lnklbl-${i}')" title="Link an entry" style="top:5px;right:5px;width:20px;height:20px;font-size:11px">@</button></div><input class="url-inp" placeholder="URL" value="${esc(lk.url)}" oninput="F.links[${i}].url=this.value" style="flex:1;min-width:140px"><button type="button" class="lk-rm" onclick="rmLink(${i})">✕</button></div>`).join('');}
-function moveLink(i,dir){const j=i+dir;if(j<0||j>=F.links.length)return;[F.links[i],F.links[j]]=[F.links[j],F.links[i]];renderLinkList();}
+function renderLinkList(){
+  const el=document.getElementById('link-list-form');if(!el)return;
+  el.innerHTML=F.links.map(function(lk,i){
+    const d0=i===0?' disabled':'';const dL=i===F.links.length-1?' disabled':'';
+    return '<div class="link-form-item" style="flex-wrap:wrap;gap:5px">'
+      +'<div style="display:flex;gap:4px;flex-shrink:0">'
+      +'<button type="button" class="sm-btn gal-order-btn" onclick="moveLink('+i+',-1)"'+d0+'>Up</button>'
+      +'<button type="button" class="sm-btn gal-order-btn" onclick="moveLink('+i+',1)"'+dL+'>Down</button>'
+      +'</div>'
+      +'<div class="mention-field-wrap" style="width:110px;flex-shrink:0">'
+      +'<input class="lbl-inp" id="lnklbl-'+i+'" placeholder="Label" value="'+esc(lk.label)+'" oninput="F.links['+i+'].label=this.value" style="padding-right:26px;width:100%">'
+      +'<button type="button" class="mention-at-btn" onclick="openMentionPicker(\x27lnklbl-'+i+'\x27)" style="top:5px;right:5px;width:20px;height:20px;font-size:11px">@</button>'
+      +'</div>'
+      +'<input class="url-inp" placeholder="URL" value="'+esc(lk.url)+'" oninput="F.links['+i+'].url=this.value" style="flex:1;min-width:120px">'
+      +'<button type="button" class="lk-rm" onclick="rmLink('+i+')">X</button>'
+      +'</div>';
+  }).join('');
+}
+
 function rmLink(i){F.links.splice(i,1);renderLinkList();}
 function addLink(){F.links.push({label:'',url:''});renderLinkList();}
 function setShape(s){F.shape=s;const box=document.getElementById('img-prev-box');if(box)box.className='img-prev-box sh-'+s;document.querySelectorAll('.shape-opt').forEach(el=>el.classList.toggle('active',el.textContent===s));}
@@ -1612,24 +1555,10 @@ function syncColor(src){if(src==='picker'){document.getElementById('f-ctext').va
 function clearColor(){document.getElementById('f-ctext').value='';document.getElementById('f-cpicker').value='#7c3aed';}
 function getFormColor(){const v=(document.getElementById('f-ctext').value||'').trim();return/^#[0-9a-fA-F]{6}$/.test(v)?v:'';}
 function setPrevImg(src){const img=document.getElementById('img-prev'),ph=document.getElementById('img-ph');if(img){img.src=src||'';img.style.display=src?'block':'none';}if(ph)ph.style.display=src?'none':'';}
-function onUrlInput(){
-  const inp=document.getElementById('f-img-url');
-  let val=(inp.value||'').trim();
-  if(needsProxy(val)){val=proxyImageUrl(val);inp.value=val;}
-  const hid=document.getElementById('f-img-data');if(hid)hid.value=''; // clear file upload
-  setPrevImg(val);
-}
-function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,cropped=>{document.getElementById('f-img-url').value='';const hid=document.getElementById('f-img-data');if(hid)hid.value=cropped;setPrevImg(cropped);});};reader.readAsDataURL(file);}
+function onUrlInput(){const inp=document.getElementById('f-img-url');let v=(inp.value||'').trim();if(needsProxy(v)){v=proxyImageUrl(v);inp.value=v;}const h=document.getElementById('f-img-data');if(h)h.value='';setPrevImg(v);}
+function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{initCrop(ev.target.result,c=>{document.getElementById('f-img-url').value='';const h=document.getElementById('f-img-data');if(h)h.value=c;setPrevImg(c);});};r.readAsDataURL(file);}
 function cropFromUrl(){const url=(document.getElementById('f-img-url').value||'').trim();if(!url){alert('Paste an image URL first.');return;}initCrop(url,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});}
-function getFormImg(){
-  const urlInp=document.getElementById('f-img-url');
-  const urlVal=(urlInp?.value||'').trim();
-  if(urlVal)return urlVal;
-  const hid=document.getElementById('f-img-data');
-  const hidVal=(hid?.value||'').trim();
-  if(hidVal)return hidVal;
-  return '';
-}
+function getFormImg(){const u=(document.getElementById('f-img-url')?.value||'').trim();if(u)return u;return(document.getElementById('f-img-data')?.value||'').trim();}
 function collectForm(){
   return{
     name:(document.getElementById('f-name').value||'').trim(),
@@ -1685,18 +1614,18 @@ function openMenu(){
     <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem">Backup & Restore</div>
     <p style="font-size:12px;color:#aaa;margin-bottom:8px">Export regularly. Storage now uses IndexedDB — much larger capacity than before, so images should import fine on mobile.</p>
     <div class="settings-row">
-      <button class="btn" onclick="exportData()">⬇ Export (.json)</button>
-      <button class="btn" onclick="document.getElementById('imp-inp').click()">⬆ Import (.json)</button>
-      <button class="btn" onclick="openCopyBackup()">⧉ Copy text</button>
-      <button class="btn" onclick="openPasteBackup()">⧈ Paste text</button>
+      <button class="btn" onclick="exportData()">Export (.json)</button>
+      <button class="btn" onclick="document.getElementById('imp-inp').click()">Import (.json)</button>
+      <button class="btn" onclick="openCopyBackup()">Copy text</button>
+      <button class="btn" onclick="openPasteBackup()">Paste text</button>
     </div>
     <input type="file" id="imp-inp" accept=".json,application/json,text/plain,text/*" style="display:none" onchange="importData(event)">
     <hr class="div">
-    <div style="font-size:11px;font-weight:600;color:#aaa;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem">Gist sync</div>
-    ${gistOn()?"<p class=\"sync-info\">\u2713 Token saved. Push to save, Pull to load on another device.</p>":"<p class=\"sync-info\">No token set. <a href=\"#\" onclick=\"closeModal();showGistGuide();return false\" style=\"color:#7c3aed\">Enter your GitHub token \u2192</a></p>"}
+    <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;margin-bottom:.4rem">Gist sync</div>
+    <p style="font-size:12px;color:#aaa;margin-bottom:8px">Sync to a private GitHub Gist. <a href="#" onclick="closeModal();showGistGuide();return false" style="color:#7c3aed">Setup / enter token</a></p>
     <div class="settings-row">
-      <button class="btn" id="gist-push-btn" onclick="gistPush()">↑ Push (save to Gist)</button>
-      <button class="btn" id="gist-pull-btn" onclick="gistPull()">↓ Pull (load from Gist)</button>
+      <button class="btn" id="gist-push-btn" onclick="gistPush()">Push (save)</button>
+      <button class="btn" id="gist-pull-btn" onclick="gistPull()">Pull (load)</button>
     </div>
   </div></div>`;
 }
@@ -1767,333 +1696,59 @@ async function requestNotifPerm(){
    INIT
 ═══════════════════════════════════ */
 
-/* ── HEART ── */
-function toggleFav(entryId,ev){
-  if(ev)ev.stopPropagation();
-  const db=getDB();const e=db.entries.find(x=>x.id===entryId);if(!e)return;
-  e.fav=!e.fav;saveDB(db);
-  const btn=document.querySelector('.card-heart[data-id="'+entryId+'"]');
-  if(btn){btn.classList.toggle('on',!!e.fav);btn.textContent=e.fav?'♥':'♡';}
-  const dbtn=document.getElementById('detail-heart-btn');
-  if(dbtn){dbtn.classList.toggle('on',!!e.fav);dbtn.textContent=e.fav?'♥ Favourited':'♡ Favourite';}
-}
+/* HEART */
+function toggleFav(id,ev){if(ev)ev.stopPropagation();const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;e.fav=!e.fav;saveDB(db);const b=document.querySelector('.card-heart[data-id="'+id+'"]');if(b){b.classList.toggle('on',!!e.fav);b.innerHTML=e.fav?'&hearts;':'&heartsuit;';}const d=document.getElementById('detail-heart-btn');if(d){d.classList.toggle('on',!!e.fav);d.innerHTML=e.fav?'&hearts; Favourited':'&heartsuit; Favourite';}}
 
-/* ── SORT ── */
+/* SORT */
 const AFFINITY_ORDER=['kamioshi','oshi','love','like','pos_neutral','true_neutral','neg_neutral','dislike','hate','mixed'];
-function sortEntries(list){
-  const dir=S.sortDir==='asc'?1:-1;const clone=[...list];
-  switch(S.sortBy){
-    case'fav':    return clone.sort((a,b)=>(a.fav?0:1)-(b.fav?0:1));
-    case'name':   return clone.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||'','ja'));
-    case'kanji':  return clone.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||'','ja'));
-    case'cat':    return clone.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));
-    case'source': return clone.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));
-    case'affinity':return clone.sort((a,b)=>{const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');return dir*((ai<0?99:ai)-(bi<0?99:bi));});
-    case'age':    return clone.sort((a,b)=>{const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;return dir*(aa-ba);});
-    case'height': return clone.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));
-    case'birthday':return clone.sort((a,b)=>{const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));});
-    case'added':  return clone.sort((a,b)=>dir*(a.id-b.id));
-    default:      return clone;
-  }
-}
-function setSort(val){S.sortBy=val;updateCards();}
+function sortEntries(list){const dir=S.sortDir==='asc'?1:-1;const cl=[...list];switch(S.sortBy){case'fav':return cl.sort((a,b)=>(a.fav?0:1)-(b.fav?0:1));case'name':return cl.sort((a,b)=>dir*(a.name||'').localeCompare(b.name||'','ja'));case'kanji':return cl.sort((a,b)=>dir*(a.kanji||a.name||'').localeCompare(b.kanji||b.name||'','ja'));case'cat':return cl.sort((a,b)=>dir*(a.cat||'').localeCompare(b.cat||''));case'source':return cl.sort((a,b)=>dir*(a.source||'').localeCompare(b.source||''));case'affinity':return cl.sort((a,b)=>{const ai=AFFINITY_ORDER.indexOf(a.affinity||'');const bi=AFFINITY_ORDER.indexOf(b.affinity||'');return dir*((ai<0?99:ai)-(bi<0?99:bi));});case'age':return cl.sort((a,b)=>{const aa=calcAge(a.birthYear,a.birthday,a.freezeAge)??-1;const ba=calcAge(b.birthYear,b.birthday,b.freezeAge)??-1;return dir*(aa-ba);});case'height':return cl.sort((a,b)=>dir*((a.heightCm||0)-(b.heightCm||0)));case'birthday':return cl.sort((a,b)=>{const pa=parseBirthday(a.birthday);const pb=parseBirthday(b.birthday);if(!pa&&!pb)return 0;if(!pa)return dir;if(!pb)return-dir;return dir*(pa.month*100+pa.day-(pb.month*100+pb.day));});case'added':return cl.sort((a,b)=>dir*(a.id-b.id));default:return cl;}}
+function setSort(v){S.sortBy=v;updateCards();}
 function toggleSortDir(){S.sortDir=S.sortDir==='asc'?'desc':'asc';updateCards();}
 
-/* ── COPY/PASTE BACKUP ── */
-function openCopyBackup(){
-  const json=JSON.stringify(getDB(),null,2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Copy backup text</div><p style="font-size:13px;color:#666;margin-bottom:.75rem">Select all and copy, or use the button.</p><textarea class="backup-textarea" id="copy-backup-ta" readonly onclick="this.select()">'+json+'</textarea><div class="btn-row" style="margin-top:.75rem"><button class="btn btn-primary" onclick="doCopyBackup()">Copy to clipboard</button><button class="btn" onclick="closeModal()">Close</button></div><div id="copy-st" style="font-size:12px;color:#065f46;margin-top:6px;display:none">\u2713 Copied!</div></div></div>';
-}
-function doCopyBackup(){
-  const ta=document.getElementById('copy-backup-ta');if(!ta)return;
-  navigator.clipboard.writeText(ta.value).then(()=>{const s=document.getElementById('copy-st');if(s){s.style.display='block';setTimeout(()=>s.style.display='none',2000);}}).catch(()=>{ta.select();document.execCommand('copy');});
-}
-function openPasteBackup(){
-  document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Paste backup text</div><p style="font-size:13px;color:#666;margin-bottom:.75rem">Paste your backup JSON here, then click Import.</p><textarea class="backup-textarea" id="paste-backup-ta" placeholder="Paste backup text here\u2026"></textarea><div class="btn-row" style="margin-top:.75rem"><button class="btn btn-primary" onclick="doPasteBackup()">Import</button><button class="btn" onclick="closeModal()">Cancel</button></div><div id="paste-st" style="font-size:12px;color:#991b1b;margin-top:6px;display:none"></div></div></div>';
-}
-function doPasteBackup(){
-  const ta=document.getElementById('paste-backup-ta');if(!ta)return;
-  let text=(ta.value||'').replace(/^\uFEFF/,'').trim();
-  let d;try{d=JSON.parse(text);}catch(e){const s=document.getElementById('paste-st');if(s){s.textContent='Cannot parse \u2014 paste the full backup text.';s.style.display='block';}return;}
-  if(!d||!Array.isArray(d.entries)){const s=document.getElementById('paste-st');if(s){s.textContent='Not a valid backup.';s.style.display='block';}return;}
-  if(!confirm('Import '+d.entries.length+' entries? This replaces all current data.'))return;
-  if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];
-  if(!d.title)d.title='Character Journal';
-  if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;
-  if(!d.dismissedNotifs)d.dismissedNotifs=[];
-  _db=d;
-  if(_idb)idbPut('main',d).catch(()=>{});
-  else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}
-  closeModal();
-}
+/* TODO */
+function todoOn(){return localStorage.getItem('cj_todo')==='+1';}
+function toggleTodo(){localStorage.setItem('cj_todo',todoOn()?'':'+1');updateCards();const b=document.getElementById('todo-toggle-btn');if(b){b.classList.toggle('on',todoOn());b.textContent=todoOn()?'TODO: ON':'TODO';}}
+function hasTodo(e){const t=[e.note||'',e.kanjiInfo||'',e.source||'',e.name||'',...(e.links||[]).map(l=>(l.label||'')+' '+(l.url||'')),...(e.gallery||[]).map(g=>g.caption||''),...(e.tags||[]),...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])].join(' ');return/\bADD\b|\bLATER\b/.test(t);}
 
+/* IMAGE PROXY */
+function needsProxy(url){return/(?:^|\/\/)(?:[\w-]+\.)?(?:fandom\.com|wikia\.nocookie\.net|wikia\.com)/i.test(url||'');}
+function proxyImageUrl(url){if(!url||!needsProxy(url))return url;return'https://images.weserv.nl/?url='+encodeURIComponent(url.replace(/^https?:\/\//,''));}
 
-/* ── GIST SYNC ── */
-// Generate a token at: github.com/settings/tokens/new
-// Tick the "gist" scope only, then paste the token below
-// Token is stored in localStorage, never in the code (GitHub revokes embedded tokens)
-const GIST_TOKEN = localStorage.getItem('cj_gist_token') || '';
-const GIST_FILE  = 'character-journal-data.json';
-let _gistId = null;
+/* GALLERY */
+function galRiChange(inp,i){var s=document.getElementById("gal-rs-"+i);if(s&&!s.value.trim())s.value=inp.value;}
+function moveGal(i,d){const j=i+d;if(j<0||j>=F.gallery.length)return;[F.gallery[i],F.gallery[j]]=[F.gallery[j],F.gallery[i]];renderGalList();}
+function replaceGalImg(i){const p=document.getElementById('gal-rp-'+i);if(p)p.style.display=p.style.display==='none'?'block':'none';}
+function galRiInput(v,i){const s=document.getElementById('gal-rs-'+i);if(s&&!s.value.trim())s.value=v;}
+function applyGalReplaceUrl(i){const ui=document.getElementById('gal-ri-'+i);const si=document.getElementById('gal-rs-'+i);if(!ui)return;let url=ui.value.trim();if(!url)return;if(needsProxy(url))url=proxyImageUrl(url);F.gallery[i]={...F.gallery[i],src:url,sourceUrl:si?si.value.trim()||url:url};renderGalList();}
+function onGalReplaceFile(i,inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{initCrop(ev.target.result,c=>{F.gallery[i]={...F.gallery[i],src:c};renderGalList();});};r.readAsDataURL(f);inp.value='';}
+function moveLink(i,d){const j=i+d;if(j<0||j>=F.links.length)return;[F.links[i],F.links[j]]=[F.links[j],F.links[i]];renderLinkList();}
 
-function getGistToken(){ return localStorage.getItem('cj_gist_token') || ''; }
-function gistOn(){ return getGistToken().trim().length > 10; }
+/* FEATURED IN */
+function getFeaturedIn(id){const db=getDB();const p='|'+id+']]';return db.entries.filter(e=>{if(e.id===id)return false;const f=[e.note||'',e.kanjiInfo||'',...(e.gallery||[]).map(g=>g.caption||''),...(e.links||[]).map(l=>l.label||''),...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])];return f.some(x=>x.includes(p));});}
 
-async function gistFetch(url, opts){
-  const body = opts && opts.body;
-  // ghp_ = classic token (uses "token"), github_pat_ = fine-grained (uses "Bearer")
-  const tok = getGistToken(); const authPrefix = tok.startsWith('github_pat_') ? 'Bearer' : 'token';
-  const res = await fetch(url, {
-    method: (opts && opts.method) || 'GET',
-    headers: {
-      'Authorization': authPrefix + ' ' + tok,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    },
-    body: body || undefined
-  });
-  if(!res.ok){
-    let body='';try{body=await res.text();}catch(e){}
-    throw new Error('GitHub error '+res.status+': '+body.slice(0,300));
-  }
-  return res;
-}
+/* GALLERY WHEEL */
+let _gws=null;
+function openGalleryWheel(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;const g=normGal(e.gallery);if(!g.length){alert('No gallery images.');return;}_gws={id,sel:g.map((_,i)=>i)};drawGW(e,g);}
+function drawGW(e,g){const s=_gws.sel;const items=g.map((x,i)=>'<div class="gwheel-item'+(s.includes(i)?' sel':'')+'" onclick="toggleGW('+i+')"><img src="'+esc(x.src)+'" onerror="this.parentElement.style.display=\'none\'"><div class="gwheel-check">'+(s.includes(i)?'&#10003;':'')+'</div></div>').join('');document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Gallery wheel &mdash; '+esc(e.name)+'</div><div class="gwheel-grid">'+items+'</div><div class="gwheel-result" id="gwr"></div><div class="btn-row"><button class="btn btn-primary" onclick="spinGW()">Spin!</button><button class="btn" onclick="closeModal()">Close</button></div></div></div>';}
+function toggleGW(i){const s=_gws.sel;const idx=s.indexOf(i);if(idx>=0){if(s.length>1)s.splice(idx,1);}else s.push(i);const db=getDB();const e=db.entries.find(x=>x.id===_gws.id);drawGW(e,normGal(e.gallery));}
+function spinGW(){const db=getDB();const e=db.entries.find(x=>x.id===_gws.id);if(!e)return;const g=normGal(e.gallery);const pool=_gws.sel.map(i=>g[i]).filter(Boolean);if(!pool.length)return;const wrap=document.getElementById('gwr');if(!wrap)return;const fi=Math.floor(Math.random()*pool.length);let t=0,dl=60;const tot=18+Math.floor(Math.random()*8);function tick(){const idx=t<tot-1?Math.floor(Math.random()*pool.length):fi;const item=pool[idx];wrap.innerHTML='<img src="'+esc(item.src)+'" onerror="this.style.display=\'none\'">'+(item.caption?'<div style="font-size:12px;color:#666;margin-top:6px">'+esc(item.caption)+'</div>':'');t++;if(t<tot){dl=Math.min(dl*1.12,320);setTimeout(tick,dl);}}tick();}
 
-async function gistFindOrCreate(){
-  if(!_gistId) _gistId = localStorage.getItem('cj_gist_id') || null;
-  if(_gistId) return _gistId;
-  const r = await gistFetch('https://api.github.com/gists?per_page=100');
-  const list = await r.json();
-  const found = list.find(g => g.files && g.files[GIST_FILE]);
-  if(found){
-    _gistId = found.id;
-    localStorage.setItem('cj_gist_id', _gistId);
-    return _gistId;
-  }
-  const c = await gistFetch('https://api.github.com/gists', {
-    method: 'POST',
-    body: JSON.stringify({ description:'Character Journal Data', public: false,
-      files:{ [GIST_FILE]:{ content: '{}' } } })
-  });
-  const g = await c.json();
-  _gistId = g.id;
-  localStorage.setItem('cj_gist_id', _gistId);
-  return _gistId;
-}
+/* GIST SYNC */
+const GIST_FILE='character-journal-data.json';let _gid=null;
+function getGistToken(){return localStorage.getItem('cj_gist_token')||'';}
+function gistOn(){return getGistToken().length>10;}
+async function gFetch(url,opts){const tok=getGistToken();const pre=tok.startsWith('github_pat_')?'Bearer':'token';const res=await fetch(url,{method:(opts&&opts.method)||'GET',headers:{'Authorization':pre+' '+tok,'Content-Type':'application/json','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:(opts&&opts.body)||undefined});if(!res.ok){let b='';try{b=await res.text();}catch(e){}throw new Error('GitHub '+res.status+': '+b.slice(0,200));}return res;}
+async function gGetId(){if(!_gid)_gid=localStorage.getItem('cj_gist_id')||null;if(_gid)return _gid;const r=await gFetch('https://api.github.com/gists?per_page=100');const list=await r.json();const f=list.find(g=>g.files&&g.files[GIST_FILE]);if(f){_gid=f.id;localStorage.setItem('cj_gist_id',_gid);return _gid;}const c=await gFetch('https://api.github.com/gists',{method:'POST',body:JSON.stringify({description:'Character Journal Data',public:false,files:{[GIST_FILE]:{content:'{}'}}})});const g=await c.json();_gid=g.id;localStorage.setItem('cj_gist_id',_gid);return _gid;}
+async function gistPush(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-push-btn');if(btn){btn.disabled=true;btn.textContent='Saving...';}try{const db=getDB();const s={...db,entries:db.entries.map(e=>({...e,img:(e.img&&e.img.startsWith('data:'))?'':e.img,gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'':g.src}))}))};const id=await gGetId();await gFetch('https://api.github.com/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(s)}}})});if(btn){btn.disabled=false;btn.textContent='Push (save)';}alert('Saved to Gist!');}catch(e){if(btn){btn.disabled=false;btn.textContent='Push (save)';}alert('Sync error: '+e.message);}}
+async function gistPull(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-pull-btn');if(btn){btn.disabled=true;btn.textContent='Loading...';}try{const id=await gGetId();const r=await gFetch('https://api.github.com/gists/'+id);const g=await r.json();const raw=g.files[GIST_FILE]&&g.files[GIST_FILE].content;if(!raw)throw new Error('No data in Gist');const d=JSON.parse(raw);if(!Array.isArray(d.entries))throw new Error('Invalid data');const lb={};(_db.entries||[]).forEach(e=>{lb[e.id]=e;});d.entries=d.entries.map(e=>{const l=lb[e.id];if(!l)return e;return{...e,img:(!e.img&&l.img)?l.img:e.img,gallery:(e.gallery||[]).map((g,i)=>(!g.src&&l.gallery&&l.gallery[i]?.src)?{...g,src:l.gallery[i].src}:g)};});if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)await idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}if(btn){btn.disabled=false;btn.textContent='Pull (load)';}closeModal();renderApp();alert('Loaded! ('+d.entries.length+' entries)');}catch(e){if(btn){btn.disabled=false;btn.textContent='Pull (load)';}alert('Sync error: '+e.message);}}
+function saveGistToken(){const v=(document.getElementById('gist-token-inp').value||'').trim();if(!v||v.includes('saved'))return;localStorage.setItem('cj_gist_token',v);_gid=null;const s=document.getElementById('gist-save-st');if(s)s.style.display='block';setTimeout(()=>closeModal(),1200);}
+function clearGistToken(){localStorage.removeItem('cj_gist_token');localStorage.removeItem('cj_gist_id');_gid=null;alert('Cleared.');closeModal();}
+function showGistGuide(){const cur=gistOn();document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.8;color:#444"><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Any name &mdash; Expiration: <b>No expiration</b> &mdash; tick only <b>gist</b><br><b>3.</b> Generate, copy the <code style="background:#f5f3ff;padding:1px 5px;border-radius:4px">ghp_</code> token<br><b>4.</b> Paste it below:<br><div style="display:flex;gap:6px;margin:8px 0"><input id="gist-token-inp" type="password" placeholder="Paste token" value="'+(cur?'(saved)':'')+'" style="flex:1;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit"><button onclick="saveGistToken()" style="padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;cursor:pointer;font-family:inherit">Save</button></div><div id="gist-save-st" style="font-size:12px;color:#065f46;display:none">Saved!</div><button onclick="clearGistToken()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit">Clear token</button></div></div></div>';}
 
-async function gistPush(){
-  if(!gistOn()){ showGistGuide(); return; }
-  const btn = document.getElementById('gist-push-btn');
-  if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
-  try{
-    const db = getDB();
-    // Strip base64 images — too large for Gist text storage
-    const stripped = {...db, entries: db.entries.map(e => ({...e,
-      img:  (e.img  && e.img.startsWith('data:'))  ? '' : e.img,
-      gallery: (e.gallery||[]).map(g => ({...g,
-        src: (g.src && g.src.startsWith('data:')) ? '' : g.src }))
-    }))};
-    const id = await gistFindOrCreate();
-    const r = await gistFetch('https://api.github.com/gists/' + id, {
-      method: 'PATCH',
-      body: JSON.stringify({ files:{ [GIST_FILE]:{ content: JSON.stringify(stripped) } } })
-    });
-    if(!r.ok) throw new Error('Save failed: ' + r.status);
-    if(btn){ btn.disabled = false; btn.textContent = '↑ Push'; }
-    alert('Saved to Gist ✓');
-  }catch(e){
-    if(btn){ btn.disabled = false; btn.textContent = '↑ Push'; }
-    alert('Sync error: ' + e.message);
-  }
-}
-
-async function gistPull(){
-  if(!gistOn()){ showGistGuide(); return; }
-  const btn = document.getElementById('gist-pull-btn');
-  if(btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
-  try{
-    const id = await gistFindOrCreate();
-    const r = await gistFetch('https://api.github.com/gists/' + id);
-    if(!r.ok) throw new Error('Load failed: ' + r.status);
-    const g = await r.json();
-    const raw = g.files[GIST_FILE] && g.files[GIST_FILE].content;
-    if(!raw) throw new Error('No data found in Gist');
-    const d = JSON.parse(raw);
-    if(!Array.isArray(d.entries)) throw new Error('Invalid data format');
-    // Merge: keep local base64 images for matching entries
-    const localById = {};
-    (_db.entries||[]).forEach(e => { localById[e.id] = e; });
-    d.entries = d.entries.map(e => {
-      const loc = localById[e.id];
-      if(!loc) return e;
-      return { ...e,
-        img: (!e.img && loc.img) ? loc.img : e.img,
-        gallery: (e.gallery||[]).map((g,i) =>
-          (!g.src && loc.gallery && loc.gallery[i] && loc.gallery[i].src)
-            ? {...g, src: loc.gallery[i].src} : g)
-      };
-    });
-    if(!Array.isArray(d.cats)) d.cats = [...DEFAULT_CATS];
-    if(!d.title) d.title = 'Character Journal';
-    if(typeof d.nextId !== 'number') d.nextId = d.entries.length + 1;
-    if(!d.dismissedNotifs) d.dismissedNotifs = [];
-    _db = d;
-    if(_idb) await idbPut('main', d).catch(()=>{});
-    else try{ localStorage.setItem('cj_v3', JSON.stringify(d)); }catch(e){}
-    if(btn){ btn.disabled = false; btn.textContent = '↓ Pull'; }
-    closeModal();
-    renderApp();
-    alert('Loaded from Gist ✓  (' + d.entries.length + ' entries)');
-  }catch(e){
-    if(btn){ btn.disabled = false; btn.textContent = '↓ Pull'; }
-    alert('Sync error: ' + e.message);
-  }
-}
-
-
-function showGistGuide(){
-  const current = getGistToken();
-  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">\u2715</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.8;color:#444"><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Note: anything &mdash; Expiration: <b>No expiration</b> &mdash; tick only <b>gist</b><br><b>3.</b> Generate token, copy the <code style="background:#f5f3ff;padding:1px 5px;border-radius:4px">ghp_</code> value immediately<br><b>4.</b> Paste it below &mdash; it saves in your browser only, never in the code file<br><br><div style="display:flex;gap:6px;margin:8px 0"><input id="gist-token-inp" type="password" placeholder="Paste ghp_... token here" value="'+(current?'(token saved ✓)':'')+'" style="flex:1;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit"><button onclick="saveGistToken()" style="padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Save</button></div><div id="token-save-status" style="font-size:12px;color:#065f46;display:none">\u2713 Token saved to this browser!</div><button onclick="clearGistToken()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;padding:0;font-family:inherit">Clear saved token</button><br><br><b>Using it:</b> \u2191 Push saves to Gist &mdash; \u2193 Pull loads on a new device (repeat token entry on each device).<br><br><span style="color:#aaa;font-size:12px">Uploaded images stay device-local. URL-linked images sync fine.</span></div></div></div>';
-}
-function saveGistToken(){
-  const val = (document.getElementById('gist-token-inp').value||'').trim();
-  if(!val || val.includes('(token saved')){ return; }
-  localStorage.setItem('cj_gist_token', val);
-  _gistId = null; // reset cached gist id
-  const s = document.getElementById('token-save-status');
-  if(s){ s.style.display='block'; }
-  setTimeout(()=>closeModal(), 1200);
-}
-function clearGistToken(){
-  localStorage.removeItem('cj_gist_token');
-  localStorage.removeItem('cj_gist_id');
-  _gistId = null;
-  alert('Token and cached Gist ID cleared.');
-  closeModal();
-}
-
-
-/* ── IMAGE URL PROXY FIX (for hotlink-blocked sources like Fandom) ── */
-function needsProxy(url){
-  return /(?:^|\/\/)(?:[\w-]+\.)?(?:fandom\.com|wikia\.nocookie\.net|wikia\.com)/i.test(url||'');
-}
-function proxyImageUrl(url){
-  if(!url) return url;
-  if(needsProxy(url)){
-    const stripped = url.replace(/^https?:\/\//,'');
-    return 'https://images.weserv.nl/?url='+encodeURIComponent(stripped);
-  }
-  return url;
-}
-
-
-/* ── GALLERY WHEEL ── */
-let _gwState = null;
-function openGalleryWheel(entryId){
-  const db=getDB();const e=db.entries.find(x=>x.id===entryId);if(!e)return;
-  const gallery=normGal(e.gallery);
-  if(!gallery.length){alert('This entry has no gallery images.');return;}
-  _gwState = { entryId, selected: gallery.map((_,i)=>i) };
-  renderGalleryWheel(e,gallery);
-}
-
-function renderGalleryWheel(e,gallery){
-  const sel=_gwState.selected;
-  document.getElementById('modal-root').innerHTML = '<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()">'
-    +'<button class="modal-close" onclick="closeModal()">\u2715</button>'
-    +'<div class="modal-title">Gallery wheel \u2014 '+esc(e.name)+'</div>'
-    +'<p style="font-size:13px;color:#666;margin-bottom:.5rem">Tap images to include/exclude, then spin.</p>'
-    +'<div class="gwheel-grid" id="gwheel-grid">'+gallery.map((g,i)=>
-      '<div class="gwheel-item'+(sel.includes(i)?' sel':'')+'" data-i="'+i+'" onclick="toggleGWImg('+i+')">'
-      +'<img src="'+esc(g.src)+'" onerror="this.parentElement.style.display=\'none\'">'
-      +'<div class="gwheel-check">'+(sel.includes(i)?'\u2713':'')+'</div>'
-      +'</div>').join('')+'</div>'
-    +'<div class="gwheel-result-wrap" id="gwheel-result-wrap"></div>'
-    +'<div class="btn-row">'
-    +'<button class="btn btn-primary" onclick="spinGalleryWheel()">\ud83c\udfb2 Spin</button>'
-    +'<button class="btn" onclick="closeModal()">Close</button>'
-    +'</div></div></div>';
-}
-
-function toggleGWImg(i){
-  const sel=_gwState.selected;
-  const idx=sel.indexOf(i);
-  if(idx>=0){ if(sel.length>1) sel.splice(idx,1); }
-  else sel.push(i);
-  const db=getDB();const e=db.entries.find(x=>x.id===_gwState.entryId);
-  renderGalleryWheel(e, normGal(e.gallery));
-}
-
-function spinGalleryWheel(){
-  const db=getDB();const e=db.entries.find(x=>x.id===_gwState.entryId);if(!e)return;
-  const gallery=normGal(e.gallery);
-  const pool=_gwState.selected.map(i=>gallery[i]).filter(Boolean);
-  if(pool.length<1)return;
-  const wrap=document.getElementById('gwheel-result-wrap');
-  if(!wrap)return;
-  wrap.classList.add('gwheel-spinning');
-  const finalIdx=Math.floor(Math.random()*pool.length);
-  let ticks=0;
-  const totalTicks=18+finalIdx+Math.floor(Math.random()*6);
-  let delay=60;
-  function tick(){
-    const idx = ticks<totalTicks-1 ? Math.floor(Math.random()*pool.length) : finalIdx;
-    const item=pool[idx];
-    wrap.innerHTML='<img class="gwheel-result-img" src="'+esc(item.src)+'" onerror="this.style.display=\'none\'">'
-      +(item.caption?'<div style="text-align:center;font-size:12px;color:#666;margin-top:6px;width:100%">'+esc(item.caption)+'</div>':'');
-    ticks++;
-    if(ticks<totalTicks){
-      delay = Math.min(delay*1.12, 320);
-      setTimeout(tick, delay);
-    }else{
-      wrap.classList.remove('gwheel-spinning');
-    }
-  }
-  tick();
-}
-
-
-/* ── FEATURED IN ── */
-function getFeaturedIn(entryId){
-  const db=getDB();
-  const results=[];
-  const pattern='|'+entryId+']]';
-  db.entries.forEach(e=>{
-    if(e.id===entryId)return;
-    // check all text fields for this entry's mention tag
-    const fields=[
-      e.note||'', e.kanjiInfo||'',
-      ...(e.gallery||[]).map(g=>g.caption||''),
-      ...(e.links||[]).map(l=>l.label||''),
-      ...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])
-    ];
-    const found=fields.some(f=>f.includes(pattern));
-    if(found)results.push(e);
-  });
-  return results;
-}
-
-
-/* ── ADD/LATER HIGHLIGHT ── */
-function todoHighlightOn(){return localStorage.getItem('cj_todo')==='+1';}
-function toggleTodoHighlight(){
-  localStorage.setItem('cj_todo', todoHighlightOn()?'':'+1');
-  updateCards();
-  const btn=document.getElementById('todo-toggle-btn');
-  if(btn){btn.classList.toggle('on',todoHighlightOn());btn.textContent=todoHighlightOn()?'🔶 TODO: on':'🔶 TODO';}
-}
-function entryHasTodo(e){
-  const fields=[
-    e.note||'', e.kanjiInfo||'',
-    ...(e.links||[]).map(l=>(l.label||'')+' '+(l.url||'')),
-    ...(e.gallery||[]).map(g=>g.caption||''),
-    ...(e.tags||[]).join(' '),
-    e.source||'', e.name||'',
-    ...(e.extras?Object.values(e.extras).filter(v=>typeof v==='string'):[])
-  ].join(' ');
-  return /\bADD\b|\bLATER\b/.test(fields);
-}
+/* COPY/PASTE BACKUP */
+function openCopyBackup(){const json=JSON.stringify(getDB(),null,2).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Copy backup</div><textarea class="backup-textarea" id="cbt" readonly onclick="this.select()">'+json+'</textarea><div class="btn-row" style="margin-top:.5rem"><button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById(\'cbt\').value).then(()=>{const s=document.getElementById(\'cst\');if(s){s.style.display=\'block\';setTimeout(()=>s.style.display=\'none\',2000);}}).catch(()=>{document.getElementById(\'cbt\').select();document.execCommand(\'copy\')})">Copy</button><button class="btn" onclick="closeModal()">Close</button></div><div id="cst" style="font-size:12px;color:#065f46;margin-top:6px;display:none">Copied!</div></div></div>';}
+function openPasteBackup(){document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Paste backup</div><textarea class="backup-textarea" id="pbt" placeholder="Paste backup JSON here..."></textarea><div class="btn-row" style="margin-top:.5rem"><button class="btn btn-primary" onclick="doPaste()">Import</button><button class="btn" onclick="closeModal()">Cancel</button></div><div id="pst" style="font-size:12px;color:#991b1b;margin-top:6px;display:none"></div></div></div>';}
+function doPaste(){const ta=document.getElementById('pbt');if(!ta)return;let t=(ta.value||'').replace(/^\uFEFF/,'').trim();let d;try{d=JSON.parse(t);}catch(e){const s=document.getElementById('pst');if(s){s.textContent='Cannot parse.';s.style.display='block';}return;}if(!d||!Array.isArray(d.entries)){const s=document.getElementById('pst');if(s){s.textContent='Not a valid backup.';s.style.display='block';}return;}if(!confirm('Import '+d.entries.length+' entries? Replaces current data.'))return;if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}closeModal();}
 
 (async()=>{
   await initDB();
