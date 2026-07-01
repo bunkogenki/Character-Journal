@@ -377,6 +377,10 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .gwheel-result img{max-width:100%;max-height:260px;border-radius:12px;object-fit:contain}
 .backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333}
 .backup-textarea:focus{outline:none;border-color:#7c3aed}
+
+.yt-label-empty{height:0;overflow:hidden;margin:0;padding:0}
+.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{display:flex;flex-direction:column;min-width:0}
+.yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{flex:1}
 </style>
 </head>
 <body>
@@ -884,10 +888,11 @@ function detailPageHTML(id){
   const linkSec=regLinks.length?`<div class="detail-section"><div class="section-label">Links</div><div class="link-list">${regLinks.map(l=>`<a class="link-item" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="link-icon">${lkIcon(l.url)}</span><span class="link-label">${renderMentions(l.label||l.url)}</span><span class="link-arr">↗</span></a>`).join('')}</div></div>`:'';
   const ytSec=ytLinks.length?`<div class="detail-section"><div class="section-label">Videos</div><div class="vid-size-row"><span class="vid-size-label">Size:</span><button class="vid-size-btn active" onclick="setVidSize(this,'')">1 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-2')">2 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-3')">3 col</button><button class="vid-size-btn" onclick="setVidSize(this,'sz-4')">4 col</button></div><div class="yt-list" id="yt-list-wrap">${ytLinks.map(l=>{
     const yid=ytId(l.url);const tid=tweetId(l.url);
+    const labelDiv=l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:'<div class="yt-label-empty"></div>';
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
       :`<div class="tw-embed"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:7px 11px;background:#f0f6ff;border:1px solid #dbeafe;border-bottom:none;border-radius:10px 10px 0 0;font-size:12px;color:#1d4ed8;text-decoration:none;font-weight:500">𝕏 Open on X ↗</a><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&dnt=false&theme=light&cards=visible&conversation=none" frameborder="0" scrolling="no" allowfullscreen style="width:100%;min-height:250px;border-radius:0 0 10px 10px;display:block;border:1px solid #ede9fe" loading="lazy"></iframe></div>`;
-    return`<div>${l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:''}${embed}</div>`;
+    return`<div style="display:flex;flex-direction:column">${labelDiv}${embed}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
     <div class="detail-header">
