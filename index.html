@@ -462,6 +462,7 @@ async function initDB(){
   }
   if(!Array.isArray(_db.entries))_db.entries=[];
   if(!Array.isArray(_db.cats))_db.cats=[...DEFAULT_CATS];
+  ['Organization','Channel'].forEach(c=>{if(!_db.cats.includes(c))_db.cats.push(c);});
   if(!_db.title)_db.title='My Journal';
   if(typeof _db.nextId!=='number')_db.nextId=1;
   if(!_db.dismissedNotifs)_db.dismissedNotifs=[];
@@ -1086,8 +1087,10 @@ function cropCancel(){document.getElementById('crop-root').innerHTML='';cropData
 /* ═══════════════════════════════════
    FORM
 ═══════════════════════════════════ */
-function openAdd(){const db=getDB();F.gallery=[];F.links=[];F.connections=[];F.extras={};F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
-function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
+function openAdd(){const db=getDB();
+  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=[];F.links=[];F.connections=[];F.extras={};F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
+function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;
+  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
 
 function formHTML(e,cats){
   const sh=e?e.imgShape||'circle':'circle';
