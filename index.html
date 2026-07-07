@@ -578,7 +578,7 @@ function dismissNotifs(keys){
 ═══════════════════════════════════ */
 const _now=new Date();
 const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',sortBy:'default',sortDir:'asc',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
-const F={gallery:[],links:[],connections:[],extras:{},shape:'circle',heightUnit:'cm'};
+const F={gallery:[],links:[],connections:[],extras:{},tags:[],shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
 /* ═══════════════════════════════════
@@ -1775,9 +1775,21 @@ function renderTagPicker(){
   const merged=[...all,...extra];
   const el=document.getElementById('tag-chips');if(!el)return;
   if(!merged.length){el.innerHTML='<span style="font-size:12px;color:#bbb">No tags yet — add one below</span>';return;}
+  // Use data-tag attribute + event delegation to avoid quoting issues
   el.innerHTML=merged.map(function(t){
-    return '<button type="button" class="tag-chip-opt'+(cur.has(t)?' on':'')+'" onclick="toggleTag('+JSON.stringify(t)+')">'+(cur.has(t)?'&#10003; ':'')+esc(t)+'</button>';
+    const on=cur.has(t);
+    return '<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';
   }).join('');
+  // Attach click handler via event delegation
+  el.onclick=function(ev){
+    const btn=ev.target.closest('.tag-chip-opt');
+    if(!btn)return;
+    const tag=btn.dataset.tag;if(!tag)return;
+    if(!F.tags)F.tags=[];
+    const i=F.tags.indexOf(tag);
+    if(i>=0)F.tags.splice(i,1);else F.tags.push(tag);
+    renderTagPicker();
+  };
 }
 function toggleTag(tag){
   if(!F.tags)F.tags=[];
