@@ -388,6 +388,15 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 /* backup */
 .backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333}
 .backup-textarea:focus{outline:none;border-color:#7c3aed}
+
+.tag-picker{margin-top:6px;border:1px solid #e0e0e0;border-radius:8px;background:white;padding:8px;max-height:150px;overflow-y:auto}
+.tag-picker-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;min-height:4px}
+.tag-chip-opt{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid #e0e0e0;font-size:12px;cursor:pointer;background:white;font-family:inherit;transition:all .12s;-webkit-tap-highlight-color:transparent;color:#555}
+.tag-chip-opt.on{background:#f5f3ff;border-color:#7c3aed;color:#7c3aed}
+.tag-new-row{display:flex;gap:6px}
+.tag-new-inp{flex:1;padding:5px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white}
+.tag-new-inp:focus{outline:none;border-color:#7c3aed}
+.tag-add-btn{padding:5px 12px;border-radius:7px;border:none;background:#7c3aed;color:white;font-size:12px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
@@ -1088,9 +1097,9 @@ function cropCancel(){document.getElementById('crop-root').innerHTML='';cropData
    FORM
 ═══════════════════════════════════ */
 function openAdd(){const db=getDB();
-  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=[];F.links=[];F.connections=[];F.extras={};F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();}
+  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=[];F.links=[];F.connections=[];F.extras={};F.tags=[];F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
 function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;
-  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();}
+  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.tags=[...(e.tags||[])];F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
 
 function formHTML(e,cats){
   const sh=e?e.imgShape||'circle':'circle';
@@ -1165,7 +1174,7 @@ function formHTML(e,cats){
         </div>
       </div>
     </div>
-    <div class="field"><label>Tags (comma separated)</label><input id="f-tags" value="${e?(e.tags||[]).join(', '):''}" placeholder="fav, funny, oshi…"></div>
+    <div class="field"><label>Tags</label><div class="tag-picker"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="New tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
     <div class="field"><label>Notes / description</label><div class="mention-field-wrap"><textarea id="f-note" placeholder="What do you love about them?" style="padding-right:34px">${e?esc(e.note||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-note')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Kanji information <span style="color:#bbb;font-weight:400">(readings, meanings, notes)</span></label><div class="mention-field-wrap"><textarea id="f-kanjiinfo" placeholder="e.g. 星 (hoshi) = star, 街 (machi/gai) = street/town…" style="padding-right:34px">${e?esc(e.kanjiInfo||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-kanjiinfo')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Gallery (extra images)</label>
@@ -1581,7 +1590,7 @@ function collectForm(){
     hexColor:getFormColor(),
     img:getFormImg(),
     imgShape:F.shape,
-    tags:(document.getElementById('f-tags').value||'').split(',').map(t=>t.trim()).filter(Boolean),
+    tags:[...(F.tags||[])],
     note:(document.getElementById('f-note').value||'').trim(),
     kanjiInfo:(document.getElementById('f-kanjiinfo').value||'').trim(),
     gallery:[...F.gallery],
@@ -1755,6 +1764,35 @@ function openCopyBackup(){const json=JSON.stringify(getDB(),null,2).replace(/&/g
 function doCopy(){const ta=document.getElementById('cbt');if(!ta)return;navigator.clipboard.writeText(ta.value).then(()=>{const s=document.getElementById('cst');if(s){s.style.display='block';setTimeout(()=>s.style.display='none',2000);}}).catch(()=>{ta.select();document.execCommand('copy');});}
 function openPasteBackup(){document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Paste backup</div><textarea class="backup-textarea" id="pbt" placeholder="Paste backup JSON here..."></textarea><div class="btn-row" style="margin-top:.5rem"><button class="btn btn-primary" onclick="doPaste()">Import</button><button class="btn" onclick="closeModal()">Cancel</button></div><div id="pst" style="font-size:12px;color:#991b1b;margin-top:6px;display:none"></div></div></div>';}
 function doPaste(){const ta=document.getElementById('pbt');if(!ta)return;let t=(ta.value||'').replace(/^\uFEFF/,'').trim();let d;try{d=JSON.parse(t);}catch(e){const s=document.getElementById('pst');if(s){s.textContent='Cannot parse.';s.style.display='block';}return;}if(!d||!Array.isArray(d.entries)){const s=document.getElementById('pst');if(s){s.textContent='Not valid backup.';s.style.display='block';}return;}if(!confirm('Import '+d.entries.length+' entries? Replaces current data.'))return;if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}closeModal();}
+
+
+/* TAG PICKER */
+function renderTagPicker(){
+  const db=getDB();
+  const all=[...new Set(db.entries.flatMap(e=>e.tags||[]))].sort((a,b)=>a.localeCompare(b,'ja'));
+  const cur=new Set(F.tags||[]);
+  const extra=(F.tags||[]).filter(t=>!all.includes(t));
+  const merged=[...all,...extra];
+  const el=document.getElementById('tag-chips');if(!el)return;
+  if(!merged.length){el.innerHTML='<span style="font-size:12px;color:#bbb">No tags yet — add one below</span>';return;}
+  el.innerHTML=merged.map(function(t){
+    return '<button type="button" class="tag-chip-opt'+(cur.has(t)?' on':'')+'" onclick="toggleTag('+JSON.stringify(t)+')">'+(cur.has(t)?'&#10003; ':'')+esc(t)+'</button>';
+  }).join('');
+}
+function toggleTag(tag){
+  if(!F.tags)F.tags=[];
+  const i=F.tags.indexOf(tag);
+  if(i>=0)F.tags.splice(i,1);else F.tags.push(tag);
+  renderTagPicker();
+}
+function addNewTag(){
+  const inp=document.getElementById('tag-new-inp');
+  const val=(inp.value||'').trim();if(!val)return;
+  if(!F.tags)F.tags=[];
+  val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!F.tags.includes(t))F.tags.push(t);});
+  inp.value='';
+  renderTagPicker();
+}
 
 (async()=>{
   await initDB();
