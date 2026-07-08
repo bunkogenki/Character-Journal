@@ -1174,7 +1174,7 @@ function formHTML(e,cats){
         </div>
       </div>
     </div>
-    <div class="field"><label>Tags</label><div class="tag-picker"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="New tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
+    <div class="field"><label>Tags</label><div class="tag-picker"><input type="hidden" id="f-tags-data" value="${(e&&e.tags||[]).join(',')}"><input class="tag-new-inp" id="tag-search-inp" placeholder="Search existing tags…" oninput="renderTagPicker(this.value)" style="margin-bottom:6px;width:100%"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="New tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
     <div class="field"><label>Notes / description</label><div class="mention-field-wrap"><textarea id="f-note" placeholder="What do you love about them?" style="padding-right:34px">${e?esc(e.note||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-note')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Kanji information <span style="color:#bbb;font-weight:400">(readings, meanings, notes)</span></label><div class="mention-field-wrap"><textarea id="f-kanjiinfo" placeholder="e.g. 星 (hoshi) = star, 街 (machi/gai) = street/town…" style="padding-right:34px">${e?esc(e.kanjiInfo||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-kanjiinfo')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Gallery (extra images)</label>
@@ -1590,7 +1590,7 @@ function collectForm(){
     hexColor:getFormColor(),
     img:getFormImg(),
     imgShape:F.shape,
-    tags:[...(F.tags||[])],
+    tags:(document.getElementById('f-tags-data')?.value||'').split(',').map(t=>t.trim()).filter(Boolean),
     note:(document.getElementById('f-note').value||'').trim(),
     kanjiInfo:(document.getElementById('f-kanjiinfo').value||'').trim(),
     gallery:[...F.gallery],
@@ -1767,41 +1767,54 @@ function doPaste(){const ta=document.getElementById('pbt');if(!ta)return;let t=(
 
 
 /* TAG PICKER */
-function renderTagPicker(){
+function renderTagPicker(filter){
   const db=getDB();
+  // read current tags from hidden input (source of truth)
+  const hidInp=document.getElementById('f-tags-data');
+  const curTags=hidInp?(hidInp.value||'').split(',').map(t=>t.trim()).filter(Boolean):[];
+  const cur=new Set(curTags);
   const all=[...new Set(db.entries.flatMap(e=>e.tags||[]))].sort((a,b)=>a.localeCompare(b,'ja'));
-  const cur=new Set(F.tags||[]);
-  const extra=(F.tags||[]).filter(t=>!all.includes(t));
+  const extra=curTags.filter(t=>!all.includes(t));
   const merged=[...all,...extra];
+  const q=(filter!==undefined?filter:(document.getElementById('tag-search-inp')?.value||'')).trim().toLowerCase();
+  const shown=q?merged.filter(t=>t.toLowerCase().includes(q)):merged;
   const el=document.getElementById('tag-chips');if(!el)return;
-  if(!merged.length){el.innerHTML='<span style="font-size:12px;color:#bbb">No tags yet — add one below</span>';return;}
-  // Use data-tag attribute + event delegation to avoid quoting issues
-  el.innerHTML=merged.map(function(t){
-    const on=cur.has(t);
-    return '<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';
-  }).join('');
-  // Attach click handler via event delegation
+  if(!shown.length){
+    el.innerHTML='<span style="font-size:12px;color:#bbb">'+(q?'No tags match “'+esc(q)+'”':'No tags yet — add one below')+'</span>';
+  } else {
+    el.innerHTML=shown.map(function(t){
+      const on=cur.has(t);
+      return '<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';
+    }).join('');
+  }
   el.onclick=function(ev){
     const btn=ev.target.closest('.tag-chip-opt');
     if(!btn)return;
     const tag=btn.dataset.tag;if(!tag)return;
-    if(!F.tags)F.tags=[];
-    const i=F.tags.indexOf(tag);
-    if(i>=0)F.tags.splice(i,1);else F.tags.push(tag);
+    const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
+    const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
+    const i=tags.indexOf(tag);
+    if(i>=0)tags.splice(i,1);else tags.push(tag);
+    hidEl.value=tags.join(',');
     renderTagPicker();
   };
 }
+
 function toggleTag(tag){
-  if(!F.tags)F.tags=[];
-  const i=F.tags.indexOf(tag);
-  if(i>=0)F.tags.splice(i,1);else F.tags.push(tag);
+  const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
+  const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
+  const i=tags.indexOf(tag);
+  if(i>=0)tags.splice(i,1);else tags.push(tag);
+  hidEl.value=tags.join(',');
   renderTagPicker();
 }
 function addNewTag(){
   const inp=document.getElementById('tag-new-inp');
   const val=(inp.value||'').trim();if(!val)return;
-  if(!F.tags)F.tags=[];
-  val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!F.tags.includes(t))F.tags.push(t);});
+  const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
+  const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
+  val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!tags.includes(t))tags.push(t);});
+  hidEl.value=tags.join(',');
   inp.value='';
   renderTagPicker();
 }
