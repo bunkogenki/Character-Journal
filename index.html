@@ -85,7 +85,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .yt-list.sz-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 .yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-items:start}
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%}
-.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;line-height:20px;height:20px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
 .yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
 .tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto;min-height:60px}
@@ -369,7 +369,7 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 /* video grid alignment */
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{display:flex;flex-direction:column;min-width:0}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed,.yt-list.sz-2 .tw-embed,.yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{flex:1}
-.yt-label-empty{height:22px}
+.yt-label-empty{height:24px}
 /* gallery */
 .gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .gal-order-btn{padding:4px 9px!important;font-size:12px!important;line-height:1}
@@ -397,6 +397,9 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .tag-new-inp{flex:1;padding:5px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white}
 .tag-new-inp:focus{outline:none;border-color:#7c3aed}
 .tag-add-btn{padding:5px 12px;border-radius:7px;border:none;background:#7c3aed;color:white;font-size:12px;cursor:pointer;font-family:inherit}
+
+.card-emoji{position:absolute;bottom:6px;left:8px;font-size:18px;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+.emoji-inp{font-size:22px;width:60px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:8px;font-family:inherit;text-align:center;background:white}
 </style>
 </head>
 <body>
@@ -654,7 +657,7 @@ function cardHTML(e,cats){
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
   return`<div class="card${todoOn()&&hasTodo(e)?' card--todo':''}${['Organization','Channel'].includes(e.cat)?' card--org':''}" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'};position:relative" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'&#9829;':'&#9825;'}</button>
-    <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+    <div class="card-img sh-${sh}" style="background:${bg};color:${fg};position:relative">${av||initials(e.name)}${e.emoji?`<span class="card-emoji">${esc(e.emoji)}</span>`:''}</div>
     <div class="card-name">${esc(e.name)}</div>
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
     <div class="card-cat-wrap"><span class="badge" style="background:${cbg};color:${cfg}">${esc(e.cat)}</span></div>
@@ -919,7 +922,7 @@ function detailPageHTML(id){
     </div>
     <div class="detail-body">
       <div class="detail-hero" style="background:${heroBg}">
-        <div class="detail-avatar sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
+        <div class="detail-avatar sh-${sh}" style="background:${bg};color:${fg};position:relative">${av||initials(e.name)}${e.emoji?`<span style="position:absolute;bottom:4px;left:6px;font-size:22px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.2))">${esc(e.emoji)}</span>`:''}</div>
         <div class="detail-info">
           <div class="detail-name">${esc(e.name)}</div>
           ${e.kanji?`<div class="detail-kanji">${esc(e.kanji)}</div>`:''}
@@ -1121,7 +1124,8 @@ function formHTML(e,cats){
     </div>
     <div class="form-row">
       <div class="field"><label>Source (show, group…)</label><input id="f-source" value="${e?esc(e.source||''):''}" placeholder="e.g. Hololive"></div>
-      <div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div>
+      <div class="field"><label>Emoji <span style="color:#bbb;font-weight:400">(shows on card)</span></label><input class="emoji-inp" id="f-emoji" maxlength="4" placeholder="✨" value="${e&&e.emoji?esc(e.emoji):''}"></div>
+    <div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div>
     </div>
     <div class="form-row">
       <div class="field"><label>Affinity level</label><select id="f-affinity">${affOpts}</select></div>
@@ -1578,6 +1582,7 @@ function getFormImg(){const u=(document.getElementById('f-img-url')?.value||'').
 function collectForm(){
   return{
     name:(document.getElementById('f-name').value||'').trim(),
+    emoji:(document.getElementById('f-emoji')?.value||'').trim(),
     kanji:(document.getElementById('f-kanji').value||'').trim(),
     source:(document.getElementById('f-source').value||'').trim(),
     cat:document.getElementById('f-cat').value,
