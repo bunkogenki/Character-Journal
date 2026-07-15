@@ -85,7 +85,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .yt-list.sz-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 .yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-items:start}
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%}
-.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;line-height:20px;height:20px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
 .yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
 .tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto;min-height:60px}
@@ -345,38 +345,33 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
   .wheel-container{gap:.75rem}
 }
 
-/* heart */
 .card{position:relative}
 .card-heart{position:absolute;top:6px;right:8px;width:26px;height:26px;border-radius:50%;border:1.5px solid #ccc;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:all .18s;-webkit-tap-highlight-color:transparent;z-index:2;padding:0;color:#ccc;font-family:inherit}
 .card-heart.on,.card-heart:hover{border-color:#e879a0;background:#fff0f5;color:#e03c7a}
 .detail-heart-btn{padding:7px 14px;border-radius:8px;border:1.5px solid #ccc;background:white;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .18s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:5px;white-space:nowrap;color:#888}
 .detail-heart-btn:hover,.detail-heart-btn.on{border-color:#e879a0;background:#fff0f5;color:#e03c7a}
-/* sort */
 .sort-row{display:flex;align-items:center;gap:6px;padding-top:8px;flex-wrap:wrap}
 .sort-label{font-size:11px;color:#aaa;font-weight:500;white-space:nowrap}
 .sort-select{padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:inherit;background:white;color:#444;cursor:pointer;-webkit-appearance:none;appearance:none}
 .sort-select:focus{outline:none;border-color:#7c3aed}
 .sort-dir-btn{width:30px;height:30px;border:1px solid #e0e0e0;border-radius:8px;background:white;cursor:pointer;font-size:12px;color:#666;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;font-family:inherit}
 .sort-dir-btn:hover{border-color:#7c3aed;color:#7c3aed}
-/* todo */
 .card--todo{outline:2.5px solid #f59e0b!important;outline-offset:-2px}
 .card--todo::before{content:'TODO';position:absolute;top:6px;left:8px;font-size:9px;font-weight:700;background:#f59e0b;color:white;padding:1px 5px;border-radius:4px;z-index:1}
 .todo-toggle-btn{padding:5px 12px;border-radius:7px;border:1px solid #e0e0e0;background:white;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .todo-toggle-btn.on{background:#fef3c7;border-color:#f59e0b;color:#92400e}
-/* org */
 .card--org{border-style:dashed!important}
 .card--org .card-img{border-radius:10px!important}
-/* video grid alignment */
+.card-emoji-row{font-size:20px;text-align:center;margin-bottom:2px;line-height:1.2}
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{display:flex;flex-direction:column;min-width:0}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed,.yt-list.sz-2 .tw-embed,.yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{flex:1}
+.yt-label{font-size:11px;line-height:20px;height:20px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-label-empty{height:24px}
-/* gallery */
 .gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .gal-order-btn{padding:4px 9px!important;font-size:12px!important;line-height:1}
 .gal-order-btn:disabled{opacity:.3;cursor:default}
 .g-source-link{font-size:11px;color:#7c3aed;padding:3px 8px;display:flex;align-items:center;gap:4px;text-decoration:none;background:white}
 .g-source-link:hover{background:#f5f3ff}
-/* gallery wheel */
 .gwheel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:280px;overflow-y:auto;margin-bottom:1rem}
 .gwheel-item{border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;aspect-ratio:1;background:#f5f3ff;position:relative}
 .gwheel-item img{width:100%;height:100%;object-fit:cover;display:block}
@@ -385,10 +380,8 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .gwheel-item.sel .gwheel-check{background:#7c3aed;color:white}
 .gwheel-result{text-align:center;margin-top:1rem}
 .gwheel-result img{max-width:100%;max-height:260px;border-radius:12px;object-fit:contain}
-/* backup */
 .backup-textarea{width:100%;height:180px;padding:8px 11px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;font-family:monospace;resize:vertical;background:#fafafa;color:#333}
 .backup-textarea:focus{outline:none;border-color:#7c3aed}
-
 .tag-picker{margin-top:6px;border:1px solid #e0e0e0;border-radius:8px;background:white;padding:8px;max-height:150px;overflow-y:auto}
 .tag-picker-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;min-height:4px}
 .tag-chip-opt{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid #e0e0e0;font-size:12px;cursor:pointer;background:white;font-family:inherit;transition:all .12s;-webkit-tap-highlight-color:transparent;color:#555}
@@ -397,9 +390,19 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .tag-new-inp{flex:1;padding:5px 9px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;font-family:inherit;background:white}
 .tag-new-inp:focus{outline:none;border-color:#7c3aed}
 .tag-add-btn{padding:5px 12px;border-radius:7px;border:none;background:#7c3aed;color:white;font-size:12px;cursor:pointer;font-family:inherit}
-
-.card-emoji{position:absolute;bottom:6px;left:8px;font-size:18px;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
-.emoji-inp{font-size:22px;width:60px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:8px;font-family:inherit;text-align:center;background:white}
+.emoji-picker-wrap{display:flex;gap:6px;align-items:center}
+.emoji-inp{width:60px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:8px;font-size:22px;font-family:inherit;text-align:center;background:white}
+.emoji-open-btn{padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;background:white;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;font-family:inherit}
+.emoji-open-btn:hover{border-color:#7c3aed;background:#f5f3ff}
+.emoji-popup{position:absolute;z-index:300;background:white;border:1px solid #e0e0e0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);width:290px;padding:10px;margin-top:4px}
+.emoji-popup-search{width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:8px;box-sizing:border-box}
+.emoji-popup-search:focus{outline:none;border-color:#7c3aed}
+.emoji-cats{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.emoji-cat-btn{padding:3px 8px;border-radius:6px;border:1px solid #e0e0e0;background:white;font-size:12px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.emoji-cat-btn.active{background:#f5f3ff;border-color:#7c3aed;color:#7c3aed}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:200px;overflow-y:auto}
+.emoji-btn{font-size:20px;padding:4px 2px;border:none;background:none;cursor:pointer;border-radius:6px;line-height:1;-webkit-tap-highlight-color:transparent}
+.emoji-btn:hover{background:#f5f3ff}
 </style>
 </head>
 <body>
@@ -474,7 +477,6 @@ async function initDB(){
   }
   if(!Array.isArray(_db.entries))_db.entries=[];
   if(!Array.isArray(_db.cats))_db.cats=[...DEFAULT_CATS];
-  ['Organization','Channel'].forEach(c=>{if(!_db.cats.includes(c))_db.cats.push(c);});
   if(!_db.title)_db.title='My Journal';
   if(typeof _db.nextId!=='number')_db.nextId=1;
   if(!_db.dismissedNotifs)_db.dismissedNotifs=[];
@@ -581,7 +583,7 @@ function dismissNotifs(keys){
 ═══════════════════════════════════ */
 const _now=new Date();
 const S={view:'grid',id:null,fromCal:false,filter:'All',search:'',sortBy:'default',sortDir:'asc',calYear:_now.getFullYear(),calMonth:_now.getMonth()+1,calSearch:'',calCatFilter:'All',wheelCat:'All',wheelTags:[],wheelTagMode:'or',wheelSpin:null};
-const F={gallery:[],links:[],connections:[],extras:{},tags:[],shape:'circle',heightUnit:'cm'};
+const F={gallery:[],links:[],connections:[],extras:{},shape:'circle',heightUnit:'cm'};
 let cropData=null,lbState=null;
 
 /* ═══════════════════════════════════
@@ -657,8 +659,9 @@ function cardHTML(e,cats){
   const age=calcAge(e.birthYear,e.birthday,e.freezeAge);
   const av=e.img?`<img src="${esc(e.img)}" alt="" onerror="this.style.display='none'">`:'';
   return`<div class="card${todoOn()&&hasTodo(e)?' card--todo':''}${['Organization','Channel'].includes(e.cat)?' card--org':''}" style="border-color:${e.hexColor?e.hexColor+'55':'#ede9fe'};position:relative" onclick="go('detail',${e.id})"><button class="card-heart${e.fav?' on':''}" data-id="${e.id}" onclick="toggleFav(${e.id},event)">${e.fav?'&#9829;':'&#9825;'}</button>
-    <div class="card-img sh-${sh}" style="background:${bg};color:${fg};position:relative">${av||initials(e.name)}${e.emoji?`<span class="card-emoji">${esc(e.emoji)}</span>`:''}</div>
+    <div class="card-img sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
     <div class="card-name">${esc(e.name)}</div>
+    ${e.emoji?`<div class="card-emoji-row">${esc(e.emoji)}</div>`:''}
     ${e.kanji?`<div class="card-kanji">${esc(e.kanji)}</div>`:'<div style="height:17px"></div>'}
     <div class="card-cat-wrap"><span class="badge" style="background:${cbg};color:${cfg}">${esc(e.cat)}</span></div>
     ${aff?`<div class="card-aff-wrap"><span class="badge" style="background:${aff.bg};color:${aff.color}">${aff.short}</span></div>`:''}
@@ -700,7 +703,7 @@ function gridPageHTML(){
   return`<div class="content-search"><div class="content-search-inner">
       <input class="search-bar" type="text" placeholder="Search by name, kanji, show, tag…" value="${esc(S.search)}" oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <div class="filters" id="grid-pills">${pills}</div>
-    <div class="sort-row"><span class="sort-label">Sort:</span><select class="sort-select" onchange="setSort(this.value)"><option value="default"${S.sortBy==='default'?' selected':''}>Default</option><option value="fav"${S.sortBy==='fav'?' selected':''}>Favourites first</option><option value="name"${S.sortBy==='name'?' selected':''}>Name A-Z</option><option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji</option><option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option><option value="age"${S.sortBy==='age'?' selected':''}>Age</option><option value="height"${S.sortBy==='height'?' selected':''}>Height</option><option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday</option><option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option><option value="source"${S.sortBy==='source'?' selected':''}>Source</option><option value="added"${S.sortBy==='added'?' selected':''}>Recently added</option></select><button class="sort-dir-btn" onclick="toggleSortDir()">${S.sortDir==='asc'?'&#8679;':'&#8681;'}</button><button class="todo-toggle-btn${todoOn()?' on':''}" id="todo-toggle-btn" onclick="toggleTodo()">${todoOn()?'TODO: ON':'TODO'}</button></div>
+    <div class="sort-row"><span class="sort-label">Sort:</span><select class="sort-select" onchange="setSort(this.value)"><option value="default"${S.sortBy==='default'?' selected':''}>Default</option><option value="fav"${S.sortBy==='fav'?' selected':''}>Favourites first</option><option value="name"${S.sortBy==='name'?' selected':''}>Name A-Z</option><option value="kanji"${S.sortBy==='kanji'?' selected':''}>Kanji</option><option value="affinity"${S.sortBy==='affinity'?' selected':''}>Affinity</option><option value="age"${S.sortBy==='age'?' selected':''}>Age</option><option value="height"${S.sortBy==='height'?' selected':''}>Height</option><option value="birthday"${S.sortBy==='birthday'?' selected':''}>Birthday</option><option value="cat"${S.sortBy==='cat'?' selected':''}>Category</option><option value="source"${S.sortBy==='source'?' selected':''}>Source</option><option value="added"${S.sortBy==='added'?' selected':''}>Recently added</option></select><button class="sort-dir-btn" onclick="toggleSortDir()">⬆</button><button class="todo-toggle-btn${todoOn()?' on':''}" id="todo-toggle-btn" onclick="toggleTodo()">${todoOn()?'TODO: ON':'TODO'}</button></div>
     </div></div>
     <div class="main">
       <div class="count-label" id="grid-count">${list.length} entr${list.length===1?'y':'ies'}</div>
@@ -833,12 +836,12 @@ function detailPageHTML(id){
   const conns=(e.connections||[]).filter(c=>c.entryId);
   const isOrg=['Organization','Channel'].includes(e.cat);
   function mkCC(ent,lbl){const[bg,fg]=ent.hexColor?[ent.hexColor+'22',ent.hexColor]:pal(ent.id);return`<div class="conn-item" onclick="go('detail',${ent.id})"><div class="conn-avatar sh-${ent.imgShape||'circle'}" style="background:${bg};color:${fg}">${ent.img?`<img src="${esc(ent.img)}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(ent.name)}</div><div class="conn-body"><div class="conn-label">${esc(lbl)}</div><div class="conn-name">${esc(ent.name)}</div></div><span class="conn-arr">&#x203A;</span></div>`;}
-  const _orgKids=db.entries.filter(x=>x.id!==e.id&&(x.connections||[]).some(c=>c.entryId===e.id&&/sub.channel of|owned by|part of|under|parent/i.test(c.label||'')));
-  const _orgParC=conns.find(c=>/sub.channel of|owned by|part of|under|parent/i.test(c.label||''));
-  const _orgPar=_orgParC?db.entries.find(x=>x.id===_orgParC.entryId):null;
-  const orgSec=isOrg&&(_orgPar||_orgKids.length)?`<div class="detail-section"><div class="section-label">&#127970; Organization hierarchy</div><div class="conn-list">${_orgPar?mkCC(_orgPar,'Parent organization'):''}${_orgKids.map(k=>mkCC(k,'Sub-channel / owned')).join('')}</div></div>`:'';
-  const _featIn=getFeaturedIn(e.id);
-  const featSec=_featIn.length?`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${_featIn.map(f=>mkCC(f,'Featured in')).join('')}</div></div>`:'';
+  const _ok=db.entries.filter(x=>x.id!==e.id&&(x.connections||[]).some(c=>c.entryId===e.id&&/sub.channel of|owned by|part of|under|parent/i.test(c.label||'')));
+  const _opc=conns.find(c=>/sub.channel of|owned by|part of|under|parent/i.test(c.label||''));
+  const _op=_opc?db.entries.find(x=>x.id===_opc.entryId):null;
+  const orgSec=isOrg&&(_op||_ok.length)?`<div class="detail-section"><div class="section-label">&#127970; Organization hierarchy</div><div class="conn-list">${_op?mkCC(_op,'Parent organization'):''}${_ok.map(k=>mkCC(k,'Sub-channel / owned')).join('')}</div></div>`:'';
+  const _fi=getFeaturedIn(e.id);
+  const featSec=_fi.length?`<div class="detail-section"><div class="section-label">Featured in</div><div class="conn-list">${_fi.map(f=>mkCC(f,'Featured in')).join('')}</div></div>`:'';
   const connSec=conns.length?`<div class="detail-section"><div class="section-label">Connections</div>
     <div class="conn-list">${conns.map(c=>{
       const t=db.entries.find(x=>x.id===c.entryId);if(!t)return'';
@@ -922,7 +925,7 @@ function detailPageHTML(id){
     </div>
     <div class="detail-body">
       <div class="detail-hero" style="background:${heroBg}">
-        <div class="detail-avatar sh-${sh}" style="background:${bg};color:${fg};position:relative">${av||initials(e.name)}${e.emoji?`<span style="position:absolute;bottom:4px;left:6px;font-size:22px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.2))">${esc(e.emoji)}</span>`:''}</div>
+        <div class="detail-avatar sh-${sh}" style="background:${bg};color:${fg}">${av||initials(e.name)}</div>
         <div class="detail-info">
           <div class="detail-name">${esc(e.name)}</div>
           ${e.kanji?`<div class="detail-kanji">${esc(e.kanji)}</div>`:''}
@@ -1099,10 +1102,8 @@ function cropCancel(){document.getElementById('crop-root').innerHTML='';cropData
 /* ═══════════════════════════════════
    FORM
 ═══════════════════════════════════ */
-function openAdd(){const db=getDB();
-  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=[];F.links=[];F.connections=[];F.extras={};F.tags=[];F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
-function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;
-  ['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.tags=[...(e.tags||[])];F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
+function openAdd(){const db=getDB();['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=[];F.links=[];F.connections=[];F.extras={};F.shape='circle';F.heightUnit='cm';showModal(formHTML(null,db.cats),null);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
+function openEdit(id){const db=getDB();const e=db.entries.find(x=>x.id===id);if(!e)return;['Organization','Channel'].forEach(c=>{if(!db.cats.includes(c))db.cats.push(c);});F.gallery=normGal(e.gallery).map(x=>({...x}));F.links=(e.links||[]).map(x=>({...x}));F.connections=(e.connections||[]).map(x=>({...x}));F.extras={...(e.extras||{})};F.shape=e.imgShape||'circle';F.heightUnit='cm';showModal(formHTML(e,db.cats),id);renderGalList();renderLinkList();renderConnList();renderTagPicker();}
 
 function formHTML(e,cats){
   const sh=e?e.imgShape||'circle':'circle';
@@ -1124,7 +1125,7 @@ function formHTML(e,cats){
     </div>
     <div class="form-row">
       <div class="field"><label>Source (show, group…)</label><input id="f-source" value="${e?esc(e.source||''):''}" placeholder="e.g. Hololive"></div>
-      <div class="field"><label>Emoji <span style="color:#bbb;font-weight:400">(shows on card)</span></label><input class="emoji-inp" id="f-emoji" maxlength="4" placeholder="✨" value="${e&&e.emoji?esc(e.emoji):''}"></div>
+      <div class="field"><label>Emoji <span style="color:#bbb;font-weight:400">(shows on card)</span></label><div class="emoji-picker-wrap" id="emoji-picker-anchor"><input class="emoji-inp" id="f-emoji" maxlength="4" placeholder="✨" value="${e&&e.emoji?esc(e.emoji):''}"><button type="button" class="emoji-open-btn" onclick="openEmojiPicker()">Browse &#128515;</button></div></div>
     <div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div>
     </div>
     <div class="form-row">
@@ -1178,7 +1179,7 @@ function formHTML(e,cats){
         </div>
       </div>
     </div>
-    <div class="field"><label>Tags</label><div class="tag-picker"><input type="hidden" id="f-tags-data" value="${(e&&e.tags||[]).join(',')}"><input class="tag-new-inp" id="tag-search-inp" placeholder="Search existing tags…" oninput="renderTagPicker(this.value)" style="margin-bottom:6px;width:100%"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="New tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
+    <div class="field"><label>Tags</label><input type="hidden" id="f-tags-data" value="${(e&&e.tags||[]).join(',')}"><input class="tag-new-inp" id="tag-search-inp" placeholder="Search existing tags…" oninput="renderTagPicker(this.value)" style="margin-bottom:0;width:100%"><div class="tag-picker"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="Add new tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
     <div class="field"><label>Notes / description</label><div class="mention-field-wrap"><textarea id="f-note" placeholder="What do you love about them?" style="padding-right:34px">${e?esc(e.note||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-note')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Kanji information <span style="color:#bbb;font-weight:400">(readings, meanings, notes)</span></label><div class="mention-field-wrap"><textarea id="f-kanjiinfo" placeholder="e.g. 星 (hoshi) = star, 街 (machi/gai) = street/town…" style="padding-right:34px">${e?esc(e.kanjiInfo||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-kanjiinfo')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Gallery (extra images)</label>
@@ -1302,13 +1303,7 @@ function renderGalList(){
 }
 
 function rmGal(i){F.gallery.splice(i,1);renderGalList();}
-function addGalUrl(){
-  const inp=document.getElementById('gal-url-inp');
-  let url=(inp.value||'').trim();if(!url)return;
-  if(needsProxy(url))url=proxyImageUrl(url);
-  F.gallery.push({src:url,caption:'',artistId:null,artistLabel:'',sourceUrl:''});
-  inp.value='';renderGalList();
-}
+function addGalUrl(){const inp=document.getElementById('gal-url-inp');let url=(inp.value||'').trim();if(!url)return;if(needsProxy(url))url=proxyImageUrl(url);F.gallery.push({src:url,caption:'',artistId:null,artistLabel:'',sourceUrl:''});inp.value='';renderGalList();}
 function addGalFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{initCrop(ev.target.result,src=>{F.gallery.push({src,caption:''});renderGalList();});};reader.readAsDataURL(file);input.value='';}
 
 
@@ -1569,16 +1564,10 @@ function syncColor(src){if(src==='picker'){document.getElementById('f-ctext').va
 function clearColor(){document.getElementById('f-ctext').value='';document.getElementById('f-cpicker').value='#7c3aed';}
 function getFormColor(){const v=(document.getElementById('f-ctext').value||'').trim();return/^#[0-9a-fA-F]{6}$/.test(v)?v:'';}
 function setPrevImg(src){const img=document.getElementById('img-prev'),ph=document.getElementById('img-ph');if(img){img.src=src||'';img.style.display=src?'block':'none';}if(ph)ph.style.display=src?'none':'';}
-function onUrlInput(){
-  const inp=document.getElementById('f-img-url');
-  let v=(inp.value||'').trim();
-  if(v&&needsProxy(v)){v=proxyImageUrl(v);inp.value=v;}
-  const h=document.getElementById('f-img-data');if(h)h.value='';
-  setPrevImg(v);
-}
+function onUrlInput(){const inp=document.getElementById('f-img-url');let v=(inp.value||'').trim();if(v&&needsProxy(v)){v=proxyImageUrl(v);inp.value=v;}const h=document.getElementById('f-img-data');if(h)h.value='';setPrevImg(v);}
 function onFileInput(){const file=document.getElementById('f-img-file').files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{initCrop(ev.target.result,c=>{document.getElementById('f-img-url').value='';const h=document.getElementById('f-img-data');if(h)h.value=c;setPrevImg(c);});};r.readAsDataURL(file);}
 function cropFromUrl(){const url=(document.getElementById('f-img-url').value||'').trim();if(!url){alert('Paste an image URL first.');return;}initCrop(url,src=>{document.getElementById('f-img-url').value='';setPrevImg(src);});}
-function getFormImg(){const u=(document.getElementById('f-img-url')?.value||'').trim();if(u)return u;const h=document.getElementById('f-img-data');return(h?.value||'').trim();}
+function getFormImg(){const u=(document.getElementById('f-img-url')?.value||'').trim();if(u)return u;return(document.getElementById('f-img-data')?.value||'').trim();}
 function collectForm(){
   return{
     name:(document.getElementById('f-name').value||'').trim(),
@@ -1645,8 +1634,8 @@ function openMenu(){
     <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;margin-bottom:.4rem">Gist sync</div>
     <p style="font-size:12px;color:#aaa;margin-bottom:8px">Sync to a private GitHub Gist. <a href="#" onclick="closeModal();showGistGuide();return false" style="color:#7c3aed">Setup / enter token</a></p>
     <div class="settings-row">
-      <button class="btn" id="gist-push-btn" onclick="gistPush()">&#8679; Push (save)</button>
-      <button class="btn" id="gist-pull-btn" onclick="gistPull()">&#8681; Pull (load)</button>
+      <button class="btn" id="gist-push-btn" onclick="gistPush()">⬆ Push (save)</button>
+      <button class="btn" id="gist-pull-btn" onclick="gistPull()">⬇ Pull (load)</button>
     </div>
   </div></div>`;
 }
@@ -1735,7 +1724,7 @@ function hasTodo(e){const t=[e.note||'',e.kanjiInfo||'',e.source||'',e.name||'',
 function needsProxy(url){return/(?:^|\/\/)(?:[\w-]+\.)?(?:fandom\.com|wikia\.nocookie\.net|wikia\.com)/i.test(url||'');}
 function proxyImageUrl(url){if(!url||!needsProxy(url))return url;return'https://images.weserv.nl/?url='+encodeURIComponent(url.replace(/^https?:\/\//,''));}
 
-/* GALLERY HELPERS */
+/* GALLERY */
 function moveGal(i,d){const j=i+d;if(j<0||j>=F.gallery.length)return;[F.gallery[i],F.gallery[j]]=[F.gallery[j],F.gallery[i]];renderGalList();}
 function replaceGalImg(i){const p=document.getElementById('gal-rp-'+i);if(p)p.style.display=p.style.display==='none'?'block':'none';}
 function applyGalUrl(i){const ui=document.getElementById('gal-ri-'+i);const si=document.getElementById('gal-rs-'+i);if(!ui)return;let url=ui.value.trim();if(!url)return;if(needsProxy(url))url=proxyImageUrl(url);F.gallery[i]={...F.gallery[i],src:url,sourceUrl:si?si.value.trim()||url:url};renderGalList();}
@@ -1758,8 +1747,8 @@ function getGistToken(){return localStorage.getItem('cj_gist_token')||'';}
 function gistOn(){return getGistToken().length>10;}
 async function _gFetch(url,opts){const tok=getGistToken();const pre=tok.startsWith('github_pat_')?'Bearer':'token';const res=await fetch(url,{method:(opts&&opts.method)||'GET',headers:{'Authorization':pre+' '+tok,'Content-Type':'application/json','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:(opts&&opts.body)||undefined});if(!res.ok){let b='';try{b=await res.text();}catch(e){}throw new Error('GitHub '+res.status+': '+b.slice(0,200));}return res;}
 async function _gId(){if(!_gid)_gid=localStorage.getItem('cj_gist_id')||null;if(_gid)return _gid;const r=await _gFetch('https://api.github.com/gists?per_page=100');const list=await r.json();const f=list.find(g=>g.files&&g.files[GIST_FILE]);if(f){_gid=f.id;localStorage.setItem('cj_gist_id',_gid);return _gid;}const c=await _gFetch('https://api.github.com/gists',{method:'POST',body:JSON.stringify({description:'Character Journal Data',public:false,files:{[GIST_FILE]:{content:'{}'}}})});const g=await c.json();_gid=g.id;localStorage.setItem('cj_gist_id',_gid);return _gid;}
-async function gistPush(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-push-btn');if(btn){btn.disabled=true;btn.textContent='Saving...';}try{const db=getDB();const s={...db,entries:db.entries.map(e=>({...e,img:(e.img&&e.img.startsWith('data:'))?'':e.img,gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'':g.src}))}))};const id=await _gId();await _gFetch('https://api.github.com/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(s)}}})});if(btn){btn.disabled=false;btn.textContent='&#8679; Push (save)';}alert('Saved to Gist!');}catch(e){if(btn){btn.disabled=false;btn.textContent='&#8679; Push (save)';}alert('Sync error: '+e.message);}}
-async function gistPull(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-pull-btn');if(btn){btn.disabled=true;btn.textContent='Loading...';}try{const id=await _gId();const r=await _gFetch('https://api.github.com/gists/'+id);const g=await r.json();const raw=g.files[GIST_FILE]&&g.files[GIST_FILE].content;if(!raw)throw new Error('No data in Gist');const d=JSON.parse(raw);if(!Array.isArray(d.entries))throw new Error('Invalid data');const lb={};(_db.entries||[]).forEach(e=>{lb[e.id]=e;});d.entries=d.entries.map(e=>{const l=lb[e.id];if(!l)return e;return{...e,img:(!e.img&&l.img)?l.img:e.img,gallery:(e.gallery||[]).map((g,i)=>(!g.src&&l.gallery&&l.gallery[i]?.src)?{...g,src:l.gallery[i].src}:g)};});if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)await idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}if(btn){btn.disabled=false;btn.textContent='&#8681; Pull (load)';}closeModal();renderApp();alert('Loaded! ('+d.entries.length+' entries)');}catch(e){if(btn){btn.disabled=false;btn.textContent='&#8681; Pull (load)';}alert('Sync error: '+e.message);}}
+async function gistPush(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-push-btn');if(btn){btn.disabled=true;btn.textContent='Saving...';}try{const db=getDB();const s={...db,entries:db.entries.map(e=>({...e,img:(e.img&&e.img.startsWith('data:'))?'':e.img,gallery:(e.gallery||[]).map(g=>({...g,src:(g.src&&g.src.startsWith('data:'))?'':g.src}))}))};const id=await _gId();await _gFetch('https://api.github.com/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(s)}}})});if(btn){btn.disabled=false;btn.textContent='\u2B06 Push (save)';}alert('Saved to Gist!');}catch(e){if(btn){btn.disabled=false;btn.textContent='\u2B06 Push (save)';}alert('Sync error: '+e.message);}}
+async function gistPull(){if(!gistOn()){showGistGuide();return;}const btn=document.getElementById('gist-pull-btn');if(btn){btn.disabled=true;btn.textContent='Loading...';}try{const id=await _gId();const r=await _gFetch('https://api.github.com/gists/'+id);const g=await r.json();const raw=g.files[GIST_FILE]&&g.files[GIST_FILE].content;if(!raw)throw new Error('No data in Gist');const d=JSON.parse(raw);if(!Array.isArray(d.entries))throw new Error('Invalid data');const lb={};(_db.entries||[]).forEach(e=>{lb[e.id]=e;});d.entries=d.entries.map(e=>{const l=lb[e.id];if(!l)return e;return{...e,img:(!e.img&&l.img)?l.img:e.img,gallery:(e.gallery||[]).map((g,i)=>(!g.src&&l.gallery&&l.gallery[i]&&l.gallery[i].src)?{...g,src:l.gallery[i].src}:g)};});if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)await idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}if(btn){btn.disabled=false;btn.textContent='\u2B07 Pull (load)';}closeModal();renderApp();alert('Loaded! ('+d.entries.length+' entries)');}catch(e){if(btn){btn.disabled=false;btn.textContent='\u2B07 Pull (load)';}alert('Sync error: '+e.message);}}
 function saveGistToken(){const v=(document.getElementById('gist-token-inp').value||'').trim();if(!v||v.includes('saved'))return;localStorage.setItem('cj_gist_token',v);_gid=null;const s=document.getElementById('gist-save-st');if(s)s.style.display='block';setTimeout(()=>closeModal(),1200);}
 function clearGistToken(){localStorage.removeItem('cj_gist_token');localStorage.removeItem('cj_gist_id');_gid=null;alert('Cleared.');closeModal();}
 function showGistGuide(){const cur=gistOn();document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Gist sync setup</div><div style="font-size:13px;line-height:1.8;color:#444"><b>1.</b> Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#7c3aed">github.com/settings/tokens/new</a><br><b>2.</b> Any name &mdash; Expiration: No expiration &mdash; tick only <b>gist</b><br><b>3.</b> Generate, copy the ghp_ token<br><b>4.</b> Paste below:<br><div style="display:flex;gap:6px;margin:8px 0"><input id="gist-token-inp" type="password" placeholder="Paste token" value="'+(cur?'(saved)':'')+'" style="flex:1;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit"><button onclick="saveGistToken()" style="padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;cursor:pointer;font-family:inherit">Save</button></div><div id="gist-save-st" style="font-size:12px;color:#065f46;display:none">Saved!</div><button onclick="clearGistToken()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit">Clear token</button></div></div></div>';}
@@ -1770,11 +1759,9 @@ function doCopy(){const ta=document.getElementById('cbt');if(!ta)return;navigato
 function openPasteBackup(){document.getElementById('modal-root').innerHTML='<div class="overlay" onclick="overlayClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeModal()">&#x2715;</button><div class="modal-title">Paste backup</div><textarea class="backup-textarea" id="pbt" placeholder="Paste backup JSON here..."></textarea><div class="btn-row" style="margin-top:.5rem"><button class="btn btn-primary" onclick="doPaste()">Import</button><button class="btn" onclick="closeModal()">Cancel</button></div><div id="pst" style="font-size:12px;color:#991b1b;margin-top:6px;display:none"></div></div></div>';}
 function doPaste(){const ta=document.getElementById('pbt');if(!ta)return;let t=(ta.value||'').replace(/^\uFEFF/,'').trim();let d;try{d=JSON.parse(t);}catch(e){const s=document.getElementById('pst');if(s){s.textContent='Cannot parse.';s.style.display='block';}return;}if(!d||!Array.isArray(d.entries)){const s=document.getElementById('pst');if(s){s.textContent='Not valid backup.';s.style.display='block';}return;}if(!confirm('Import '+d.entries.length+' entries? Replaces current data.'))return;if(!Array.isArray(d.cats))d.cats=[...DEFAULT_CATS];if(!d.title)d.title='Character Journal';if(typeof d.nextId!=='number')d.nextId=d.entries.length+1;if(!d.dismissedNotifs)d.dismissedNotifs=[];_db=d;if(_idb)idbPut('main',d).catch(()=>{});else try{localStorage.setItem('cj_v3',JSON.stringify(d));}catch(e){}closeModal();}
 
-
 /* TAG PICKER */
 function renderTagPicker(filter){
   const db=getDB();
-  // read current tags from hidden input (source of truth)
   const hidInp=document.getElementById('f-tags-data');
   const curTags=hidInp?(hidInp.value||'').split(',').map(t=>t.trim()).filter(Boolean):[];
   const cur=new Set(curTags);
@@ -1784,44 +1771,40 @@ function renderTagPicker(filter){
   const q=(filter!==undefined?filter:(document.getElementById('tag-search-inp')?.value||'')).trim().toLowerCase();
   const shown=q?merged.filter(t=>t.toLowerCase().includes(q)):merged;
   const el=document.getElementById('tag-chips');if(!el)return;
-  if(!shown.length){
-    el.innerHTML='<span style="font-size:12px;color:#bbb">'+(q?'No tags match “'+esc(q)+'”':'No tags yet — add one below')+'</span>';
-  } else {
-    el.innerHTML=shown.map(function(t){
-      const on=cur.has(t);
-      return '<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';
-    }).join('');
-  }
-  el.onclick=function(ev){
-    const btn=ev.target.closest('.tag-chip-opt');
-    if(!btn)return;
-    const tag=btn.dataset.tag;if(!tag)return;
-    const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
-    const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
-    const i=tags.indexOf(tag);
-    if(i>=0)tags.splice(i,1);else tags.push(tag);
-    hidEl.value=tags.join(',');
-    renderTagPicker();
-  };
+  if(!shown.length){el.innerHTML='<span style="font-size:12px;color:#bbb">'+(q?'No tags match':'No tags yet \u2014 add one below')+'</span>';}
+  else{el.innerHTML=shown.map(function(t){const on=cur.has(t);return'<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';}).join('');}
+  el.onclick=function(ev){const btn=ev.target.closest('.tag-chip-opt');if(!btn)return;const tag=btn.dataset.tag;if(!tag)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];const i=tags.indexOf(tag);if(i>=0)tags.splice(i,1);else tags.push(tag);h.value=tags.join(',');renderTagPicker();};
 }
+function addNewTag(){const inp=document.getElementById('tag-new-inp');const val=(inp.value||'').trim();if(!val)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!tags.includes(t))tags.push(t);});h.value=tags.join(',');inp.value='';renderTagPicker();}
 
-function toggleTag(tag){
-  const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
-  const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
-  const i=tags.indexOf(tag);
-  if(i>=0)tags.splice(i,1);else tags.push(tag);
-  hidEl.value=tags.join(',');
-  renderTagPicker();
+/* EMOJI PICKER */
+const EMOJI_DATA={"Smileys": ["😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "🥰", "😘", "🙂", "🤗", "🤩", "🤔", "😐", "😑", "😶", "🙄", "😏", "😒", "😔", "😕", "🙃", "🤑", "😲", "☹️", "🙁", "😢", "😭", "😤", "😠", "😡", "🤯", "😳", "🥴", "🤢", "🤮", "🤧", "😷", "🥳", "🥸", "🤓", "🧐", "🥺", "😵"], "Hearts": ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❤️‍🔥", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "✨", "⭐", "🌟", "💫", "🔥", "🌈", "🌙", "☀️", "🌸", "🌺", "🌻", "🌹", "🍀", "🌊"], "Animals": ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🐧", "🐦", "🐤", "🦆", "🦅", "🦉", "🦇", "🐺", "🐴", "🦄", "🐝", "🐛", "🦋", "🐌", "🐞", "🐜", "🐢", "🐍", "🦎", "🐙", "🦑", "🐡", "🐟", "🐠", "🐬", "🐳", "🦈", "🐘", "🦛", "🦒", "🦘", "🐕", "🐈", "🐓", "🦚", "🦜", "🦢", "🐇", "🦝", "🦦", "🦥"], "Food": ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🌽", "🍠", "🥐", "🥯", "🍞", "🧀", "🥚", "🍳", "🥞", "🧇", "🍔", "🍟", "🍕", "🌮", "🌯", "🍜", "🍣", "🍱", "🍙", "🧁", "🍰", "🎂", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "☕", "🍵", "🧃", "🥤", "🧋", "🍺", "🍷", "🍸", "🍹"], "Activities": ["⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎱", "🏓", "🏸", "⛳", "🎯", "🎮", "🕹️", "🎲", "♟️", "🧩", "🎭", "🎨", "🎪", "🎤", "🎧", "🎼", "🎹", "🎷", "🎺", "🎸", "🎻", "🎬", "🎥", "📷", "🎁", "🎀", "🎊", "🎉", "🎈", "✨", "🎆", "🎇", "🧨"], "Travel": ["✈️", "🚀", "🛸", "🚗", "🚕", "🚙", "🏎️", "🚌", "🚁", "🛳️", "⛵", "🚤", "🏔️", "⛰️", "🌋", "🏕️", "🏖️", "🏜️", "🏝️", "🏞️", "🌃", "🌆", "🌇", "🌉", "🗼", "🗽", "🏰", "🏯", "🗺️", "🧭", "🌍", "🌎", "🌏"], "Objects": ["💻", "📱", "⌨️", "🖥️", "📷", "📸", "📺", "📻", "🎮", "🕹️", "💡", "🔦", "📚", "📖", "✏️", "🖊️", "🖋️", "📝", "🔑", "🗝️", "🔒", "🔓", "🧰", "🔧", "🔨", "⚙️", "🧲", "🔮", "🪄", "🧸", "🎎", "💎", "💰", "💳", "📬", "📦", "🎒", "👜", "👑", "💍", "👓", "🕶️"], "Symbols": ["✅", "❎", "💯", "🔝", "🔛", "⬆️", "⬇️", "⬅️", "➡️", "🔄", "🔀", "🔁", "🔂", "🔔", "🔕", "❤️", "🩷", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "🏳️", "🏴", "🚩", "🎌", "🏁", "🌐", "📍", "📌", "🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪", "🟤"]};
+function openEmojiPicker(){
+  const existing=document.getElementById('emoji-popup');
+  if(existing){existing.remove();return;}
+  const cats=Object.keys(EMOJI_DATA);
+  const anchor=document.getElementById('emoji-picker-anchor');
+  if(!anchor)return;
+  const pop=document.createElement('div');
+  pop.className='emoji-popup';pop.id='emoji-popup';
+  const catBtns=cats.map(function(c,i){return '<button class="emoji-cat-btn'+(i===0?' active':'')+'" data-cat="'+c+'">'+EMOJI_DATA[c][0]+'</button>';}).join('');
+  pop.innerHTML='<input class="emoji-popup-search" id="ep-search" placeholder="Search…" oninput="epSearch(this.value)"><div class="emoji-cats" id="ep-cats">'+catBtns+'</div><div class="emoji-grid" id="ep-grid"></div>';
+  anchor.appendChild(pop);
+  document.getElementById('ep-cats').onclick=function(ev){const b=ev.target.closest('.emoji-cat-btn');if(!b)return;document.querySelectorAll('.emoji-cat-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');epRender(b.dataset.cat,'');document.getElementById('ep-search').value='';};
+  document.getElementById('ep-grid').onclick=function(ev){const b=ev.target.closest('.emoji-btn');if(!b)return;document.getElementById('f-emoji').value=b.dataset.emoji;pop.remove();};
+  epRender(cats[0],'');
+  setTimeout(function(){document.addEventListener('click',function epOut(ev){if(!pop.contains(ev.target)&&ev.target.id!=='emoji-open-btn'){pop.remove();document.removeEventListener('click',epOut,true);}},{capture:true,once:false});},50);
 }
-function addNewTag(){
-  const inp=document.getElementById('tag-new-inp');
-  const val=(inp.value||'').trim();if(!val)return;
-  const hidEl=document.getElementById('f-tags-data');if(!hidEl)return;
-  const tags=hidEl.value?hidEl.value.split(',').map(t=>t.trim()).filter(Boolean):[];
-  val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!tags.includes(t))tags.push(t);});
-  hidEl.value=tags.join(',');
-  inp.value='';
-  renderTagPicker();
+function epSearch(q){
+  const active=document.querySelector('.emoji-cat-btn.active');
+  epRender(active?active.dataset.cat:Object.keys(EMOJI_DATA)[0],q);
+}
+function epRender(cat,q){
+  const grid=document.getElementById('ep-grid');if(!grid)return;
+  const pool=q?Object.values(EMOJI_DATA).flat():EMOJI_DATA[cat]||[];
+  const lq=q.toLowerCase();
+  const shown=q?pool:pool;
+  grid.innerHTML=shown.map(function(e){return'<button class="emoji-btn" data-emoji="'+e+'" title="'+e+'">'+e+'</button>';}).join('');
 }
 
 (async()=>{
