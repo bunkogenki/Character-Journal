@@ -391,7 +391,7 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .tag-new-inp:focus{outline:none;border-color:#7c3aed}
 .tag-add-btn{padding:5px 12px;border-radius:7px;border:none;background:#7c3aed;color:white;font-size:12px;cursor:pointer;font-family:inherit}
 .emoji-picker-wrap{display:flex;gap:6px;align-items:center}
-.emoji-inp{width:60px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:8px;font-size:22px;font-family:inherit;text-align:center;background:white}
+.emoji-inp{width:120px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:8px;font-size:18px;font-family:inherit;text-align:center;background:white}
 .emoji-open-btn{padding:6px 12px;border-radius:8px;border:1px solid #e0e0e0;background:white;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap;font-family:inherit}
 .emoji-open-btn:hover{border-color:#7c3aed;background:#f5f3ff}
 .emoji-popup{position:absolute;z-index:300;background:white;border:1px solid #e0e0e0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);width:290px;padding:10px;margin-top:4px}
@@ -1125,7 +1125,7 @@ function formHTML(e,cats){
     </div>
     <div class="form-row">
       <div class="field"><label>Source (show, group…)</label><input id="f-source" value="${e?esc(e.source||''):''}" placeholder="e.g. Hololive"></div>
-      <div class="field"><label>Emoji <span style="color:#bbb;font-weight:400">(shows on card)</span></label><div class="emoji-picker-wrap" id="emoji-picker-anchor"><input class="emoji-inp" id="f-emoji" maxlength="4" placeholder="✨" value="${e&&e.emoji?esc(e.emoji):''}"><button type="button" class="emoji-open-btn" onclick="openEmojiPicker()">Browse &#128515;</button></div></div>
+      <div class="field"><label>Emoji <span style="color:#bbb;font-weight:400">(shows on card)</span></label><div class="emoji-picker-wrap" id="emoji-picker-anchor"><input class="emoji-inp" id="f-emoji" placeholder="✨" value="${e&&e.emoji?esc(e.emoji):''}"><button type="button" class="emoji-open-btn" onclick="openEmojiPicker()">Browse &#128515;</button></div></div>
     <div class="field"><label>Category</label><select id="f-cat">${catOpts}</select></div>
     </div>
     <div class="form-row">
@@ -1837,6 +1837,16 @@ function epRender(q){
   grid.innerHTML=indices.map(function(i){return'<button class="emoji-btn" data-e="'+EP_EMOJIS[i]+'" title="'+EP_KEYS[i]+'">'+EP_EMOJIS[i]+'</button>';}).join('');
 }
 
+
+
+/* extend emoji data */
+(function(){
+  var ee=["❤️‍🩹", "❤️‍🔥", "🫶", "🫂", "🧑‍🤝‍🧑", "👫", "👬", "👭", "💏", "💑", "🫀", "🫁", "🫃", "🫄", "🧌", "🪸", "🪼", "🦭", "🪲", "🪳", "🪰", "🪱", "🌾", "🫚", "🫛", "🫙", "🫗", "🍫", "🧋", "🫖", "🫙", "🪣", "🧺", "🪤", "🪣", "🪑", "🛋️", "🪞", "🪟", "🛏️", "🧸", "🪆", "🪅", "🎎", "🎐", "🪩", "🎑", "🎏", "⛩️", "🏯", "🏰", "🗼", "🗽", "🗿", "🗺️", "🧭", "🌐", "🏔️", "🌋", "🏕️", "🏖️", "🏜️", "🏝️", "🌃", "🌆", "🌇", "🌉", "🌌", "🛤️", "🛣️", "🗾", "🌁", "🌫️", "🌊", "🏄", "🧘", "🧗", "🤸", "⛹️", "🤼", "🤽", "🤾", "🏌️", "🏇", "🧜", "🧛", "🧟", "🧞", "🧝", "🧙", "🧚", "🧜", "🦸", "🦹", "🧑‍🎤", "🧑‍🎨", "🧑‍🏫", "🧑‍🍳", "🧑‍🌾", "🧑‍🔧", "🧑‍💻", "🧑‍🚀", "🧑‍🚒", "👮", "💂", "🕵️", "👩‍⚕️", "👨‍⚕️", "🎅", "🤶", "🧑‍🎄", "🫅", "🤴", "👸", "👼", "🧒", "🧓", "👴", "👵", "🧏", "🙅", "🙆", "💁", "🙋", "🤷", "🤦", "💆", "💇", "🚶", "🏃", "💃", "🕺", "🧖", "🛀", "🧑‍🤝‍🧑", "🪬", "🧿", "📿", "🔮", "🪄", "🎴", "🀄", "🎰", "🎳", "🎯", "🧩", "♟️"];
+  var ek=["mending healing broken heart bandage", "heart fire passionate love", "heart hands love", "people hugging embrace", "people holding hands together", "man woman holding hands couple", "two men holding hands", "two women holding hands", "couple kiss kissing", "couple with heart love", "anatomical heart organ", "lungs organ", "pregnant man", "pregnant person", "troll", "coral reef ocean", "jellyfish", "seal animal", "beetle bug", "cockroach bug", "fly insect", "worm", "rice sheaf plant", "olive oil bottle", "pea pod vegetable", "jar container", "pouring liquid drink", "chocolate bar candy sweet", "bubble tea boba milk tea", "teapot tea", "jar storage", "bucket pail", "basket laundry", "mouse trap", "bucket", "chair seat", "couch sofa", "mirror reflection", "window", "bed sleep", "teddy bear stuffed animal", "matryoshka doll russian", "pinata", "japanese dolls", "wind chime", "mirror ball disco", "moon viewing ceremony", "carp streamer", "shinto shrine japan torii gate", "japanese castle", "european castle", "tokyo tower", "statue of liberty", "moai easter island statue", "world map", "compass navigation", "globe internet network", "snow mountain peak", "volcano lava", "camping tent outdoor", "beach sand ocean", "desert sand", "island tropical", "night city stars", "city evening sunset", "city sunrise morning", "bridge night", "milky way galaxy stars", "railway track", "highway motorway", "japan map island", "foggy", "fog mist cloud", "wave ocean water surf", "surfing wave beach", "meditation yoga lotus", "climbing rock wall", "gymnastics cartwheel", "basketball sports", "wrestling sports", "water polo swimming", "handball sports", "golf player", "horse racing jockey", "mermaid merman sea creature", "vampire dracula", "zombie undead", "genie magic lamp", "elf fantasy", "wizard mage magic", "fairy wings", "mermaid", "superhero hero", "supervillain villain", "rockstar singer", "artist painter", "teacher professor", "chef cook", "farmer", "mechanic", "technologist programmer", "astronaut space", "firefighter", "police officer", "guard soldier", "detective spy", "doctor nurse medical", "doctor medical", "santa claus christmas", "mrs claus christmas", "mx claus christmas", "person crown royalty", "prince royalty", "princess royalty", "baby angel", "child kid", "older person senior", "old man grandfather", "old woman grandmother", "deaf person", "no gesture disagree", "ok gesture agree", "information desk person", "raising hand", "shrug whatever", "facepalm", "massage head", "haircut salon", "walking person", "running person", "woman dancing", "man dancing", "sauna steam room", "bath bathtub", "handshake friends couple", "hamsa evil eye protection", "nazar bead evil eye", "prayer beads", "crystal ball fortune telling", "magic wand sparkle", "flower playing cards", "mahjong tile red", "slot machine", "bowling", "target bullseye darts", "puzzle piece jigsaw", "chess pawn"];
+  var start=EP_EMOJIS.length;
+  for(var i=0;i<ee.length;i++){EP_EMOJIS.push(ee[i]);EP_KEYS.push(ek[i]);}
+  EP_CATS.push({i:'➕',n:'More',s:start,e:EP_EMOJIS.length});
+})();
 
 (async()=>{
   await initDB();
