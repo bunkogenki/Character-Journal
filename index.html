@@ -85,7 +85,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1
 .yt-list.sz-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
 .yt-list.sz-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-items:start}
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{min-width:0;width:100%}
-.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{font-size:11px;margin-bottom:3px;line-height:1.4}
+.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed{border-radius:7px}
 .yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{max-width:100%}
 .tw-embed{border-radius:12px;overflow:hidden;max-width:550px;margin:0 auto;min-height:60px}
@@ -365,8 +365,8 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .card-emoji-row{font-size:16px;text-align:center;margin-bottom:2px;line-height:1.2}
 .yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{display:flex;flex-direction:column;min-width:0}
 .yt-list.sz-2 .yt-embed,.yt-list.sz-3 .yt-embed,.yt-list.sz-4 .yt-embed,.yt-list.sz-2 .tw-embed,.yt-list.sz-3 .tw-embed,.yt-list.sz-4 .tw-embed{flex:1}
-.yt-label{font-size:11px;line-height:1.4;margin-bottom:3px}
-.yt-label-empty{height:24px}
+
+
 .gal-order-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .gal-order-btn{padding:4px 9px!important;font-size:12px!important;line-height:1}
 .gal-order-btn:disabled{opacity:.3;cursor:default}
@@ -403,6 +403,10 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:200px;overflow-y:auto}
 .emoji-btn{font-size:20px;padding:4px 2px;border:none;background:none;cursor:pointer;border-radius:6px;line-height:1;-webkit-tap-highlight-color:transparent}
 .emoji-btn:hover{background:#f5f3ff}
+
+/* video label alignment */
+.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{height:72px;overflow-y:auto;overflow-x:hidden;flex-shrink:0;line-height:1.4;font-size:11px}
+.yt-list.sz-2 .yt-label-empty,.yt-list.sz-3 .yt-label-empty,.yt-list.sz-4 .yt-label-empty{height:72px;flex-shrink:0}
 </style>
 </head>
 <body>
