@@ -404,9 +404,9 @@ hr.div{border:none;border-top:1px solid #f0f0f0;margin:1rem 0}
 .emoji-btn{font-size:20px;padding:4px 2px;border:none;background:none;cursor:pointer;border-radius:6px;line-height:1;-webkit-tap-highlight-color:transparent}
 .emoji-btn:hover{background:#f5f3ff}
 
-/* video label alignment */
-.yt-list.sz-2 .yt-label,.yt-list.sz-3 .yt-label,.yt-list.sz-4 .yt-label{height:72px;overflow-y:auto;overflow-x:hidden;flex-shrink:0;line-height:1.4;font-size:11px}
-.yt-list.sz-2 .yt-label-empty,.yt-list.sz-3 .yt-label-empty,.yt-list.sz-4 .yt-label-empty{height:72px;flex-shrink:0}
+/* video label below embed */
+.yt-label{font-size:11px;color:#555;margin-top:4px;line-height:1.4}
+.yt-list.sz-2>div,.yt-list.sz-3>div,.yt-list.sz-4>div{align-items:flex-start}
 </style>
 </head>
 <body>
@@ -926,8 +926,8 @@ function detailPageHTML(id){
     const embed=yid
       ?`<div class="yt-embed"><iframe src="https://www.youtube.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`
       :`<div class="tw-embed"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:7px 11px;background:#f0f6ff;border:1px solid #dbeafe;border-bottom:none;border-radius:10px 10px 0 0;font-size:12px;color:#1d4ed8;text-decoration:none;font-weight:500">𝕏 Open on X ↗</a><iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tid}&dnt=false&theme=light&cards=visible&conversation=none" frameborder="0" scrolling="no" allowfullscreen style="width:100%;min-height:250px;border-radius:0 0 10px 10px;display:block;border:1px solid #ede9fe" loading="lazy"></iframe></div>`;
-    const _lbl=l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:`<div class="yt-label-empty"></div>`;
-    return`<div style="display:flex;flex-direction:column">${_lbl}${embed}</div>`;
+    const _lbl=l.label?`<div class="yt-label">${renderMentions(l.label)}</div>`:'';
+    return`<div style="display:flex;flex-direction:column">${embed}${_lbl}</div>`;
   }).join('')}</div></div>`:'';
   return`<div class="detail-page">
     <div class="detail-header">
