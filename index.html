@@ -1193,6 +1193,7 @@ function formHTML(e,cats){
       </div>
     </div>
     <div class="field"><label>Tags</label><input type="hidden" id="f-tags-data" value="${(e&&e.tags||[]).join(',')}"><input class="tag-new-inp" id="tag-search-inp" placeholder="Search existing tags…" oninput="renderTagPicker(this.value)" style="margin-bottom:0;width:100%"><div class="tag-picker"><div class="tag-picker-chips" id="tag-chips"></div><div class="tag-new-row"><input class="tag-new-inp" id="tag-new-inp" placeholder="Add new tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTag();}"><button type="button" class="tag-add-btn" onclick="addNewTag()">+ Add</button></div></div></div>
+    <div class="field" style="margin-top:0"><label style="color:#aaa;font-size:11px;font-weight:500">Edit tag order (comma-separated)</label><input id="f-tags-text" class="tag-new-inp" style="width:100%;margin-top:3px" placeholder="e.g. oshi, vtuber, hololive…" value="${(e&&e.tags||[]).join(', ')}" oninput="syncTagsFromText(this.value)"><div style="font-size:11px;color:#bbb;margin-top:3px">Edit directly or drag to reorder — changes sync with checkboxes above</div></div>
     <div class="field"><label>Notes / description</label><div class="mention-field-wrap"><textarea id="f-note" placeholder="What do you love about them?" style="padding-right:34px">${e?esc(e.note||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-note')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Kanji information <span style="color:#bbb;font-weight:400">(readings, meanings, notes)</span></label><div class="mention-field-wrap"><textarea id="f-kanjiinfo" placeholder="e.g. 星 (hoshi) = star, 街 (machi/gai) = street/town…" style="padding-right:34px">${e?esc(e.kanjiInfo||''):''}</textarea><button type="button" class="mention-at-btn" onclick="openMentionPicker('f-kanjiinfo')" title="Link an entry">@</button></div></div>
     <div class="field"><label>Gallery (extra images)</label>
@@ -1786,9 +1787,15 @@ function renderTagPicker(filter){
   const el=document.getElementById('tag-chips');if(!el)return;
   if(!shown.length){el.innerHTML='<span style="font-size:12px;color:#bbb">'+(q?'No tags match':'No tags yet \u2014 add one below')+'</span>';}
   else{el.innerHTML=shown.map(function(t){const on=cur.has(t);return'<button type="button" class="tag-chip-opt'+(on?' on':'')+'" data-tag="'+esc(t)+'">'+(on?'&#10003; ':'')+esc(t)+'</button>';}).join('');}
-  el.onclick=function(ev){const btn=ev.target.closest('.tag-chip-opt');if(!btn)return;const tag=btn.dataset.tag;if(!tag)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];const i=tags.indexOf(tag);if(i>=0)tags.splice(i,1);else tags.push(tag);h.value=tags.join(',');renderTagPicker();};
+  el.onclick=function(ev){const btn=ev.target.closest('.tag-chip-opt');if(!btn)return;const tag=btn.dataset.tag;if(!tag)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];const i=tags.indexOf(tag);if(i>=0)tags.splice(i,1);else tags.push(tag);h.value=tags.join(',');const tf=document.getElementById('f-tags-text');if(tf)tf.value=tags.join(', ');renderTagPicker();};
 }
-function addNewTag(){const inp=document.getElementById('tag-new-inp');const val=(inp.value||'').trim();if(!val)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!tags.includes(t))tags.push(t);});h.value=tags.join(',');inp.value='';renderTagPicker();}
+function syncTagsFromText(val){
+  const h=document.getElementById('f-tags-data');if(!h)return;
+  const tags=val.split(',').map(t=>t.trim()).filter(Boolean);
+  h.value=tags.join(',');
+  renderTagPicker();
+}
+function addNewTag(){const inp=document.getElementById('tag-new-inp');const val=(inp.value||'').trim();if(!val)return;const h=document.getElementById('f-tags-data');if(!h)return;const tags=h.value?h.value.split(',').map(t=>t.trim()).filter(Boolean):[];val.split(',').map(function(t){return t.trim();}).filter(Boolean).forEach(function(t){if(!tags.includes(t))tags.push(t);});h.value=tags.join(',');inp.value='';const _tf=document.getElementById('f-tags-text');if(_tf)_tf.value=tags.join(', ');renderTagPicker();}
 
 
 /* EMOJI PICKER */
