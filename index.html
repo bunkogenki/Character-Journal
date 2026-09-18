@@ -1765,14 +1765,28 @@ function _b64utf8(str){return decodeURIComponent(escape(atob(str.replace(/\n/g,'
 
 async function _rFetch(url,opts){
   const tok=getRepoToken();
+  if(!tok){throw new Error('No token saved — open sync setup and paste your token');}
   const pre=tok.startsWith('github_pat_')?'Bearer':'token';
-  const res=await fetch(url,{method:(opts&&opts.method)||'GET',headers:{'Authorization':pre+' '+tok,'Content-Type':'application/json','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:(opts&&opts.body)||undefined});
-  if(!res.ok){let b='';try{b=await res.text();}catch(e){}throw new Error('GitHub '+res.status+': '+b.slice(0,200));}
+  let res;
+  try{
+    res=await fetch(url,{method:(opts&&opts.method)||'GET',headers:{'Authorization':pre+' '+tok,'Content-Type':'application/json','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},body:(opts&&opts.body)||undefined});
+  }catch(netErr){
+    throw new Error('Could not reach api.github.com ('+netErr.message+'). Usually: no internet, a blocked network (school/work wifi), an ad-blocker or privacy extension, or the browser is offline. Open api.github.com in a tab to check.');
+  }
+  if(!res.ok){
+    let b='';try{b=await res.text();}catch(e){}
+    if(res.status===401)throw new Error('Token invalid or expired. Open sync setup and re-enter your token.');
+    if(res.status===403)throw new Error('Token lacks repo permission. Make sure you ticked the "repo" scope when creating it.');
+    if(res.status===404)throw new Error('Repo not found: '+getRepoName()+'. Check the name in sync setup (format: username/reponame).');
+    throw new Error('GitHub '+res.status+': '+b.slice(0,200));
+  }
   return res;
 }
 
 async function gistPush(){
   if(!repoOn()){showRepoGuide();return;}
+  const _repo=getRepoName();
+  if(!_repo||!_repo.includes('/')){alert('Repo name must be in format: username/reponame\nGo to sync setup to fix this.');return;}
   const btn=document.getElementById('gist-push-btn');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
@@ -1808,6 +1822,8 @@ async function gistPush(){
 
 async function gistPull(){
   if(!repoOn()){showRepoGuide();return;}
+  const _repo=getRepoName();
+  if(!_repo||!_repo.includes('/')){alert('Repo name must be in format: username/reponame\nGo to sync setup to fix this.');return;}
   const btn=document.getElementById('gist-pull-btn');
   if(btn){btn.disabled=true;btn.textContent='Loading...';}
   try{
@@ -1838,16 +1854,42 @@ async function gistPull(){
   }
 }
 
+function _maskTok(t){if(!t)return '(none)';return t.slice(0,7)+'\u2026'+t.slice(-4);}
 function saveRepoToken(){
-  const v=(document.getElementById('repo-token-inp').value||'').trim();
-  const n=(document.getElementById('repo-name-inp').value||'').trim();
-  if(!v||v.includes('saved'))return;
+  let v=(document.getElementById('repo-token-inp').value||'').replace(/\s+/g,'');
+  const n=(document.getElementById('repo-name-inp').value||'').replace(/\s+/g,'');
+  if(v==='(saved)'||v==='\u2022'.repeat(v.length))v='';
+  if(!v)v=getRepoToken();
+  if(!v){alert('Paste your token first.');return;}
+  if(!/^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(v)){
+    if(!confirm('That does not look like a GitHub token (it should start with ghp_ or github_pat_).\n\nSave it anyway?'))return;
+  }
   if(!n||!n.includes('/')){alert('Enter repo name as username/reponame');return;}
   localStorage.setItem('cj_repo_token',v);
   localStorage.setItem('cj_repo_name',n);
   localStorage.removeItem('cj_repo_sha');
   const s=document.getElementById('repo-save-st');if(s)s.style.display='block';
   setTimeout(()=>closeModal(),1200);
+}
+async function repoTest(){
+  const tok=getRepoToken(),repo=getRepoName();
+  const out=[];
+  out.push('Token: '+_maskTok(tok)+' ('+tok.length+' chars)');
+  out.push('Repo: '+(repo||'(not set)'));
+  if(!tok){alert(out.join('\n')+'\n\nNo token saved.');return;}
+  try{
+    const r=await fetch('https://api.github.com/user',{headers:{'Authorization':(tok.startsWith('github_pat_')?'Bearer ':'token ')+tok,'Accept':'application/vnd.github+json'}});
+    out.push('Auth check: HTTP '+r.status+(r.ok?' OK':' FAILED'));
+    if(r.ok){const u=await r.json();out.push('Logged in as: '+u.login);}
+  }catch(e){out.push('Auth check: network failure ('+e.message+') — api.github.com is unreachable from this browser.');alert(out.join('\n'));return;}
+  if(repo.includes('/')){
+    try{
+      const r2=await fetch('https://api.github.com/repos/'+repo,{headers:{'Authorization':(tok.startsWith('github_pat_')?'Bearer ':'token ')+tok,'Accept':'application/vnd.github+json'}});
+      out.push('Repo check: HTTP '+r2.status+(r2.ok?' OK':' FAILED'));
+    }catch(e){out.push('Repo check: network failure ('+e.message+')');}
+  }
+  try{const kb=Math.round(JSON.stringify(getDB()).length/1024);out.push('Local data size: '+kb+'KB');}catch(e){}
+  alert(out.join('\n'));
 }
 function clearRepoToken(){
   ['cj_repo_token','cj_repo_name','cj_repo_sha'].forEach(k=>localStorage.removeItem(k));
@@ -1863,9 +1905,11 @@ function showRepoGuide(){
     +'<b>4.</b> Generate token, copy the <code style="background:#f5f3ff;padding:1px 5px;border-radius:4px">ghp_</code> value<br>'
     +'<b>5.</b> Enter both below:<br>'
     +'<div style="display:flex;flex-direction:column;gap:6px;margin:8px 0">'
-    +'<input id="repo-token-inp" type="password" placeholder="Paste token (ghp_...)" value="'+(hasTok?'(saved)':'')+'" style="padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">'
+    +'<input id="repo-token-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="'+(hasTok?'Leave blank to keep saved token':'Paste token (ghp_... or github_pat_...)')+'" value="" style="padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:ui-monospace,monospace">'
+    +(hasTok?'<div style="font-size:11px;color:#065f46">Saved token: '+_maskTok(getRepoToken())+' ('+getRepoToken().length+' chars)</div>':'')
     +'<input id="repo-name-inp" type="text" placeholder="username/repo-name e.g. bunkogenki/cj-data" value="'+getRepoName()+'" style="padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">'
-    +'<button onclick="saveRepoToken()" style="padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;cursor:pointer;font-family:inherit">Save</button>'
+    +'<div style="display:flex;gap:6px"><button onclick="saveRepoToken()" style="flex:1;padding:7px 14px;border-radius:8px;border:none;background:#7c3aed;color:white;font-size:13px;cursor:pointer;font-family:inherit">Save</button>'
+    +'<button onclick="repoTest()" style="flex:1;padding:7px 14px;border-radius:8px;border:1px solid #e0e0e0;background:white;color:#4c1d95;font-size:13px;cursor:pointer;font-family:inherit">Test connection</button></div>'
     +'</div><div id="repo-save-st" style="font-size:12px;color:#065f46;display:none">Saved!</div>'
     +'<button onclick="clearRepoToken()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;font-family:inherit">Clear saved settings</button>'
     +'<br><br><span style="color:#aaa;font-size:12px">Supports files up to 100MB &mdash; much larger than Gist.</span>'
