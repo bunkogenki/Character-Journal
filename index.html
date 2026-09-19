@@ -1758,7 +1758,12 @@ function _spinGW(){const db=getDB();const e=db.entries.find(x=>x.id===_gws.id);i
 /* REPO SYNC — GitHub repository file (larger limit than Gist) */
 const REPO_FILE='character-journal-data.json';
 function getRepoToken(){return localStorage.getItem('cj_repo_token')||'';}
-function getRepoName(){return localStorage.getItem('cj_repo_name')||'';}
+function getRepoName(){
+  const raw=localStorage.getItem('cj_repo_name')||'';
+  const fixed=_normalizeRepoName(raw);
+  if(fixed&&fixed!==raw)localStorage.setItem('cj_repo_name',fixed);
+  return fixed;
+}
 function repoOn(){return getRepoToken().length>10&&getRepoName().includes('/');}
 function _utf8b64(str){return btoa(unescape(encodeURIComponent(str)));}
 function _b64utf8(str){return decodeURIComponent(escape(atob(str.replace(/\n/g,''))));}
@@ -1855,16 +1860,24 @@ async function gistPull(){
 }
 
 function _maskTok(t){if(!t)return '(none)';return t.slice(0,7)+'\u2026'+t.slice(-4);}
+function _normalizeRepoName(raw){
+  let n=(raw||'').trim();
+  n=n.replace(/^https?:\/\/(www\.)?github\.com\//i,'');
+  n=n.replace(/^git@github\.com:/i,'');
+  n=n.replace(/\.git$/i,'');
+  n=n.replace(/^\/+|\/+$/g,'');
+  return n;
+}
 function saveRepoToken(){
   let v=(document.getElementById('repo-token-inp').value||'').replace(/\s+/g,'');
-  const n=(document.getElementById('repo-name-inp').value||'').replace(/\s+/g,'');
+  const n=_normalizeRepoName(document.getElementById('repo-name-inp').value);
   if(v==='(saved)'||v==='\u2022'.repeat(v.length))v='';
   if(!v)v=getRepoToken();
   if(!v){alert('Paste your token first.');return;}
   if(!/^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(v)){
     if(!confirm('That does not look like a GitHub token (it should start with ghp_ or github_pat_).\n\nSave it anyway?'))return;
   }
-  if(!n||!n.includes('/')){alert('Enter repo name as username/reponame');return;}
+  if(!n||!n.includes('/')||n.split('/').length!==2){alert('Enter repo name as username/reponame (not the full URL) — got: "'+n+'"');return;}
   localStorage.setItem('cj_repo_token',v);
   localStorage.setItem('cj_repo_name',n);
   localStorage.removeItem('cj_repo_sha');
