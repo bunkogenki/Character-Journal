@@ -1837,7 +1837,18 @@ async function gistPull(){
     const r=await _rFetch(apiUrl);
     const g=await r.json();
     if(g.sha)localStorage.setItem('cj_repo_sha',g.sha);
-    const raw=_b64utf8(g.content);
+    let b64content=g.content;
+    // Contents API only inlines files up to ~1MB. Larger files come back
+    // with no content (or content:"") even though the file exists — fall
+    // back to the Git Blob API, which isn't size-limited that way.
+    if(!b64content||g.encoding!=='base64'){
+      const blobUrl='https://api.github.com/repos/'+repo+'/git/blobs/'+g.sha;
+      const rb=await _rFetch(blobUrl);
+      const gb=await rb.json();
+      b64content=gb.content;
+      if(!b64content)throw new Error('GitHub returned no file content (sha '+g.sha+'). The saved file may be empty.');
+    }
+    const raw=_b64utf8(b64content);
     let d;try{d=JSON.parse(raw);}catch(pe){throw new Error('Repo data is corrupted — not loading to protect your local data. Error: '+pe.message);}
     if(!Array.isArray(d.entries))throw new Error('Invalid data format');
     // Merge: keep local base64 images
