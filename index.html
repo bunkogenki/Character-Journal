@@ -1780,10 +1780,13 @@ async function _rFetch(url,opts){
   }
   if(!res.ok){
     let b='';try{b=await res.text();}catch(e){}
-    if(res.status===401)throw new Error('Token invalid or expired. Open sync setup and re-enter your token.');
-    if(res.status===403)throw new Error('Token lacks repo permission. Make sure you ticked the "repo" scope when creating it.');
-    if(res.status===404)throw new Error('Repo not found: '+getRepoName()+'. Check the name in sync setup (format: username/reponame).');
-    throw new Error('GitHub '+res.status+': '+b.slice(0,200));
+    let msg;
+    if(res.status===401)msg='Token invalid or expired. Open sync setup and re-enter your token.';
+    else if(res.status===403)msg='Token lacks repo permission. Make sure you ticked the "repo" scope when creating it.';
+    else if(res.status===404)msg='Repo not found: '+getRepoName()+'. Check the name in sync setup (format: username/reponame).';
+    else if(res.status===409)msg='The saved copy on GitHub changed since this device last synced (pushed from elsewhere, or edited on GitHub directly).';
+    else msg='GitHub '+res.status+': '+b.slice(0,200);
+    const err=new Error(msg);err.status=res.status;throw err;
   }
   return res;
 }
@@ -1814,7 +1817,41 @@ async function gistPush(){
     }
     const body={message:'Character Journal sync',content:b64};
     if(sha)body.sha=sha;
-    const r=await _rFetch(apiUrl,{method:'PUT',body:JSON.stringify(body)});
+    let r;
+    try{
+      r=await _rFetch(apiUrl,{method:'PUT',body:JSON.stringify(body)});
+    }catch(e){
+      if(e.status===409){
+        // Our cached SHA is stale. Find out what's actually on GitHub right
+        // now before blindly overwriting it — it may hold newer changes
+        // from another device.
+        const r2=await _rFetch(apiUrl);
+        const g2=await r2.json();
+        let remoteInfo='unknown size';
+        try{
+          let rc=g2.content;
+          if(!rc||g2.encoding!=='base64'){
+            const rb=await _rFetch('https://api.github.com/repos/'+repo+'/git/blobs/'+g2.sha);
+            rc=(await rb.json()).content;
+          }
+          const rd=JSON.parse(_b64utf8(rc));
+          remoteInfo=(rd.entries?rd.entries.length:'?')+' entries';
+        }catch(pe){/* couldn't read remote content for the summary, proceed anyway */}
+        const proceed=confirm(
+          'The copy on GitHub changed since this device last synced (remote: '+remoteInfo+').\n\n'+
+          'Push anyway and overwrite it with THIS device\'s data ('+db.entries.length+' entries)?\n\n'+
+          'Cancel to pull first instead, so you don\'t lose whatever changed remotely.'
+        );
+        if(!proceed){
+          localStorage.setItem('cj_repo_sha',g2.sha);
+          throw new Error('Push cancelled — pull first to see the remote changes, then push again.');
+        }
+        body.sha=g2.sha;
+        r=await _rFetch(apiUrl,{method:'PUT',body:JSON.stringify(body)});
+      }else{
+        throw e;
+      }
+    }
     const result=await r.json();
     if(result.content&&result.content.sha)localStorage.setItem('cj_repo_sha',result.content.sha);
     if(btn){btn.disabled=false;btn.textContent='⬆ Push (save)';}
@@ -1838,9 +1875,6 @@ async function gistPull(){
     const g=await r.json();
     if(g.sha)localStorage.setItem('cj_repo_sha',g.sha);
     let b64content=g.content;
-    // Contents API only inlines files up to ~1MB. Larger files come back
-    // with no content (or content:"") even though the file exists — fall
-    // back to the Git Blob API, which isn't size-limited that way.
     if(!b64content||g.encoding!=='base64'){
       const blobUrl='https://api.github.com/repos/'+repo+'/git/blobs/'+g.sha;
       const rb=await _rFetch(blobUrl);
